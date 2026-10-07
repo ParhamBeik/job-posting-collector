@@ -103,9 +103,9 @@ def test_every_card_in_the_snapshot_parses_and_dates_match_a_plain_text_count():
 
 def test_invalid_cards_are_reported_one_by_one_and_valid_ones_kept():
     items, issues = source.parse_listing(read(HANDMADE / "listing_invalid_cards.html"))
-    assert [i.source_post_id for i in items] == ["900001"]
+    assert [i.source_post_id for i in items] == ["900001", "900002"]
     assert [(i.code, i.severity) for i in issues] == [
-        ("FIELD_MISSING", "error"),  # no date
+        ("FALLBACK_USED", "warning"),  # no card date: URL date used, card kept
         ("DATE_UNPARSEABLE", "error"),  # "مهرماه"
         ("DATE_MISMATCH", "error"),  # card 15 Mehr, URL 14 Mehr
         ("URL_REJECTED", "error"),  # javascript:
@@ -113,7 +113,19 @@ def test_invalid_cards_are_reported_one_by_one_and_valid_ones_kept():
         ("FIELD_MISSING", "error"),  # no post id
         ("FIELD_MISSING", "error"),  # empty title
     ]
-    assert "no date" in issues[0].detail and "no title" in issues[6].detail
+    assert "no card date" in issues[0].detail and "no title" in issues[6].detail
+
+
+def test_missing_card_date_falls_back_to_the_url_date():
+    items, _ = source.parse_listing(read(HANDMADE / "listing_invalid_cards.html"))
+    assert items[1].published_date == date(2026, 10, 7)  # from /1405/07/15/ in the URL
+
+
+def test_fallback_card_is_still_checked_against_the_posting_page_date():
+    card = all_cards()[0]  # posting page says 15 Mehr = 2026-10-07
+    from_url_but_wrong = ListingItem(card.source_post_id, card.url, card.title, date(2026, 10, 6), card.tags)
+    posting, issues = posting_for(from_url_but_wrong)
+    assert posting is None and [i.code for i in issues] == ["DATE_MISMATCH"]
 
 
 # --- posting pages ------------------------------------------------------------------------
@@ -173,6 +185,30 @@ def test_posting_date_must_match_the_card():
     assert posting is None and [i.code for i in issues] == ["DATE_MISMATCH"]
 
 
+def test_title_disagreement_is_a_warning_and_the_page_title_is_stored():
+    card = all_cards()[0]
+    other_title = ListingItem(card.source_post_id, card.url, "عنوان دیگر", card.published_date, card.tags)
+    posting, issues = posting_for(other_title)
+    assert posting.title.startswith("استخدام طراح فاز دو")
+    assert [(i.code, i.severity) for i in issues] == [("TITLE_MISMATCH", "warning")]
+
+
+def test_listing_and_posting_titles_agree_across_the_snapshot():
+    for card in all_cards():
+        posting, issues = posting_for(card)
+        assert "TITLE_MISMATCH" not in [i.code for i in issues]
+
+
+def test_members_only_block_is_flagged_on_the_posting():
+    card = all_cards()[0]
+    html = read(SNAPSHOT / FILE_BY_URL[card.url])
+    posting, _ = source.parse_posting(html, card)
+    assert posting.members_only_omitted is True
+    without_block = html.replace("rcp_restricted", "rcp_was_here")
+    posting, _ = source.parse_posting(without_block, card)
+    assert posting.members_only_omitted is False
+
+
 def test_tag_disagreement_is_a_warning_not_a_rejection():
     card = all_cards()[0]
     other_tags = ListingItem(card.source_post_id, card.url, card.title, card.published_date, (Tag("field", "civil"),))
@@ -186,7 +222,7 @@ def test_tag_disagreement_is_a_warning_not_a_rejection():
 MALICIOUS_CARD = ListingItem(
     "900001",
     "https://eng-estekhdam.com/1405/07/15/harmless-test/",
-    "مهندس عمران",
+    "مهندس عمران <img src=x onerror=window.__pwned=1>",  # the title text the card would show
     date(2026, 10, 7),
     (Tag("province", "tehran"), Tag("field", "civil")),
 )

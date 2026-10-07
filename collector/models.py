@@ -54,6 +54,7 @@ class Posting:
     published_date: date
     tags: tuple[Tag, ...]
     parser_version: str
+    members_only_omitted: bool = False  # the source hid part of the posting (contact details) from the public
 
     @property
     def published_at(self) -> datetime:

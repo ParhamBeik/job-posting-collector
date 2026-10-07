@@ -11,6 +11,7 @@ from urllib.parse import unquote, urlsplit
 from bs4 import BeautifulSoup, Tag as Element
 
 from collector.dates import DateParseError, jalali_to_gregorian, parse_jalali_date
+from collector.normalize import normalize
 from collector.models import Issue, ListingItem, Posting, Tag
 
 BASE = "https://eng-estekhdam.com"
@@ -90,9 +91,12 @@ class EngEstekhdam:
         items, issues = [], []
         for article in BeautifulSoup(html, "lxml").select("article.typology-post"):
             try:
-                items.append(self._card(article))
+                item, warnings = self._card(article)
             except _Reject as reject:
                 issues.append(reject.issue)
+            else:
+                items.append(item)
+                issues += warnings
         return items, issues
 
     def parse_posting(self, html: str, item: ListingItem) -> tuple[Posting | None, list[Issue]]:
@@ -101,7 +105,7 @@ class EngEstekhdam:
         except _Reject as reject:
             return None, [reject.issue]
 
-    def _card(self, article: Element) -> ListingItem:
+    def _card(self, article: Element) -> tuple[ListingItem, list[Issue]]:
         classes = article.get("class", [])
         ids = [m.group(1) for c in classes if (m := POST_ID_CLASS.match(c))]
         anchor = article.select_one(".entry-title a")
@@ -115,13 +119,18 @@ class EngEstekhdam:
         title = _text(anchor)
         if not title:
             raise _Reject(Issue.error("FIELD_MISSING", f"post {post_id}: no title", url))
-        date_element = article.select_one(".post-date-hidden")
-        if not _text(date_element):
-            raise _Reject(Issue.error("FIELD_MISSING", f"post {post_id}: no date", url))
-        try:
-            day = parse_jalali_date(_text(date_element))
-        except DateParseError as error:
-            raise _Reject(Issue.error("DATE_UNPARSEABLE", f"post {post_id}: {error}", url)) from None
+        warnings = []
+        date_text = _text(article.select_one(".post-date-hidden"))
+        if not date_text:
+            # The URL date is already validated, and the posting page date is checked against it
+            # later, so the record keeps two independent date sources. Never silent.
+            warnings.append(Issue.warning("FALLBACK_USED", f"post {post_id}: no card date, using URL date", url))
+            day = url_day
+        else:
+            try:
+                day = parse_jalali_date(date_text)
+            except DateParseError as error:
+                raise _Reject(Issue.error("DATE_UNPARSEABLE", f"post {post_id}: {error}", url)) from None
         if day != url_day:
             raise _Reject(
                 Issue.error("DATE_MISMATCH", f"post {post_id}: card {day}, URL {url_day}", url)
@@ -132,7 +141,7 @@ class EngEstekhdam:
             for c in classes
             if c.startswith(("category-", "tag-"))
         )
-        return ListingItem(post_id, url, title, day, tags)
+        return ListingItem(post_id, url, title, day, tags), warnings
 
     def _url_day(self, url: str, post_id: str):
         """Only http(s) posting URLs on the source host; returns the Jalali date in the path."""
@@ -177,13 +186,17 @@ class EngEstekhdam:
         )
 
         content = main.select_one(".entry-content")
+        members_only = bool(content and content.select_one(".rcp_restricted"))
         body = _body_text(content) if content else ""
         if not body:
             raise _Reject(Issue.error("FIELD_MISSING", f"post {post_id}: empty body", url))
 
         warnings = []
+        if normalize(title) != normalize(item.title):
+            warnings.append(Issue.warning("TITLE_MISMATCH", f"post {post_id}: listing and posting titles differ", url))
         if {(t.kind, t.slug) for t in tags} != {(t.kind, t.slug) for t in item.tags}:
             warnings.append(Issue.warning("TAGS_MISMATCH", f"post {post_id}: listing and posting tags differ", url))
         if len(body) < SHORT_BODY:
             warnings.append(Issue.warning("BODY_SHORT", f"post {post_id}: body has {len(body)} characters", url))
-        return Posting(self.name, post_id, url, title, body, day, tags, self.parser_version), warnings
+        posting = Posting(self.name, post_id, url, title, body, day, tags, self.parser_version, members_only)
+        return posting, warnings
