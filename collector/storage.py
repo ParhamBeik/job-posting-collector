@@ -150,7 +150,11 @@ def upsert_posting(conn: sqlite3.Connection, posting: Posting, now: datetime) ->
         digest = content_hash(posting)
 
         if row and row["content_hash"] == digest:
-            conn.execute("UPDATE postings SET last_seen_at = ? WHERE id = ?", (stamp, row["id"]))
+            # Content unchanged, but record which parser confirmed it (repair flow, PLAN §8).
+            conn.execute(
+                "UPDATE postings SET last_seen_at = ?, parser_version = ? WHERE id = ?",
+                (stamp, posting.parser_version, row["id"]),
+            )
             result = "unchanged"
         else:
             values = {

@@ -72,6 +72,13 @@ def test_same_posting_again_is_unchanged_and_not_duplicated(conn):
     }
 
 
+def test_reparse_by_a_newer_parser_records_its_version_without_counting_a_change(conn):
+    storage.upsert_posting(conn, POSTING, T0)
+    assert storage.upsert_posting(conn, replace(POSTING, parser_version="eng-estekhdam/2"), T1) == ("unchanged", [])
+    [row] = rows(conn, "SELECT parser_version, updated_at FROM postings")
+    assert row == {"parser_version": "eng-estekhdam/2", "updated_at": "2026-10-07T17:00:00Z"}
+
+
 def test_changed_body_updates_the_same_row(conn):
     storage.upsert_posting(conn, POSTING, T0)
     edited = replace(POSTING, body="متن ویرایش شده آگهی")
