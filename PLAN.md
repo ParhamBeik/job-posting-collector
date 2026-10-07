@@ -180,22 +180,22 @@ and core stay untouched. No plugin loader: one site does not justify it.
 
 ## 8. Broken parser: prevent, detect, contain, isolate, repair
 
-Built now (cheap, high value) is marked **[built]**. Design answer only is marked **[design]**.
+**[to build #N]**: planned, implemented by issue #N; relabelled **[built #N]** when that PR merges. **[design]**: written design answer only, deliberately not implemented.
 
 **Prevent**
-- **[built]** Select by meaning, not position: post ID class, `rel="tag"`, `.post-date-hidden`,
+- **[to build #3]** Select by meaning, not position: post ID class, `rel="tag"`, `.post-date-hidden`,
   `article.typology-single-post`. Never "the third div".
-- **[built]** Two independent sources for key facts: date from card + URL + posting page; ID
+- **[to build #3]** Two independent sources for key facts: date from card + URL + posting page; ID
   from class + URL match; title from listing + `<h1>`. Disagreement = `DATE_MISMATCH` etc.
 
 **Detect during a run (hard checks)**
-- **[built]** Page check before parsing (`check_page`): listing must have body class
+- **[to build #3]** Page check before parsing (`check_page`): listing must have body class
   `home`/`paged` and `.typology-posts`; posting must have `article.typology-single-post`.
   Otherwise `LAYOUT_UNRECOGNIZED` / `BLOCKED_CHALLENGE`.
-- **[built]** Per-record validation (§6 record codes).
+- **[to build #3]** Per-record validation (§6 record codes).
 
 **Detect across runs (soft checks)**
-- **[built]** Health numbers stored per run: cards per page, % body OK, % date OK, % tags OK.
+- **[to build #5]** Health numbers stored per run: cards per page, % body OK, % date OK, % tags OK.
   The page shows them next to the previous runs.
 - **[design]** Drift alert: compare to the median of the last 10 successful runs; a drop over
   20 points raises `HEALTH_DRIFT`.
@@ -204,16 +204,16 @@ Built now (cheap, high value) is marked **[built]**. Design answer only is marke
 - **[design]** Daily smoke run of listing page 1 that only checks the page shape.
 
 **Contain (stop bad data from spreading)**
-- **[built]** Circuit breaker: if the first listing page fails the page check, or more than
+- **[to build #5]** Circuit breaker: if the first listing page fails the page check, or more than
   30% of records in a run fail validation (minimum 5 records), stop the source, write nothing
   new for it, status `parser_broken`. Protects good stored data and stops hammering the site.
-- **[built]** Rejected records never enter `postings`; they appear only in `run_issues`, with a snapshot.
-- **[built]** No-empty-overwrite rule (§4).
-- **[built]** Fallbacks are allowed only where a second rule is equally validated (date from URL
+- **[to build #5]** Rejected records never enter `postings`; they appear only in `run_issues`, with a snapshot.
+- **[to build #4]** No-empty-overwrite rule (§4).
+- **[to build #3]** Fallbacks are allowed only where a second rule is equally validated (date from URL
   when the card date div is missing) and always raise `FALLBACK_USED`. Never guess.
 
 **Isolate**
-- **[built]** `--source` runs one source; a source's failure never touches another.
+- **[to build #5]** `--source` runs one source; a source's failure never touches another.
 - **[design]** `sources.toml` with `enabled = false` to park a broken source; API keeps serving
   its stored data; page shows the source as "paused".
 
@@ -222,7 +222,7 @@ Built now (cheap, high value) is marked **[built]**. Design answer only is marke
 2. Copy the saved snapshot from `var/snapshots/<run>/` into `tests/fixtures/`.
 3. Write a test that fails on it.
 4. Fix the selectors; bump `parser_version`.
-5. **[built]** Replay: `collect --from-dir var/snapshots/<run>/` re-parses saved pages offline
+5. **[to build #5]** Replay: `collect --from-dir var/snapshots/<run>/` re-parses saved pages offline
    (the same code path the tests use).
 6. Re-enable, re-collect. Rows from the old `parser_version` are refreshed by upsert.
 
