@@ -116,6 +116,24 @@ def test_invalid_cards_are_reported_one_by_one_and_valid_ones_kept():
     assert "no card date" in issues[0].detail and "no title" in issues[6].detail
 
 
+@pytest.mark.parametrize(
+    "href",
+    [
+        "http://[::1/1405/07/15/x/",  # unparseable: urlsplit raises
+        "https://[eng-estekhdam.com]/1405/07/15/x/",  # unparseable host
+        "https://eng-estekhdam.com:99999999/1405/07/15/x/",  # port
+        "https://user@eng-estekhdam.com/1405/07/15/x/",  # user info
+    ],
+)
+def test_malformed_card_link_rejects_only_that_card(href):
+    good = '<article class="typology-post post-2"><div class="post-date-hidden">۱۵ مهر ۱۴۰۵</div>' \
+        '<h2 class="entry-title"><a href="https://eng-estekhdam.com/1405/07/15/ok/">ok</a></h2></article>'
+    bad = good.replace("post-2", "post-1").replace("https://eng-estekhdam.com/1405/07/15/ok/", href)
+    items, issues = source.parse_listing(f"<html><body>{bad}{good}</body></html>")
+    assert [i.source_post_id for i in items] == ["2"]
+    assert [i.code for i in issues] == ["URL_REJECTED"]
+
+
 def test_missing_card_date_falls_back_to_the_url_date():
     items, _ = source.parse_listing(read(HANDMADE / "listing_invalid_cards.html"))
     assert items[1].published_date == date(2026, 10, 7)  # from /1405/07/15/ in the URL

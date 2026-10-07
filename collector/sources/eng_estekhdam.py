@@ -57,7 +57,11 @@ def _body_text(content: Element) -> str:
 
 
 def _slug(href: str, kind: str) -> str | None:
-    match = re.search(rf"/{kind}/([^/]+)/?$", urlsplit(href).path)
+    try:
+        path = urlsplit(href).path
+    except ValueError:  # malformed URL in untrusted HTML: no tag rather than a crash
+        return None
+    match = re.search(rf"/{kind}/([^/]+)/?$", path)
     return unquote(match.group(1)) if match else None
 
 
@@ -145,9 +149,13 @@ class EngEstekhdam:
 
     def _url_day(self, url: str, post_id: str):
         """Only http(s) posting URLs on the source host; returns the Jalali date in the path."""
-        parts = urlsplit(url)
-        match = POSTING_PATH.match(parts.path)
-        if parts.scheme not in ("http", "https") or parts.hostname != HOST or not match:
+        try:
+            parts = urlsplit(url)
+        except ValueError:  # e.g. "http://[::1/…": one bad link must not crash the whole page
+            parts = None
+        match = parts and POSTING_PATH.match(parts.path)
+        # Exact host: no port, no user info, no look-alikes.
+        if not parts or parts.scheme not in ("http", "https") or parts.netloc != HOST or not match:
             raise _Reject(Issue.error("URL_REJECTED", f"post {post_id}: not a source posting URL: {url!r}"))
         try:
             return jalali_to_gregorian(*(int(part) for part in match.groups()))

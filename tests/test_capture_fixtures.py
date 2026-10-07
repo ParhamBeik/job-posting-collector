@@ -64,7 +64,13 @@ def test_failed_capture_leaves_existing_snapshot_untouched(tmp_path):
 
 @pytest.mark.parametrize(
     "href",
-    ["http://169.254.169.254/latest/meta-data/", "https://evil.example/eng-estekhdam.com/", "javascript:alert(1)"],
+    [
+        "http://169.254.169.254/latest/meta-data/",
+        "https://evil.example/eng-estekhdam.com/",
+        "javascript:alert(1)",
+        "https://eng-estekhdam.com:8080/1405/07/15/x/",
+        "http://[::1/1405/07/15/x/",
+    ],
 )
 def test_never_requests_urls_outside_the_source(tmp_path, href):
     requested = []

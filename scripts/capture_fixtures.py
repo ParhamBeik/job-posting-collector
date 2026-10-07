@@ -37,8 +37,8 @@ def listing_url(page: int) -> str:
 
 def check_source_url(url: str) -> None:
     """Listing HTML is untrusted: only ever request http(s) URLs on the source host."""
-    parts = urlsplit(url)
-    if parts.scheme not in ("http", "https") or parts.hostname != HOST:
+    parts = urlsplit(url)  # a malformed URL raises ValueError and stops the capture too
+    if parts.scheme not in ("http", "https") or parts.netloc != HOST:
         raise ValueError(f"refusing to fetch non-source URL: {url!r}")
 
 
