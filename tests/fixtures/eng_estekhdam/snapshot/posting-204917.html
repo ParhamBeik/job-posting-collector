@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="fa-IR" class="no-js no-svg">
+	<head><meta charset="UTF-8"><script>if(navigator.userAgent.match(/MSIE|Internet Explorer/i)||navigator.userAgent.match(/Trident\/7\..*?rv:11/i)){var href=document.location.href;if(!href.match(/[?&]nowprocket/)){if(href.indexOf("?")==-1){if(href.indexOf("#")==-1){document.location.href=href+"?nowprocket=1"}else{document.location.href=href.replace("#","?nowprocket=1#")}}else{if(href.indexOf("#")==-1){document.location.href=href+"&nowprocket=1"}else{document.location.href=href.replace("#","&nowprocket=1#")}}}}</script><script>(()=>{class RocketLazyLoadScripts{constructor(){this.v="2.0.5",this.userEvents=["keydown","keyup","mousedown","mouseup","mousemove","mouseover","mouseout","touchmove","touchstart","touchend","touchcancel","wheel","click","dblclick","input"],this.attributeEvents=["onblur","onclick","oncontextmenu","ondblclick","onfocus","onmousedown","onmouseenter","onmouseleave","onmousemove","onmouseout","onmouseover","onmouseup","onmousewheel","onscroll","onsubmit"]}async t(){this.i(),this.o(),/iP(ad|hone)/.test(navigator.userAgent)&&this.h(),this.u(),this.l(this),this.m(),this.k(this),this.p(this),this._(),await Promise.all([this.R(),this.L()]),this.lastBreath=Date.now(),this.S(this),this.P(),this.D(),this.O(),this.M(),await this.C(this.delayedScripts.normal),await this.C(this.delayedScripts.defer),await this.C(this.delayedScripts.async),await this.T(),await this.F(),await this.j(),await this.A(),window.dispatchEvent(new Event("rocket-allScriptsLoaded")),this.everythingLoaded=!0,this.lastTouchEnd&&await new Promise(t=>setTimeout(t,500-Date.now()+this.lastTouchEnd)),this.I(),this.H(),this.U(),this.W()}i(){this.CSPIssue=sessionStorage.getItem("rocketCSPIssue"),document.addEventListener("securitypolicyviolation",t=>{this.CSPIssue||"script-src-elem"!==t.violatedDirective||"data"!==t.blockedURI||(this.CSPIssue=!0,sessionStorage.setItem("rocketCSPIssue",!0))},{isRocket:!0})}o(){window.addEventListener("pageshow",t=>{this.persisted=t.persisted,this.realWindowLoadedFired=!0},{isRocket:!0}),window.addEventListener("pagehide",()=>{this.onFirstUserAction=null},{isRocket:!0})}h(){let t;function e(e){t=e}window.addEventListener("touchstart",e,{isRocket:!0}),window.addEventListener("touchend",function i(o){o.changedTouches[0]&&t.changedTouches[0]&&Math.abs(o.changedTouches[0].pageX-t.changedTouches[0].pageX)<10&&Math.abs(o.changedTouches[0].pageY-t.changedTouches[0].pageY)<10&&o.timeStamp-t.timeStamp<200&&(window.removeEventListener("touchstart",e,{isRocket:!0}),window.removeEventListener("touchend",i,{isRocket:!0}),"INPUT"===o.target.tagName&&"text"===o.target.type||(o.target.dispatchEvent(new TouchEvent("touchend",{target:o.target,bubbles:!0})),o.target.dispatchEvent(new MouseEvent("mouseover",{target:o.target,bubbles:!0})),o.target.dispatchEvent(new PointerEvent("click",{target:o.target,bubbles:!0,cancelable:!0,detail:1,clientX:o.changedTouches[0].clientX,clientY:o.changedTouches[0].clientY})),event.preventDefault()))},{isRocket:!0})}q(t){this.userActionTriggered||("mousemove"!==t.type||this.firstMousemoveIgnored?"keyup"===t.type||"mouseover"===t.type||"mouseout"===t.type||(this.userActionTriggered=!0,this.onFirstUserAction&&this.onFirstUserAction()):this.firstMousemoveIgnored=!0),"click"===t.type&&t.preventDefault(),t.stopPropagation(),t.stopImmediatePropagation(),"touchstart"===this.lastEvent&&"touchend"===t.type&&(this.lastTouchEnd=Date.now()),"click"===t.type&&(this.lastTouchEnd=0),this.lastEvent=t.type,t.composedPath&&t.composedPath()[0].getRootNode()instanceof ShadowRoot&&(t.rocketTarget=t.composedPath()[0]),this.savedUserEvents.push(t)}u(){this.savedUserEvents=[],this.userEventHandler=this.q.bind(this),this.userEvents.forEach(t=>window.addEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0})),document.addEventListener("visibilitychange",this.userEventHandler,{isRocket:!0})}U(){this.userEvents.forEach(t=>window.removeEventListener(t,this.userEventHandler,{passive:!1,isRocket:!0})),document.removeEventListener("visibilitychange",this.userEventHandler,{isRocket:!0}),this.savedUserEvents.forEach(t=>{(t.rocketTarget||t.target).dispatchEvent(new window[t.constructor.name](t.type,t))})}m(){const t="return false",e=Array.from(this.attributeEvents,t=>"data-rocket-"+t),i="["+this.attributeEvents.join("],[")+"]",o="[data-rocket-"+this.attributeEvents.join("],[data-rocket-")+"]",s=(e,i,o)=>{o&&o!==t&&(e.setAttribute("data-rocket-"+i,o),e["rocket"+i]=new Function("event",o),e.setAttribute(i,t))};new MutationObserver(t=>{for(const n of t)"attributes"===n.type&&(n.attributeName.startsWith("data-rocket-")||this.everythingLoaded?n.attributeName.startsWith("data-rocket-")&&this.everythingLoaded&&this.N(n.target,n.attributeName.substring(12)):s(n.target,n.attributeName,n.target.getAttribute(n.attributeName))),"childList"===n.type&&n.addedNodes.forEach(t=>{if(t.nodeType===Node.ELEMENT_NODE)if(this.everythingLoaded)for(const i of[t,...t.querySelectorAll(o)])for(const t of i.getAttributeNames())e.includes(t)&&this.N(i,t.substring(12));else for(const e of[t,...t.querySelectorAll(i)])for(const t of e.getAttributeNames())this.attributeEvents.includes(t)&&s(e,t,e.getAttribute(t))})}).observe(document,{subtree:!0,childList:!0,attributeFilter:[...this.attributeEvents,...e]})}I(){this.attributeEvents.forEach(t=>{document.querySelectorAll("[data-rocket-"+t+"]").forEach(e=>{this.N(e,t)})})}N(t,e){const i=t.getAttribute("data-rocket-"+e);i&&(t.setAttribute(e,i),t.removeAttribute("data-rocket-"+e))}k(t){Object.defineProperty(HTMLElement.prototype,"onclick",{get(){return this.rocketonclick||null},set(e){this.rocketonclick=e,this.setAttribute(t.everythingLoaded?"onclick":"data-rocket-onclick","this.rocketonclick(event)")}})}S(t){function e(e,i){let o=e[i];e[i]=null,Object.defineProperty(e,i,{get:()=>o,set(s){t.everythingLoaded?o=s:e["rocket"+i]=o=s}})}e(document,"onreadystatechange"),e(window,"onload"),e(window,"onpageshow");try{Object.defineProperty(document,"readyState",{get:()=>t.rocketReadyState,set(e){t.rocketReadyState=e},configurable:!0}),document.readyState="loading"}catch(t){console.log("WPRocket DJE readyState conflict, bypassing")}}l(t){this.originalAddEventListener=EventTarget.prototype.addEventListener,this.originalRemoveEventListener=EventTarget.prototype.removeEventListener,this.savedEventListeners=[],EventTarget.prototype.addEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalAddEventListener.call(this,e,i,o):(t.savedEventListeners.push({target:this,remove:!1,type:e,func:i,options:o}),"mouseenter"!==e&&"mouseleave"!==e||t.originalAddEventListener.call(this,e,t.savedUserEvents.push,o))},EventTarget.prototype.removeEventListener=function(e,i,o){o&&o.isRocket||!t.B(e,this)&&!t.userEvents.includes(e)||t.B(e,this)&&!t.userActionTriggered||e.startsWith("rocket-")||t.everythingLoaded?t.originalRemoveEventListener.call(this,e,i,o):t.savedEventListeners.push({target:this,remove:!0,type:e,func:i,options:o})}}J(t,e){this.savedEventListeners=this.savedEventListeners.filter(i=>{let o=i.type,s=i.target||window;return e!==o||t!==s||(this.B(o,s)&&(i.type="rocket-"+o),this.$(i),!1)})}H(){EventTarget.prototype.addEventListener=this.originalAddEventListener,EventTarget.prototype.removeEventListener=this.originalRemoveEventListener,this.savedEventListeners.forEach(t=>this.$(t))}$(t){t.remove?this.originalRemoveEventListener.call(t.target,t.type,t.func,t.options):this.originalAddEventListener.call(t.target,t.type,t.func,t.options)}p(t){let e;function i(e){return t.everythingLoaded?e:e.split(" ").map(t=>"load"===t||t.startsWith("load.")?"rocket-jquery-load":t).join(" ")}function o(o){function s(e){const s=o.fn[e];o.fn[e]=o.fn.init.prototype[e]=function(){return this[0]===window&&t.userActionTriggered&&("string"==typeof arguments[0]||arguments[0]instanceof String?arguments[0]=i(arguments[0]):"object"==typeof arguments[0]&&Object.keys(arguments[0]).forEach(t=>{const e=arguments[0][t];delete arguments[0][t],arguments[0][i(t)]=e})),s.apply(this,arguments),this}}if(o&&o.fn&&!t.allJQueries.includes(o)){const e={DOMContentLoaded:[],"rocket-DOMContentLoaded":[]};for(const t in e)document.addEventListener(t,()=>{e[t].forEach(t=>t())},{isRocket:!0});o.fn.ready=o.fn.init.prototype.ready=function(i){function s(){parseInt(o.fn.jquery)>2?setTimeout(()=>i.bind(document)(o)):i.bind(document)(o)}return"function"==typeof i&&(t.realDomReadyFired?!t.userActionTriggered||t.fauxDomReadyFired?s():e["rocket-DOMContentLoaded"].push(s):e.DOMContentLoaded.push(s)),this},s("on"),s("one"),s("off"),t.allJQueries.push(o)}e=o}t.allJQueries=[],o(window.jQuery),Object.defineProperty(window,"jQuery",{get:()=>e,set(t){o(t)}})}P(){const t=new Map;document.write=document.writeln=function(e){const i=document.currentScript,o=document.createRange(),s=i.parentElement;let n=t.get(i);void 0===n&&(n=i.nextSibling,t.set(i,n));const c=document.createDocumentFragment();o.setStart(c,0),c.appendChild(o.createContextualFragment(e)),s.insertBefore(c,n)}}async R(){return new Promise(t=>{this.userActionTriggered?t():this.onFirstUserAction=t})}async L(){return new Promise(t=>{document.addEventListener("DOMContentLoaded",()=>{this.realDomReadyFired=!0,t()},{isRocket:!0})})}async j(){return this.realWindowLoadedFired?Promise.resolve():new Promise(t=>{window.addEventListener("load",t,{isRocket:!0})})}M(){this.pendingScripts=[];this.scriptsMutationObserver=new MutationObserver(t=>{for(const e of t)e.addedNodes.forEach(t=>{"SCRIPT"!==t.tagName||!t.src||t.noModule||t.isWPRocket||this.pendingScripts.push({script:t,promise:new Promise(e=>{const i=()=>{const i=this.pendingScripts.findIndex(e=>e.script===t);i>=0&&this.pendingScripts.splice(i,1),e()};t.addEventListener("load",i,{isRocket:!0}),t.addEventListener("error",i,{isRocket:!0}),setTimeout(i,1e3)})})})}),this.scriptsMutationObserver.observe(document,{childList:!0,subtree:!0})}async F(){await this.X(),this.pendingScripts.length?(await this.pendingScripts[0].promise,await this.F()):this.scriptsMutationObserver.disconnect()}D(){this.delayedScripts={normal:[],async:[],defer:[]},document.querySelectorAll("script[type$=rocketlazyloadscript]").forEach(t=>{t.hasAttribute("data-rocket-src")?t.hasAttribute("async")&&!1!==t.async?this.delayedScripts.async.push(t):t.hasAttribute("defer")&&!1!==t.defer||"module"===t.getAttribute("data-rocket-type")?this.delayedScripts.defer.push(t):this.delayedScripts.normal.push(t):this.delayedScripts.normal.push(t)})}async _(){await this.L();let t=[];document.querySelectorAll("script[type$=rocketlazyloadscript][data-rocket-src]").forEach(e=>{let i=e.getAttribute("data-rocket-src");if(i&&!i.startsWith("data:")){i.startsWith("//")&&(i=location.protocol+i);try{const o=new URL(i).origin;o!==location.origin&&t.push({src:o,crossOrigin:e.crossOrigin||"module"===e.getAttribute("data-rocket-type")})}catch(t){}}}),t=[...new Map(t.map(t=>[JSON.stringify(t),t])).values()],this.Y(t,"preconnect")}async G(t){if(await this.K(),!0!==t.noModule||!("noModule"in HTMLScriptElement.prototype))return new Promise(e=>{let i;function o(){(i||t).setAttribute("data-rocket-status","executed"),e()}try{if(navigator.userAgent.includes("Firefox/")||""===navigator.vendor||this.CSPIssue)i=document.createElement("script"),[...t.attributes].forEach(t=>{let e=t.nodeName;"type"!==e&&("data-rocket-type"===e&&(e="type"),"data-rocket-src"===e&&(e="src"),i.setAttribute(e,t.nodeValue))}),t.text&&(i.text=t.text),t.nonce&&(i.nonce=t.nonce),i.hasAttribute("src")?(i.addEventListener("load",o,{isRocket:!0}),i.addEventListener("error",()=>{i.setAttribute("data-rocket-status","failed-network"),e()},{isRocket:!0}),setTimeout(()=>{i.isConnected||e()},1)):(i.text=t.text,o()),i.isWPRocket=!0,t.parentNode.replaceChild(i,t);else{const i=t.getAttribute("data-rocket-type"),s=t.getAttribute("data-rocket-src");i?(t.type=i,t.removeAttribute("data-rocket-type")):t.removeAttribute("type"),t.addEventListener("load",o,{isRocket:!0}),t.addEventListener("error",i=>{this.CSPIssue&&i.target.src.startsWith("data:")?(console.log("WPRocket: CSP fallback activated"),t.removeAttribute("src"),this.G(t).then(e)):(t.setAttribute("data-rocket-status","failed-network"),e())},{isRocket:!0}),s?(t.fetchPriority="high",t.removeAttribute("data-rocket-src"),t.src=s):t.src="data:text/javascript;base64,"+window.btoa(unescape(encodeURIComponent(t.text)))}}catch(i){t.setAttribute("data-rocket-status","failed-transform"),e()}});t.setAttribute("data-rocket-status","skipped")}async C(t){const e=t.shift();return e?(e.isConnected&&await this.G(e),this.C(t)):Promise.resolve()}O(){this.Y([...this.delayedScripts.normal,...this.delayedScripts.defer,...this.delayedScripts.async],"preload")}Y(t,e){this.trash=this.trash||[];let i=!0;var o=document.createDocumentFragment();t.forEach(t=>{const s=t.getAttribute&&t.getAttribute("data-rocket-src")||t.src;if(s&&!s.startsWith("data:")){const n=document.createElement("link");n.href=s,n.rel=e,"preconnect"!==e&&(n.as="script",n.fetchPriority=i?"high":"low"),t.getAttribute&&"module"===t.getAttribute("data-rocket-type")&&(n.crossOrigin=!0),t.crossOrigin&&(n.crossOrigin=t.crossOrigin),t.integrity&&(n.integrity=t.integrity),t.nonce&&(n.nonce=t.nonce),o.appendChild(n),this.trash.push(n),i=!1}}),document.head.appendChild(o)}W(){this.trash.forEach(t=>t.remove())}async T(){try{document.readyState="interactive"}catch(t){}this.fauxDomReadyFired=!0;try{await this.K(),this.J(document,"readystatechange"),document.dispatchEvent(new Event("rocket-readystatechange")),await this.K(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.K(),this.J(document,"DOMContentLoaded"),document.dispatchEvent(new Event("rocket-DOMContentLoaded")),await this.K(),this.J(window,"DOMContentLoaded"),window.dispatchEvent(new Event("rocket-DOMContentLoaded"))}catch(t){console.error(t)}}async A(){try{document.readyState="complete"}catch(t){}try{await this.K(),this.J(document,"readystatechange"),document.dispatchEvent(new Event("rocket-readystatechange")),await this.K(),document.rocketonreadystatechange&&document.rocketonreadystatechange(),await this.K(),this.J(window,"load"),window.dispatchEvent(new Event("rocket-load")),await this.K(),window.rocketonload&&window.rocketonload(),await this.K(),this.allJQueries.forEach(t=>t(window).trigger("rocket-jquery-load")),await this.K(),this.J(window,"pageshow");const t=new Event("rocket-pageshow");t.persisted=this.persisted,window.dispatchEvent(t),await this.K(),window.rocketonpageshow&&window.rocketonpageshow({persisted:this.persisted})}catch(t){console.error(t)}}async K(){Date.now()-this.lastBreath>45&&(await this.X(),this.lastBreath=Date.now())}async X(){return document.hidden?new Promise(t=>setTimeout(t)):new Promise(t=>requestAnimationFrame(t))}B(t,e=window){return e===document&&"readystatechange"===t||(e===document&&"DOMContentLoaded"===t||(e===window&&"DOMContentLoaded"===t||(e===window&&"load"===t||e===window&&"pageshow"===t)))}static run(){(new RocketLazyLoadScripts).t()}}RocketLazyLoadScripts.run()})();
+</script>
+		
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="profile" href="http://gmpg.org/xfn/11">
+		<title>استخدام کارشناس دفتر فنی آشنا به تهیه صورت جلسات اجرایی &#8211; eng-estekhdam</title>
+<meta name='robots' content='max-image-preview:large' />
+<link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
+
+<link rel="alternate" type="application/rss+xml" title="eng-estekhdam &raquo; خوراک" href="https://eng-estekhdam.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="eng-estekhdam &raquo; خوراک دیدگاه‌ها" href="https://eng-estekhdam.com/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="eng-estekhdam &raquo; استخدام کارشناس دفتر فنی آشنا به تهیه صورت جلسات اجرایی خوراک دیدگاه‌ها" href="https://eng-estekhdam.com/1405/07/09/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d8%a2%d8%b4%d9%86%d8%a7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-%d8%b5/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://eng-estekhdam.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Feng-estekhdam.com%2F1405%2F07%2F09%2F%25d8%25a7%25d8%25b3%25d8%25aa%25d8%25ae%25d8%25af%25d8%25a7%25d9%2585-%25da%25a9%25d8%25a7%25d8%25b1%25d8%25b4%25d9%2586%25d8%25a7%25d8%25b3-%25d8%25af%25d9%2581%25d8%25aa%25d8%25b1-%25d9%2581%25d9%2586%25db%258c-%25d8%25a2%25d8%25b4%25d9%2586%25d8%25a7-%25d8%25a8%25d9%2587-%25d8%25aa%25d9%2587%25db%258c%25d9%2587-%25d8%25b5%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://eng-estekhdam.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Feng-estekhdam.com%2F1405%2F07%2F09%2F%25d8%25a7%25d8%25b3%25d8%25aa%25d8%25ae%25d8%25af%25d8%25a7%25d9%2585-%25da%25a9%25d8%25a7%25d8%25b1%25d8%25b4%25d9%2586%25d8%25a7%25d8%25b3-%25d8%25af%25d9%2581%25d8%25aa%25d8%25b1-%25d9%2581%25d9%2586%25db%258c-%25d8%25a2%25d8%25b4%25d9%2586%25d8%25a7-%25d8%25a8%25d9%2587-%25d8%25aa%25d9%2587%25db%258c%25d9%2587-%25d8%25b5%2F&#038;format=xml" />
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;word-break:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style^=border-color],[style*=";border-color"],[style*="; border-color"]){border-style:solid}html :where([style^=border-top-color],[style*=";border-top-color"],[style*="; border-top-color"]){border-top-style:solid}html :where([style^=border-right-color],[style*=";border-right-color"],[style*="; border-right-color"]){border-right-style:solid}html :where([style^=border-bottom-color],[style*=";border-bottom-color"],[style*="; border-bottom-color"]){border-bottom-style:solid}html :where([style^=border-left-color],[style*=";border-left-color"],[style*="; border-left-color"]){border-left-style:solid}html :where([style^=border-width],[style*=";border-width"],[style*="; border-width"]){border-style:solid}html :where([style^=border-top-width],[style*=";border-top-width"],[style*="; border-top-width"]){border-top-style:solid}html :where([style^=border-right-width],[style*=";border-right-width"],[style*="; border-right-width"]){border-right-style:solid}html :where([style^=border-bottom-width],[style*=";border-bottom-width"],[style*="; border-bottom-width"]){border-bottom-style:solid}html :where([style^=border-left-width],[style*=";border-left-width"],[style*="; border-left-width"]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="wp-block-tag-cloud-inline-css">
+.wp-block-tag-cloud{box-sizing:border-box}.wp-block-tag-cloud.aligncenter{justify-content:center;text-align:center}.wp-block-tag-cloud a{display:inline-block;margin-left:5px}.wp-block-tag-cloud span{display:inline-block;margin-right:5px;text-decoration:none}:root :where(.wp-block-tag-cloud.is-style-outline){display:flex;flex-wrap:wrap;gap:1ch}:root :where(.wp-block-tag-cloud.is-style-outline a){border:1px solid;font-size:unset!important;margin-left:0;padding:1ch 2ch;text-decoration:none!important}
+/*# sourceURL=https://eng-estekhdam.com/wp-includes/blocks/tag-cloud/style.min.css */
+</style>
+
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--color--typology-acc: #c62641;--wp--preset--color--typology-txt: #444444;--wp--preset--color--typology-meta: #888888;--wp--preset--color--typology-bg: #ffffff;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 12.8px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 22.4px;--wp--preset--font-size--x-large: 42px;--wp--preset--font-size--normal: 16px;--wp--preset--font-size--huge: 28.8px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}.wp-block-button{--wp--preset--dimension--25: 25%;--wp--preset--dimension--50: 50%;--wp--preset--dimension--75: 75%;--wp--preset--dimension--100: 100%;}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-typology-acc-color{color: var(--wp--preset--color--typology-acc) !important;}.has-typology-txt-color{color: var(--wp--preset--color--typology-txt) !important;}.has-typology-meta-color{color: var(--wp--preset--color--typology-meta) !important;}.has-typology-bg-color{color: var(--wp--preset--color--typology-bg) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-typology-acc-background-color{background-color: var(--wp--preset--color--typology-acc) !important;}.has-typology-txt-background-color{background-color: var(--wp--preset--color--typology-txt) !important;}.has-typology-meta-background-color{background-color: var(--wp--preset--color--typology-meta) !important;}.has-typology-bg-background-color{background-color: var(--wp--preset--color--typology-bg) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-typology-acc-border-color{border-color: var(--wp--preset--color--typology-acc) !important;}.has-typology-txt-border-color{border-color: var(--wp--preset--color--typology-txt) !important;}.has-typology-meta-border-color{border-color: var(--wp--preset--color--typology-meta) !important;}.has-typology-bg-border-color{border-color: var(--wp--preset--color--typology-bg) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}.has-normal-font-size{font-size: var(--wp--preset--font-size--normal) !important;}.has-huge-font-size{font-size: var(--wp--preset--font-size--huge) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='wprc-style-css' href='https://eng-estekhdam.com/wp-content/plugins/report-content1/static/css/styles.css?ver=7.1.3' media='all' />
+<link rel='stylesheet' id='searchandfilter-css' href='https://eng-estekhdam.com/wp-content/plugins/search-filter/style.css?ver=1' media='all' />
+<link rel='stylesheet' id='persian-datepicker-style-css' href='https://eng-estekhdam.com/wp-content/uploads/local-assets/persian-datepicker.min.css' media='all' />
+<link rel="stylesheet" href="https://eng-estekhdam.com/wp-content/cache/fonts/1/google-fonts/css/9/d/f/dece77dc2641eddd74ca05bef4a3c.css" data-wpr-hosted-gf-parameters="family=Vazirmatn%3A400%2C600&subset=latin%2Clatin-ext&ver=1.7.1"/>
+<link rel='stylesheet' id='typology-main-css' href='https://eng-estekhdam.com/wp-content/themes/typology/assets/css/min.css?ver=1.7.1' media='all' />
+<style id="typology-main-inline-css">
+body,blockquote:before, q:before{font-family: 'Vazirmatn';font-weight: 400;}body,.typology-action-button .sub-menu{color:#444444;}body{background:#f8f8f8;font-size: 1.6rem;}.typology-fake-bg{background:#f8f8f8;}.typology-sidebar,.typology-section{background:#ffffff;}h1, h2, h3, h4, h5, h6,.h1, .h2, .h3, .h4, .h5, .h6,.submit,.mks_read_more a,input[type="submit"],input[type="button"],a.mks_button,.cover-letter,.post-letter,.woocommerce nav.woocommerce-pagination ul li span,.woocommerce nav.woocommerce-pagination ul li a,.woocommerce div.product .woocommerce-tabs ul.tabs li,.typology-pagination a,.typology-pagination span,.comment-author .fn,.post-date-month,.typology-button-social,.meks-instagram-follow-link a,.mks_autor_link_wrap a,.entry-pre-title,.typology-button,button,.wp-block-cover .wp-block-cover-image-text, .wp-block-cover .wp-block-cover-text, .wp-block-cover h2, .wp-block-cover-image .wp-block-cover-image-text, .wp-block-cover-image .wp-block-cover-text, .wp-block-cover-image h2,.wp-block-button__link,body div.wpforms-container-full .wpforms-form input[type=submit], body div.wpforms-container-full .wpforms-form button[type=submit], body div.wpforms-container-full .wpforms-form .wpforms-page-button {font-family: 'Vazirmatn';font-weight: 600;}.typology-header .typology-nav{font-family: 'Vazirmatn';font-weight: 600;}.typology-cover .entry-title,.typology-cover h1 { font-size: 6.4rem;}h1, .h1 {font-size: 4.8rem;}h2, .h2 {font-size: 3.5rem;}h3, .h3 {font-size: 2.8rem;}h4, .h4 {font-size: 2.3rem;}h5, .h5,.typology-layout-c.post-image-on .entry-title,blockquote, q {font-size: 1.8rem;}h6, .h6 {font-size: 1.5rem;}.widget{font-size: 1.4rem;}.typology-header .typology-nav a{font-size: 1.1rem;}.typology-layout-b .post-date-hidden,.meta-item{font-size: 1.3rem;}.post-letter {font-size: 26.0rem;}.typology-layout-c .post-letter{height: 26.0rem;}.cover-letter {font-size: 60.0rem;}h1, h2, h3, h4, h5, h6,.h1, .h2, .h3, .h4, .h5, .h6,h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,.post-date-month{color:#333333;}.typology-single-sticky a{color:#444444;}.entry-title a:hover,.typology-single-sticky a:hover{color:#c62641;}.bypostauthor .comment-author:before,#cancel-comment-reply-link:after{background:#c62641;}a,.widget .textwidget a,.typology-layout-b .post-date-hidden{color: #c62641;}.single .typology-section:first-child .section-content, .section-content-page, .section-content.section-content-a{max-width: 720px;}.typology-header{height:50px;}.typology-header.typology-header-sticky{height:50px;}.typology-header-sticky-on .typology-header{background:#c62641;}.cover-letter{padding-top: 50px;}.site-title a,.typology-site-description{color: #ffffff;}.typology-header .typology-nav,.typology-header .typology-nav > li > a{color: #ffffff;}.typology-header .typology-nav .sub-menu a{ color:#444444;}.typology-header .typology-nav .sub-menu a:hover{color: #c62641;}.typology-action-button .sub-menu ul a:before{background: #c62641;}.sub-menu .current-menu-item a{color:#c62641;}.dot,.typology-header .typology-nav .sub-menu{background:#ffffff;}.typology-header .typology-main-navigation .sub-menu .current-menu-ancestor > a,.typology-header .typology-main-navigation .sub-menu .current-menu-item > a{color: #c62641;}.typology-header-wide .slot-l{left: 5px;}.typology-header-wide .slot-r{right: 10px;}.meta-item,.meta-item span,.meta-item a,.comment-metadata a{color: #888888;}.comment-meta .url,.meta-item a:hover{color:#333333;}.typology-post:after,.section-title:after,.typology-pagination:before{background:rgba(51,51,51,0.2);}.typology-layout-b .post-date-day,.typology-outline-nav li a:hover,.style-timeline .post-date-day{color:#c62641;}.typology-layout-b .post-date:after,blockquote:before,q:before{background:#c62641;}.typology-sticky-c,.typology-sticky-to-top span,.sticky-author-date{color: #888888;}.typology-outline-nav li a{color: #444444;}.typology-post.typology-layout-b:before, .section-content-b .typology-ad-between-posts:before{background:rgba(68,68,68,0.1);}.submit,.mks_read_more a,input[type="submit"],input[type="button"],a.mks_button,.typology-button,.submit,.typology-button-social,.page-template-template-authors .typology-author .typology-button-social,.widget .mks_autor_link_wrap a,.widget .meks-instagram-follow-link a,.widget .mks_read_more a,button,body div.wpforms-container-full .wpforms-form input[type=submit], body div.wpforms-container-full .wpforms-form button[type=submit], body div.wpforms-container-full .wpforms-form .wpforms-page-button {color:#ffffff;background: #c62641;border:1px solid #c62641;}body div.wpforms-container-full .wpforms-form input[type=submit]:hover, body div.wpforms-container-full .wpforms-form input[type=submit]:focus, body div.wpforms-container-full .wpforms-form input[type=submit]:active, body div.wpforms-container-full .wpforms-form button[type=submit]:hover, body div.wpforms-container-full .wpforms-form button[type=submit]:focus, body div.wpforms-container-full .wpforms-form button[type=submit]:active, body div.wpforms-container-full .wpforms-form .wpforms-page-button:hover, body div.wpforms-container-full .wpforms-form .wpforms-page-button:active, body div.wpforms-container-full .wpforms-form .wpforms-page-button:focus {color:#ffffff;background: #c62641;border:1px solid #c62641;}.page-template-template-authors .typology-author .typology-icon-social:hover {border:1px solid #c62641;}.button-invert{color:#c62641;background:transparent;}.widget .mks_autor_link_wrap a:hover,.widget .meks-instagram-follow-link a:hover,.widget .mks_read_more a:hover{color:#ffffff;}.typology-cover{min-height: 180px;}.typology-cover-empty{height:95px;min-height:95px;}.typology-fake-bg .typology-section:first-child {top: -45px;}.typology-flat .typology-cover-empty{height:50px;}.typology-flat .typology-cover{min-height:50px;}.typology-cover-empty,.typology-cover,.typology-header-sticky{background-image: linear-gradient(to right top, #ff0000, #b71414, #722626, #211111,#000000);;}.typology-cover-overlay:after{background: rgba(255,0,0,0.6);}.typology-sidebar-header{background:#c62641;}.typology-cover,.typology-cover .entry-title,.typology-cover .entry-title a,.typology-cover .meta-item,.typology-cover .meta-item span,.typology-cover .meta-item a,.typology-cover h1,.typology-cover h2,.typology-cover h3{color: #ffffff;}.typology-cover .typology-button{color: #ff0000;background:#ffffff;border:1px solid #ffffff;}.typology-cover .button-invert{color: #ffffff;background: transparent;}.typology-cover-slider .owl-dots .owl-dot span{background:#ffffff;}.typology-outline-nav li:before,.widget ul li:before{background:#c62641;}.widget a{color:#444444;}.widget a:hover,.widget_calendar table tbody td a,.entry-tags a:hover,.wp-block-tag-cloud a:hover{color:#c62641;}.widget_calendar table tbody td a:hover,.widget table td,.entry-tags a,.wp-block-tag-cloud a{color:#444444;}.widget table,.widget table td,.widget_calendar table thead th,table,td, th{border-color: rgba(68,68,68,0.3);}.widget ul li,.widget .recentcomments{color:#444444;}.widget .post-date{color:#888888;}#today{background:rgba(68,68,68,0.1);}.typology-pagination .current, .typology-pagination .infinite-scroll a, .typology-pagination .load-more a, .typology-pagination .nav-links .next, .typology-pagination .nav-links .prev, .typology-pagination .next a, .typology-pagination .prev a{color: #ffffff;background:#333333;}.typology-pagination a, .typology-pagination span{color: #333333;border:1px solid #333333;}.typology-footer{background:#f8f8f8;color:#aaaaaa;}.typology-footer h1,.typology-footer h2,.typology-footer h3,.typology-footer h4,.typology-footer h5,.typology-footer h6,.typology-footer .post-date-month{color:#aaaaaa;}.typology-count{background: #c62641;}.typology-footer a, .typology-footer .widget .textwidget a{color: #888888;}input[type="text"], input[type="email"],input[type=search], input[type="url"], input[type="tel"], input[type="number"], input[type="date"], input[type="password"], textarea, select{border-color:rgba(68,68,68,0.2);}blockquote:after, blockquote:before, q:after, q:before{-webkit-box-shadow: 0 0 0 10px #ffffff;box-shadow: 0 0 0 10px #ffffff;}pre,.entry-content #mc_embed_signup{background: rgba(68,68,68,0.1);}.wp-block-button__link{background: #c62641;color: #ffffff; }.wp-block-image figcaption,.wp-block-audio figcaption{color: #444444;}.wp-block-pullquote:not(.is-style-solid-color) blockquote{border-top:2px solid #444444;border-bottom:2px solid #444444;}.wp-block-pullquote.is-style-solid-color{background: #c62641;color: #ffffff; }.wp-block-separator{border-color: rgba(68,68,68,0.3);}body.wp-editor{background:#ffffff;}.has-small-font-size{ font-size: 1.3rem;}.has-large-font-size{ font-size: 1.9rem;}.has-huge-font-size{ font-size: 2.2rem;}@media(min-width: 801px){.has-small-font-size{ font-size: 1.3rem;}.has-normal-font-size{ font-size: 1.6rem;}.has-large-font-size{ font-size: 2.2rem;}.has-huge-font-size{ font-size: 2.9rem;}}.has-typology-acc-background-color{ background-color: #c62641;}.has-typology-acc-color{ color: #c62641;}.has-typology-txt-background-color{ background-color: #444444;}.has-typology-txt-color{ color: #444444;}.has-typology-meta-background-color{ background-color: #888888;}.has-typology-meta-color{ color: #888888;}.has-typology-bg-background-color{ background-color: #ffffff;}.has-typology-bg-color{ color: #ffffff;}.site-title{text-transform: uppercase;}.typology-site-description{text-transform: none;}.typology-nav{text-transform: uppercase;}h1, h2, h3, h4, h5, h6, .wp-block-cover-text, .wp-block-cover-image-text{text-transform: uppercase;}.section-title{text-transform: uppercase;}.widget-title{text-transform: uppercase;}.meta-item{text-transform: none;}.typology-button{text-transform: uppercase;}.submit,.mks_read_more a,input[type="submit"],input[type="button"],a.mks_button,.typology-button,.widget .mks_autor_link_wrap a,.widget .meks-instagram-follow-link a,.widget .mks_read_more a,button,.typology-button-social,.wp-block-button__link,body div.wpforms-container-full .wpforms-form input[type=submit], body div.wpforms-container-full .wpforms-form button[type=submit], body div.wpforms-container-full .wpforms-form .wpforms-page-button {text-transform: uppercase;}
+/*# sourceURL=typology-main-inline-css */
+</style>
+<link rel='stylesheet' id='typology-rtl-css' href='https://eng-estekhdam.com/wp-content/themes/typology/assets/css/rtl.css?ver=1.7.1' media='all' />
+<link rel='stylesheet' id='typology_child_style-css' href='https://eng-estekhdam.com/wp-content/themes/typology-child/style.css?ver=1.0' media='screen' />
+<link rel='stylesheet' id='popup-maker-site-css' href='//eng-estekhdam.com/wp-content/uploads/pum/pum-site-styles.css?generated=1778952714&#038;ver=1.25.0' media='all' />
+<script type="text/rocketlazyloadscript" id="jquery-core-js" data-rocket-src="https://eng-estekhdam.com/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="jquery-migrate-js" data-rocket-src="https://eng-estekhdam.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1" data-rocket-defer defer></script>
+<script id="wprc-script-js-extra">
+var wprcajaxhandler = {"ajaxurl":"https://eng-estekhdam.com/wp-admin/admin-ajax.php"};
+//# sourceURL=wprc-script-js-extra
+</script>
+<script type="text/rocketlazyloadscript" id="wprc-script-js" data-rocket-src="https://eng-estekhdam.com/wp-content/plugins/report-content1/static/js/scripts.js?ver=7.1.3" data-rocket-defer defer></script>
+<link rel="https://api.w.org/" href="https://eng-estekhdam.com/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://eng-estekhdam.com/wp-json/wp/v2/posts/204917" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://eng-estekhdam.com/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 7.1.3" />
+<link rel="canonical" href="https://eng-estekhdam.com/1405/07/09/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d8%a2%d8%b4%d9%86%d8%a7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-%d8%b5/" />
+<link rel='shortlink' href='https://eng-estekhdam.com/?p=204917' />
+<meta name="generator" content="Redux 4.5.14" /><link rel="icon" href="https://eng-estekhdam.com/wp-content/uploads/2025/04/cropped-logo-32x32.png" sizes="32x32" />
+<link rel="icon" href="https://eng-estekhdam.com/wp-content/uploads/2025/04/cropped-logo-192x192.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://eng-estekhdam.com/wp-content/uploads/2025/04/cropped-logo-180x180.png" />
+<meta name="msapplication-TileImage" content="https://eng-estekhdam.com/wp-content/uploads/2025/04/cropped-logo-270x270.png" />
+<style id="wp-custom-css">
+/* استایل کانتینر اصلی پاپ آپ */
+.bale-popup-container {
+    direction: rtl;
+    text-align: center;
+    font-family: 'Vazir', 'IRANSans', Tahoma, sans-serif;
+    padding: 20px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fc 100%);
+    border-radius: 24px;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+/* استایل آیکون بله */
+.bale-popup-icon {
+    margin-bottom: 20px;
+}
+.bale-popup-icon img {
+    width: 85px;
+    height: auto;
+    filter: drop-shadow(0 8px 12px rgba(0,0,0,0.1));
+    transition: transform 0.2s ease;
+}
+.bale-popup-icon img:hover {
+    transform: scale(1.05);
+}
+
+/* عنوان اصلی */
+.bale-popup-title {
+    color: #2d3748;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 15px 0 10px;
+    line-height: 1.3;
+    background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb4d);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* متن پیام */
+.bale-popup-message {
+    color: #4a5568;
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    text-align: justify;
+    padding: 0 8px;
+}
+.bale-popup-message strong {
+    color: #2b6cb0;
+    font-weight: 700;
+}
+
+/* متن یادآوری کانال تلگرام */
+.bale-popup-note {
+    color: #718096;
+    font-size: 14px;
+    background: #edf2f7;
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 40px;
+    margin: 5px auto 20px;
+}
+
+/* دکمه فراخوانی */
+.bale-popup-button {
+    margin-top: 15px;
+}
+.bale-popup-button a {
+    display: inline-block;
+    background: linear-gradient(95deg, #2b6cb0 0%, #2c5282 100%);
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    padding: 12px 32px;
+    border-radius: 50px;
+    transition: all 0.2s ease;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.bale-popup-button a:hover {
+    background: linear-gradient(95deg, #2c5282 0%, #1a365d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    color: #ffffff;
+}
+</style>
+	<meta name="generator" content="WP Rocket 3.23.2.2" data-wpr-features="wpr_delay_js wpr_defer_js wpr_cdn wpr_host_fonts_locally wpr_desktop" /></head>
+
+	<body class="rtl wp-singular post-template-default single single-post postid-204917 single-format-standard wp-embed-responsive wp-theme-typology wp-child-theme-typology-child typology-v_1_7_1 typology-child">
+
+		
+			<header data-rocket-location-hash="a83eeaa4d44c8f7def46f00a773bea13" id="typology-header" class="typology-header">
+				<div data-rocket-location-hash="6005da2017e5fd3302f88d75d9af55c2" class="container">
+					<div data-rocket-location-hash="3b9b53f74c3b7bce6d7db11bf69d9d7e" class="slot-l">
+	<div class="typology-site-branding">
+	
+	<span class="site-title h4"><a href="https://eng-estekhdam.com/" rel="home">eng-estekhdam</a></span>	
+</div>
+				<ul id="menu-menu-1" class="typology-nav typology-main-navigation"><li id="menu-item-195880" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-195880"><a href="https://eng-estekhdam.com/">آخرین آگهی ها</a></li>
+<li id="menu-item-195876" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-195876"><a href="https://eng-estekhdam.com/register/your-membership/">عضویت شما</a>
+<ul class="sub-menu">
+	<li id="menu-item-24630" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-24630"><a href="https://eng-estekhdam.com/register/your-membership">ورود به حساب کاربری</a></li>
+	<li id="menu-item-195875" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195875"><a href="https://eng-estekhdam.com/register/edit-your-profile/">ویرایش پروفایل کاربری</a></li>
+</ul>
+</li>
+<li id="menu-item-195872" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195872"><a href="https://eng-estekhdam.com/advertisement/">تبلیغات</a></li>
+<li id="menu-item-195873" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195873"><a href="https://eng-estekhdam.com/rules/">قوانین و مقررات</a></li>
+<li id="menu-item-195877" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195877"><a href="https://eng-estekhdam.com/jobadform/">فرم ارسال آگهی استخدام</a></li>
+<li id="menu-item-195929" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195929"><a href="https://eng-estekhdam.com/about/">درباره ما</a></li>
+<li id="menu-item-195878" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195878"><a href="https://eng-estekhdam.com/contact/">ارتباط با ما</a></li>
+</ul>	</div>
+
+
+<div data-rocket-location-hash="35271ac24591b1dc291e5fd2e9a9d522" class="slot-r">
+    <ul class="typology-nav typology-actions-list">
+    <li class="typology-actions-button typology-action-search">
+	<span>
+		<i class="fa fa-search"></i>
+	</span>
+	<ul class="sub-menu">
+		<li>
+			<form class="typology-search-form" action="https://eng-estekhdam.com/" method="get">
+	<input name="s" type="text" value="" placeholder="برای جستجو اینجا تایپ کنید ..." />
+	<button type="submit" class="typology-button typology-button-search typology-icon-button">جستجو</button> 
+	</form>		</li>
+	</ul>
+</li><li class="typology-action-button typology-action-sidebar ">
+		<span>
+			<i class="fa fa-bars"></i>
+		</span>
+</li>
+</ul></div>				</div>
+			</header>
+
+		
+	
+			
+        				<div data-rocket-location-hash="8149e170c96dd9139b1b0ea43e922060" id="typology-cover" class="typology-cover typology-cover-empty">
+            		</div>
+		<div data-rocket-location-hash="8ab3d237f761860b6aaeb5ffa2d1d348" class="typology-fake-bg">
+			<div data-rocket-location-hash="90d1396403650d64189e983a591e2c34" class="typology-section">
+				    
+				<div data-rocket-location-hash="e02aabe62ac08d41b1c83719b9bfa9b4" class="section-content">
+    <article id="post-204917" class="typology-post typology-single-post post-204917 post type-post status-publish format-standard hentry category-rkhorasan tag-civil tag-memari">
+	
+	            
+            <header class="entry-header">
+
+                <h1 class="entry-title entry-title-cover-empty"><span style='color:#2d8930;'>استخدام کارشناس دفتر فنی آشنا به تهیه صورت جلسات اجرایی</span></h1>
+                                    <div class="entry-meta"><div class="meta-item meta-category">استان <a href="https://eng-estekhdam.com/category/rkhorasan/" rel="category tag">خراسان رضوی</a></div><div class="meta-item meta-date"><span class="updated">۹ مهر ۱۴۰۵</span></div><div class="meta-item meta-rtime">2 دقیقه برای خواندن کامل آگهی</div><div class="meta-item meta-comments"><a href="https://eng-estekhdam.com/1405/07/09/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d8%a2%d8%b4%d9%86%d8%a7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-%d8%b5/#respond">افزودن دیدگاه</a></div><div class="meta-item meta-views">۳۵ بازدید</div></div>
+                
+                                    <div class="post-letter">ا</div>
+                
+            </header>
+
+                
+        <div class="entry-content clearfix">
+                        
+            
+            <div class="wprc-container red-colorscheme">
+	<button type="button" class="wprc-switch">گزارش کردن آگهی</button>
+	<div class="wprc-content">
+		<div class="wprc-message">
+		</div>
+		<div class="wprc-form">
+							برای گزارش خطا، لازم است <a href="https://eng-estekhdam.com/register/your-membership/" title="برای ورود به حساب کاربری کلیک کنید">ابتدا وارد حساب کاربری خود شوید</a>					</div>
+	</div>
+</div>
+<p>به کارشناس دفتر فنی در شرکت ساختمانی و تاسیساتی جهت کار در دفتر مرکزی خود در خراسان رضوی نیازمندیم :</p>
+<ol>
+<li>خانم</li>
+<li>تمام وقت</li>
+<li>حقوق ثابت ماهانه : از ۲۵ میلیون تومان</li>
+<li>آشنایی و کار با نرم افزارهای CAD، Word, Excel و تکسا- فتوشاپ</li>
+<li>آشنا به تهیه صورت جلسات اجرایی و صورت وضعیت های پروژه های عمرانی</li>
+<li>داشتن مدرک کارشناسی عمران یا معماری</li>
+<li>داشتن حداقل دو سال سابقه ی کار مرتبط</li>
+<li>ساعات کاری : ۸ الی ۱۵</li>
+<li>سرویس رفت و برگشت</li>
+</ol>
+<p>متقاضیان محترم لطفا رزومه خود را به آدرس ایمیل زیر ارسال نمایند:</p>
+<div class="rcp_restricted rcp_paid_only"><style>
+.rcp-graphical-message {
+    max-width: 560px;
+    margin: 2rem auto;
+    background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+    border-radius: 28px;
+    box-shadow: 0 20px 30px -12px rgba(0,0,0,0.1);
+    direction: rtl;
+    text-align: center;
+    padding: 2rem 1.8rem;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.rcp-graphical-message h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e2a3a;
+    margin: 0 0 0.5rem;
+}
+.rcp-message-text {
+    background: #f1f5f9;
+    padding: 1.2rem;
+    border-radius: 20px;
+    margin: 1.2rem 0;
+    border-right: 4px solid #f39c12;
+    text-align: justify;
+    line-height: 1.7;
+    color: #2d3e50;
+    font-size: 0.95rem;
+}
+.rcp-message-text p {
+    margin: 0;
+}
+.rcp-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 1.5rem 0 0.5rem;
+}
+.rcp-btn {
+    text-decoration: none;
+    padding: 0.8rem 1.6rem;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+.rcp-btn-login {
+    background: #2c3e50;
+    color: white;
+    border: none;
+}
+.rcp-btn-login:hover {
+    background: #1e2e3e;
+    transform: scale(1.02);
+    color: white;
+}
+.rcp-btn-register {
+    background: white;
+    color: #e67e22;
+    border: 1.5px solid #e67e22;
+}
+.rcp-btn-register:hover {
+    background: #e67e22;
+    color: white;
+}
+.rcp-footnote {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    margin-top: 1.2rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed #e2e8f0;
+}
+@media (max-width: 520px) {
+    .rcp-graphical-message { padding: 1.4rem; margin: 1rem; }
+    .rcp-btn { width: 100%; justify-content: center; }
+}
+</style>
+<div class="rcp-graphical-message">
+<h3>🔐 دسترسی اختصاصی اعضا</h3>
+<div class="rcp-message-text">
+        تنها اعضاء سایت که دارای اشتراک فعال می باشند، قادر به مشاهده اطلاعات تماس این آگهی هستند.<br>
+        برای دسترسی به اطلاعات تماس آگهی ها، لطفا ثبت نام نموده و یا اگر قبلا عضو شده اید، نسبت به ورود به حساب کاربری و تمدید اشتراک عضویت خود اقدام فرمائید.
+    </div>
+<div class="rcp-buttons">
+        <a href="https://eng-estekhdam.com/register/your-membership" class="rcp-btn rcp-btn-login">🔑 ورود به حساب کاربری</a><br>
+        <a href="https://eng-estekhdam.com/register" class="rcp-btn rcp-btn-register">📝 ثبت نام</a>
+    </div>
+<div class="rcp-footnote">عضویت در سایت = دسترسی به تمام آگهی‌ها</div>
+</div>
+</div>
+<p>منبع : ای استخدام</p>
+
+                        
+                            <div class="entry-tags"><a href="https://eng-estekhdam.com/tag/civil/" rel="tag">عمران</a> <a href="https://eng-estekhdam.com/tag/memari/" rel="tag">معماری</a></div>
+            
+        </div>
+        
+                             
+    </article>
+</div>
+				
+				
+	
+				
+		<div data-rocket-location-hash="e7b373d308e8b28a0efec7fa3423bd24" class="section-head"><h3 class="section-title h6">افزودن دیدگاه</h3></div>
+		<div data-rocket-location-hash="204e757219d90e6b91ef38194d67882d" id="comments" class="section-content typology-comments">
+
+				<div id="respond" class="comment-respond">
+		<h3 id="reply-title" class="comment-reply-title"> <small><a rel="nofollow" id="cancel-comment-reply-link" href="/1405/07/09/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d8%a2%d8%b4%d9%86%d8%a7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-%d8%b5/#respond" style="display:none;">لغو پاسخ</a></small></h3><p class="must-log-in">برای نوشتن دیدگاه باید <a href="https://eng-estekhdam.com/register/your-membership/">وارد بشوید</a>.</p>	</div><!-- #respond -->
+				
+			
+
+		</div>
+
+		<div data-rocket-location-hash="fe52db9964dfcb0f64c9633c298734b0" class="typology-pagination typology-comments-pagination">
+					</div>
+
+				
+							</div>
+
+		
+	
+	
+		<div data-rocket-location-hash="ce1a494a35260c69a50493b902e45c0a" class="typology-section typology-section-related">
+
+			<div data-rocket-location-hash="cd819eaeb133d5d54a39bb2cf1cb7e20" class="section-head"><h3 class="section-title h6">اطلاعات بیشتر</h3></div>
+			
+			<div data-rocket-location-hash="8645cdeb70283af3b381ab8036c1140a" class="section-content section-content-c">
+
+				<div class="typology-posts">
+
+											<article class="typology-post typology-layout-c col-lg-6 text-center post-image-off post-205074 post type-post status-publish format-standard hentry category-rkhorasan tag-road tag-civil tag-surveying">
+
+            
+    <header class="entry-header">
+        <h2 class="entry-title h4"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%d9%85%d9%87%d9%86%d8%af%d8%b3%db%8c%d9%86-%d8%b9%d9%85%d8%b1%d8%a7%d9%86-%d9%88-%d9%86%d9%82%d8%b4%d9%87-%d8%a8%d8%b1%d8%af%d8%a7%d8%b1-%d8%af%d8%b1-2/"><span style='color:#b26a27;'>استخدام مهندسین عمران و نقشه بردار در یک شرکت مهندسین مشاور</span></a></h2>         
+            <div class="entry-meta"><div class="meta-item meta-category">استان <a href="https://eng-estekhdam.com/category/rkhorasan/" rel="category tag">خراسان رضوی</a></div><div class="meta-item meta-date"><span class="updated">۱۴ مهر ۱۴۰۵</span></div><div class="meta-item meta-rtime">2 دقیقه برای خواندن کامل آگهی</div><div class="meta-item meta-comments"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%d9%85%d9%87%d9%86%d8%af%d8%b3%db%8c%d9%86-%d8%b9%d9%85%d8%b1%d8%a7%d9%86-%d9%88-%d9%86%d9%82%d8%b4%d9%87-%d8%a8%d8%b1%d8%af%d8%a7%d8%b1-%d8%af%d8%b1-2/#respond">افزودن دیدگاه</a></div><div class="meta-item meta-views">۳۹ بازدید</div></div>
+                            <div class="post-letter">ا</div>
+            </header>
+
+</article>											<article class="typology-post typology-layout-c col-lg-6 text-center post-image-off post-205070 post type-post status-publish format-standard hentry category-rkhorasan tag-road tag-civil">
+
+            
+    <header class="entry-header">
+        <h2 class="entry-title h4"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%d9%85%d9%87%d9%86%d8%af%d8%b3-%d8%b9%d9%85%d8%b1%d8%a7%d9%86-%d8%a8%d8%a7-%d8%b3%d8%a7%d8%a8%d9%82%d9%87-%d8%af%d8%b1-%d8%b2%d9%85%db%8c%d9%86%d9%87-%d8%b1/"><span style='color:#56992f;'>استخدام مهندس عمران با سابقه در زمینه راهسازی یا آماده سازی</span></a></h2>         
+            <div class="entry-meta"><div class="meta-item meta-category">استان <a href="https://eng-estekhdam.com/category/rkhorasan/" rel="category tag">خراسان رضوی</a></div><div class="meta-item meta-date"><span class="updated">۱۴ مهر ۱۴۰۵</span></div><div class="meta-item meta-rtime">1 دقیقه برای خواندن کامل آگهی</div><div class="meta-item meta-comments"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%d9%85%d9%87%d9%86%d8%af%d8%b3-%d8%b9%d9%85%d8%b1%d8%a7%d9%86-%d8%a8%d8%a7-%d8%b3%d8%a7%d8%a8%d9%82%d9%87-%d8%af%d8%b1-%d8%b2%d9%85%db%8c%d9%86%d9%87-%d8%b1/#respond">افزودن دیدگاه</a></div><div class="meta-item meta-views">۱۳ بازدید</div></div>
+                            <div class="post-letter">ا</div>
+            </header>
+
+</article>											<article class="typology-post typology-layout-c col-lg-6 text-center post-image-off post-205064 post type-post status-publish format-standard hentry category-rkhorasan tag-memari tag-surveying">
+
+            
+    <header class="entry-header">
+        <h2 class="entry-title h4"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%aa%d9%88%da%af%d8%b1%d8%a7%d9%81-%d9%88-%d9%85%d9%87%d9%86%d8%af%d8%b3-%d8%b4%d9%87%d8%b1%d8%b3%d8%a7%d8%b2-%d8%a8%d8%a7-%d8%b3%d8%a7/"><span style='color:#6e2172;'>استخدام کارتوگراف و مهندس شهرساز با سابقه مرتبط در مهندسین مشاور</span></a></h2>         
+            <div class="entry-meta"><div class="meta-item meta-category">استان <a href="https://eng-estekhdam.com/category/rkhorasan/" rel="category tag">خراسان رضوی</a></div><div class="meta-item meta-date"><span class="updated">۱۴ مهر ۱۴۰۵</span></div><div class="meta-item meta-rtime">1 دقیقه برای خواندن کامل آگهی</div><div class="meta-item meta-comments"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%aa%d9%88%da%af%d8%b1%d8%a7%d9%81-%d9%88-%d9%85%d9%87%d9%86%d8%af%d8%b3-%d8%b4%d9%87%d8%b1%d8%b3%d8%a7%d8%b2-%d8%a8%d8%a7-%d8%b3%d8%a7/#respond">افزودن دیدگاه</a></div><div class="meta-item meta-views">۱۰ بازدید</div></div>
+                            <div class="post-letter">ا</div>
+            </header>
+
+</article>											<article class="typology-post typology-layout-c col-lg-6 text-center post-image-off post-205049 post type-post status-publish format-standard hentry category-rkhorasan tag-earthquake tag-structure tag-memari">
+
+            
+    <header class="entry-header">
+        <h2 class="entry-title h4"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%d9%85%d9%87%d9%86%d8%af%d8%b3-%d8%b9%d9%85%d8%b1%d8%a7%d9%86-%d9%88-%d9%85%d8%b9%d9%85%d8%a7%d8%b1%db%8c-%d9%85%d8%b3%d9%84%d8%b7-%d8%a8%d9%87-%d9%86-2/"><span style='color:#cfdb25;'>استخدام مهندس عمران و معماری مسلط به نرم افزارهای اتوکد و آفیس</span></a></h2>         
+            <div class="entry-meta"><div class="meta-item meta-category">استان <a href="https://eng-estekhdam.com/category/rkhorasan/" rel="category tag">خراسان رضوی</a></div><div class="meta-item meta-date"><span class="updated">۱۴ مهر ۱۴۰۵</span></div><div class="meta-item meta-rtime">2 دقیقه برای خواندن کامل آگهی</div><div class="meta-item meta-comments"><a href="https://eng-estekhdam.com/1405/07/14/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%d9%85%d9%87%d9%86%d8%af%d8%b3-%d8%b9%d9%85%d8%b1%d8%a7%d9%86-%d9%88-%d9%85%d8%b9%d9%85%d8%a7%d8%b1%db%8c-%d9%85%d8%b3%d9%84%d8%b7-%d8%a8%d9%87-%d9%86-2/#respond">افزودن دیدگاه</a></div><div class="meta-item meta-views">۲۱ بازدید</div></div>
+                            <div class="post-letter">ا</div>
+            </header>
+
+</article>									
+				</div>
+			</div>
+		
+		</div>
+
+	
+	
+
+	
+
+	<div data-rocket-location-hash="40ff2c9e733811dead0c34220af2a32a" id="typology-single-sticky" class="typology-single-sticky">
+		
+		<div data-rocket-location-hash="57afe4fae6df472402127869abd4bb60" class="typology-sticky-content meta">
+			
+<div class="typology-flex-center">
+	<div class="typology-sticky-author typology-sticky-l">
+
+		
+						<span class="sticky-author-title">
+				<a href="https://eng-estekhdam.com/author/engestekhdam2/">توسط نویسنده</a>
+				<span class="sticky-author-date">۹ مهر ۱۴۰۵</span>
+			</span>
+
+			</div>
+
+	<div class="typology-sticky-c">
+		
+	</div>
+
+	<div class="typology-sticky-comments typology-sticky-r">
+							<a href="https://eng-estekhdam.com/1405/07/09/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d8%a2%d8%b4%d9%86%d8%a7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-%d8%b5/#respond"><i class="fa fa-comments-o"></i>افزودن دیدگاه</a>			</div>
+
+</div>
+		</div>
+
+		<div data-rocket-location-hash="8917c3f06263ab1ae1730293c88fcb6d" class="typology-sticky-content prev-next">
+			<nav class="typology-prev-next-nav typology-flex-center">
+	
+	
+<div class="typology-prev-link typology-sticky-l">	
+				
+			<a href="https://eng-estekhdam.com/1405/07/11/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%d9%85%d9%87%d9%86%d8%af%d8%b3-%d9%85%d8%b9%d9%85%d8%a7%d8%b1%db%8c-%d9%85%d8%b3%d9%84%d8%b7-%d8%a8%d9%87-3ds-max-%d9%88-autocad-%d9%88-photoshop/">
+				<span class="typology-pn-ico"><i class="fa fa-chevron-left"></i></span>
+				<span class="typology-pn-link">استخدام مهندس معماری مسلط به ۳ds Max و AutoCAD و Photoshop</span>
+			</a>
+	</div>
+	
+	<a href="javascript: void(0);" class="typology-sticky-to-top typology-sticky-c">
+			<span class="typology-top-ico"><i class="fa fa-chevron-up"></i></span>
+			<span class="typology-top-link">برو بالا</span>
+	</a>
+
+<div class="typology-next-link typology-sticky-r">	
+		
+			<a href="https://eng-estekhdam.com/1405/07/02/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d9%85%d8%b3%d9%84%d8%b7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-25/">
+				<span class="typology-pn-ico"><i class="fa fa-chevron-right"></i></span>
+				<span class="typology-pn-link">استخدام کارشناس دفتر فنی مسلط به تهیه صورت وضعیت های مشاور</span>
+			</a>
+			</div>
+</nav>
+
+		</div>
+	</div>
+
+                            <footer data-rocket-location-hash="d264b6b9508807a6f2ae423f6ded42eb" id="typology-footer" class="typology-footer">
+                    
+                                        
+                                            
+                        <div data-rocket-location-hash="4c540835e72d0520b255e1d4586334f4" class="container">
+                                    
+                                                                    
+                                                                    
+                                                                    
+                        </div>
+
+                                    </footer>
+            
+            
+		</div>
+
+		<div data-rocket-location-hash="f96623b618e95ee8b3b4fce181f4dbe0" class="typology-sidebar">
+	<div data-rocket-location-hash="91c8b64a6e66382f944803ed13f46b96" class="typology-sidebar-header">
+		<div data-rocket-location-hash="beaad6fbbdf61a9de41547a9834372d8" class="typology-sidebar-header-wrapper">
+			<div class="typology-site-branding">
+	
+	<span class="site-title h4"><a href="https://eng-estekhdam.com/" rel="home">eng-estekhdam</a></span>	
+</div>
+			<span class="typology-sidebar-close"><i class="fa fa-times" aria-hidden="true"></i></span>
+		</div>
+	</div>
+
+	<div data-rocket-location-hash="720d76f4d54d8e596fa62d3b7f05a4ca" class="widget typology-responsive-menu">
+					<ul id="menu-menu-2" class="typology-nav typology-main-navigation"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home menu-item-195880"><a href="https://eng-estekhdam.com/">آخرین آگهی ها</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-195876"><a href="https://eng-estekhdam.com/register/your-membership/">عضویت شما</a>
+<ul class="sub-menu">
+	<li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-24630"><a href="https://eng-estekhdam.com/register/your-membership">ورود به حساب کاربری</a></li>
+	<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195875"><a href="https://eng-estekhdam.com/register/edit-your-profile/">ویرایش پروفایل کاربری</a></li>
+</ul>
+</li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195872"><a href="https://eng-estekhdam.com/advertisement/">تبلیغات</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195873"><a href="https://eng-estekhdam.com/rules/">قوانین و مقررات</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195877"><a href="https://eng-estekhdam.com/jobadform/">فرم ارسال آگهی استخدام</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195929"><a href="https://eng-estekhdam.com/about/">درباره ما</a></li>
+<li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-195878"><a href="https://eng-estekhdam.com/contact/">ارتباط با ما</a></li>
+</ul>		</div>
+
+					
+								<div data-rocket-location-hash="213af3a568759281b151bcd1c5113faa" id="block-8" class="widget clearfix widget_block"><div data-rocket-location-hash="3107eabe4c1cc70223a5e4cfe4635e14" style="text-align: center; margin: 30px 0; font-family: 'Vazir', 'Tanha', 'Samim', Tahoma, sans-serif; direction: rtl;">
+  <a href="tg://resolve?domain=engestekhdam" style="display: inline-block; transition: all 0.3s ease; text-decoration: none;">
+    <img decoding="async" src="https://eng-estekhdam.com/wp-content/uploads/2018/11/site-telegram.jpg" 
+         alt="کانال تلگرام انجمن استخدام مهندسین" 
+         style="border: 3px solid #0088cc; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,136,204,0.2); width: 300px; height: 100px; transition: all 0.3s ease;"
+         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0,136,204,0.3)'"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 12px rgba(0,136,204,0.2)'">
+  </a>
+</div></div><div data-rocket-location-hash="ce9e736b8a796f3f92e79e39597b4060" id="block-28" class="widget clearfix widget_block"><div data-rocket-location-hash="60c224d7a659057f9fae40aa277f4b98" style="text-align: center; margin: 30px 0; font-family: 'Vazir', 'Tanha', 'Samim', Tahoma, sans-serif; direction: rtl;">
+  <a href="http://ble.ir/engestekhdam" target="_blank" rel="noopener noreferrer" style="display: inline-block; transition: all 0.3s ease; text-decoration: none;">
+    <img decoding="async" src="https://eng-estekhdam.com/wp-content/uploads/2026/05/bale-icon.png" 
+         alt="کانال بله انجمن استخدام مهندسین" 
+         style="border: 3px solid #8B5CF6; border-radius: 12px; box-shadow: 0 6px 12px rgba(139,92,246,0.2); width: 300px; height: 100px; transition: all 0.3s ease; object-fit: cover;"
+         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(139,92,246,0.3)'"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 12px rgba(139,92,246,0.2)'">
+  </a>
+</div></div><div data-rocket-location-hash="0998d1fc425f89061eb08ec23998ec99" id="text-40" class="widget clearfix widget_text"><h4 class="widget-title h5">جستجوی پیشرفته</h4>			<div data-rocket-location-hash="63f38c822ef569f9876b3e270840dada" class="textwidget">
+				<form action="" method="post" class="searchandfilter">
+					<div><ul><li><h4>انتخاب استان</h4><select  name='ofcategory' id='ofcategory' class='postform'>
+	<option value='0' selected='selected'>كليه استان ها</option>
+	<option class="level-0" value="22">آذربایجان شرقی</option>
+	<option class="level-0" value="23">آذربایجان غربی</option>
+	<option class="level-0" value="24">اردبیل</option>
+	<option class="level-0" value="25">اصفهان</option>
+	<option class="level-0" value="26">البرز</option>
+	<option class="level-0" value="27">ایلام</option>
+	<option class="level-0" value="28">بوشهر</option>
+	<option class="level-0" value="29">تهران</option>
+	<option class="level-0" value="30">چهارمحال بختیاری</option>
+	<option class="level-0" value="62">خارج ایران</option>
+	<option class="level-0" value="31">خراسان جنوبی</option>
+	<option class="level-0" value="32">خراسان رضوی</option>
+	<option class="level-0" value="33">خراسان شمالی</option>
+	<option class="level-0" value="34">خوزستان</option>
+	<option class="level-0" value="35">زنجان</option>
+	<option class="level-0" value="63">سراسر ایران</option>
+	<option class="level-0" value="36">سمنان</option>
+	<option class="level-0" value="37">سیستان بلوچستان</option>
+	<option class="level-0" value="38">فارس</option>
+	<option class="level-0" value="39">قزوین</option>
+	<option class="level-0" value="40">قم</option>
+	<option class="level-0" value="41">کردستان</option>
+	<option class="level-0" value="42">کرمان</option>
+	<option class="level-0" value="43">کرمانشاه</option>
+	<option class="level-0" value="44">کهگیلویه بویراحمد</option>
+	<option class="level-0" value="45">گلستان</option>
+	<option class="level-0" value="46">گیلان</option>
+	<option class="level-0" value="47">لرستان</option>
+	<option class="level-0" value="48">مازندران</option>
+	<option class="level-0" value="49">مرکزی</option>
+	<option class="level-0" value="50">هرمزگان</option>
+	<option class="level-0" value="51">همدان</option>
+	<option class="level-0" value="52">یزد</option>
+</select>
+<input type="hidden" name="ofcategory_operator" value="and" /></li><li><h4>انتخاب گرایش</h4><select  name='ofpost_tag' id='ofpost_tag' class='postform'>
+	<option value='0' selected='selected'>كليه گرایش ها</option>
+	<option class="level-0" value="21">آب فاضلاب</option>
+	<option class="level-0" value="16">حمل نقل</option>
+	<option class="level-0" value="15">خاک پی</option>
+	<option class="level-0" value="54">راه آهن</option>
+	<option class="level-0" value="17">راه ترابری</option>
+	<option class="level-0" value="14">زلزله</option>
+	<option class="level-0" value="13">سازه</option>
+	<option class="level-0" value="18">سازه دریایی</option>
+	<option class="level-0" value="19">سازه هیدرولیکی</option>
+	<option class="level-0" value="5">عمران</option>
+	<option class="level-0" value="20">محیط زیست</option>
+	<option class="level-0" value="12">مدیریت ساخت</option>
+	<option class="level-0" value="112">معماری</option>
+	<option class="level-0" value="6">نقشه برداري</option>
+</select>
+<input type="hidden" name="ofpost_tag_operator" value="and" /></li><li><input type="hidden" id="_searchandfilter_nonce" name="_searchandfilter_nonce" value="0bf29fb4b3" /><input type="hidden" name="_wp_http_referer" value="/1405/07/09/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d8%a2%d8%b4%d9%86%d8%a7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-%d8%b5/" /><input type="hidden" name="ofsubmitted" value="1"><input type="submit" value="جستجو"></li></ul></div></form>
+</div>
+		</div><div data-rocket-location-hash="ae5f4b13609317feb347a3a00450872d" id="block-14" class="widget clearfix widget_block"><div data-rocket-location-hash="e85307738b778bc99e54ba3655484165" style="text-align: center; margin: 30px 0; font-family: 'Vazir', 'Tanha', 'Samim', Tahoma, sans-serif; direction: rtl;">
+  <a href="tg://resolve?domain=engestekhdam_admin" style="display: inline-block; transition: all 0.3s ease; text-decoration: none;">
+    <img decoding="async" src="https://eng-estekhdam.com/wp-content/uploads/2018/11/telegram-support.jpg" 
+         alt="پشتیبانی تلگرام" 
+         style="border: 3px solid #0088cc; border-radius: 12px; box-shadow: 0 6px 12px rgba(0,136,204,0.2); width: 300px; height: 100px; transition: all 0.3s ease;"
+         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 16px rgba(0,136,204,0.3)'"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 6px 12px rgba(0,136,204,0.2)'">
+  </a>
+</div></div><div data-rocket-location-hash="c4bfafc81dcd63c3d6473641c87043d0" id="categories-4" class="widget clearfix widget_categories"><h4 class="widget-title h5">دسته بندی آگهی ها براساس استانها</h4>
+			<ul>
+					<li class="cat-item cat-item-22"><a href="https://eng-estekhdam.com/category/eazerbayjan/">آذربایجان شرقی</a> (۳۵۷)
+</li>
+	<li class="cat-item cat-item-23"><a href="https://eng-estekhdam.com/category/wazerbayjan/">آذربایجان غربی</a> (۱۲۲)
+</li>
+	<li class="cat-item cat-item-24"><a href="https://eng-estekhdam.com/category/ardebil/">اردبیل</a> (۹۱)
+</li>
+	<li class="cat-item cat-item-25"><a href="https://eng-estekhdam.com/category/esfahan/">اصفهان</a> (۱,۲۹۸)
+</li>
+	<li class="cat-item cat-item-26"><a href="https://eng-estekhdam.com/category/alborz/">البرز</a> (۸۱۵)
+</li>
+	<li class="cat-item cat-item-27"><a href="https://eng-estekhdam.com/category/ilam/">ایلام</a> (۶۷)
+</li>
+	<li class="cat-item cat-item-28"><a href="https://eng-estekhdam.com/category/bushehr/">بوشهر</a> (۳۲۶)
+</li>
+	<li class="cat-item cat-item-29"><a href="https://eng-estekhdam.com/category/tehran/">تهران</a> (۶,۷۵۰)
+</li>
+	<li class="cat-item cat-item-30"><a href="https://eng-estekhdam.com/category/charmahal/">چهارمحال بختیاری</a> (۷۰)
+</li>
+	<li class="cat-item cat-item-62"><a href="https://eng-estekhdam.com/category/abroad/">خارج ایران</a> (۴۹)
+</li>
+	<li class="cat-item cat-item-31"><a href="https://eng-estekhdam.com/category/skhorasan/">خراسان جنوبی</a> (۱۹۲)
+</li>
+	<li class="cat-item cat-item-32"><a href="https://eng-estekhdam.com/category/rkhorasan/">خراسان رضوی</a> (۱,۱۰۲)
+</li>
+	<li class="cat-item cat-item-33"><a href="https://eng-estekhdam.com/category/nkhorasan/">خراسان شمالی</a> (۷۵)
+</li>
+	<li class="cat-item cat-item-34"><a href="https://eng-estekhdam.com/category/khuzestan/">خوزستان</a> (۵۸۸)
+</li>
+	<li class="cat-item cat-item-35"><a href="https://eng-estekhdam.com/category/zanjan/">زنجان</a> (۱۴۰)
+</li>
+	<li class="cat-item cat-item-63"><a href="https://eng-estekhdam.com/category/allover/">سراسر ایران</a> (۱۷۱)
+</li>
+	<li class="cat-item cat-item-36"><a href="https://eng-estekhdam.com/category/semnan/">سمنان</a> (۱۹۵)
+</li>
+	<li class="cat-item cat-item-37"><a href="https://eng-estekhdam.com/category/sistan/">سیستان بلوچستان</a> (۵۱۹)
+</li>
+	<li class="cat-item cat-item-38"><a href="https://eng-estekhdam.com/category/fars/">فارس</a> (۷۷۲)
+</li>
+	<li class="cat-item cat-item-39"><a href="https://eng-estekhdam.com/category/qazvin/">قزوین</a> (۱۷۶)
+</li>
+	<li class="cat-item cat-item-40"><a href="https://eng-estekhdam.com/category/qom/">قم</a> (۳۴۳)
+</li>
+	<li class="cat-item cat-item-41"><a href="https://eng-estekhdam.com/category/kordestan/">کردستان</a> (۷۲)
+</li>
+	<li class="cat-item cat-item-42"><a href="https://eng-estekhdam.com/category/kerman/">کرمان</a> (۷۴۳)
+</li>
+	<li class="cat-item cat-item-43"><a href="https://eng-estekhdam.com/category/kermanshah/">کرمانشاه</a> (۹۹)
+</li>
+	<li class="cat-item cat-item-44"><a href="https://eng-estekhdam.com/category/kohgiluye/">کهگیلویه بویراحمد</a> (۲۵)
+</li>
+	<li class="cat-item cat-item-45"><a href="https://eng-estekhdam.com/category/golestan/">گلستان</a> (۱۱۱)
+</li>
+	<li class="cat-item cat-item-46"><a href="https://eng-estekhdam.com/category/guilan/">گیلان</a> (۳۷۴)
+</li>
+	<li class="cat-item cat-item-47"><a href="https://eng-estekhdam.com/category/lorestan/">لرستان</a> (۶۶)
+</li>
+	<li class="cat-item cat-item-48"><a href="https://eng-estekhdam.com/category/mazandaran/">مازندران</a> (۶۳۰)
+</li>
+	<li class="cat-item cat-item-49"><a href="https://eng-estekhdam.com/category/markazi/">مرکزی</a> (۱۹۴)
+</li>
+	<li class="cat-item cat-item-50"><a href="https://eng-estekhdam.com/category/hormozgan/">هرمزگان</a> (۶۸۴)
+</li>
+	<li class="cat-item cat-item-51"><a href="https://eng-estekhdam.com/category/hamedan/">همدان</a> (۱۰۲)
+</li>
+	<li class="cat-item cat-item-52"><a href="https://eng-estekhdam.com/category/yazd/">یزد</a> (۳۹۲)
+</li>
+			</ul>
+
+			</div><div data-rocket-location-hash="6d483a9e73130f60b5eda40132eb8ed5" id="block-3" class="widget clearfix widget_block widget_tag_cloud"><p class="wp-block-tag-cloud"><a href="https://eng-estekhdam.com/tag/water/" class="tag-cloud-link tag-link-21 tag-link-position-1" style="font-size: 16.13058419244pt;" aria-label="آب فاضلاب (۷۸۲ مورد)">آب فاضلاب<span class="tag-link-count"> (782)</span></a>
+<a href="https://eng-estekhdam.com/tag/transportation/" class="tag-cloud-link tag-link-16 tag-link-position-2" style="font-size: 10.501718213058pt;" aria-label="حمل نقل (۵۲ مورد)">حمل نقل<span class="tag-link-count"> (52)</span></a>
+<a href="https://eng-estekhdam.com/tag/geotechnic/" class="tag-cloud-link tag-link-15 tag-link-position-3" style="font-size: 14.158075601375pt;" aria-label="خاک پی (۳۰۰ مورد)">خاک پی<span class="tag-link-count"> (300)</span></a>
+<a href="https://eng-estekhdam.com/tag/rail/" class="tag-cloud-link tag-link-54 tag-link-position-4" style="font-size: 13.676975945017pt;" aria-label="راه آهن (۲۳۹ مورد)">راه آهن<span class="tag-link-count"> (239)</span></a>
+<a href="https://eng-estekhdam.com/tag/road/" class="tag-cloud-link tag-link-17 tag-link-position-5" style="font-size: 17.525773195876pt;" aria-label="راه ترابری (۱,۵۲۸ مورد)">راه ترابری<span class="tag-link-count"> (1528)</span></a>
+<a href="https://eng-estekhdam.com/tag/earthquake/" class="tag-cloud-link tag-link-14 tag-link-position-6" style="font-size: 14.975945017182pt;" aria-label="زلزله (۴۴۱ مورد)">زلزله<span class="tag-link-count"> (441)</span></a>
+<a href="https://eng-estekhdam.com/tag/structure/" class="tag-cloud-link tag-link-13 tag-link-position-7" style="font-size: 16.563573883162pt;" aria-label="سازه (۹۴۵ مورد)">سازه<span class="tag-link-count"> (945)</span></a>
+<a href="https://eng-estekhdam.com/tag/marine/" class="tag-cloud-link tag-link-18 tag-link-position-8" style="font-size: 8pt;" aria-label="سازه دریایی (۱۵ مورد)">سازه دریایی<span class="tag-link-count"> (15)</span></a>
+<a href="https://eng-estekhdam.com/tag/hydraulic/" class="tag-cloud-link tag-link-19 tag-link-position-9" style="font-size: 10.501718213058pt;" aria-label="سازه هیدرولیکی (۵۱ مورد)">سازه هیدرولیکی<span class="tag-link-count"> (51)</span></a>
+<a href="https://eng-estekhdam.com/tag/civil/" class="tag-cloud-link tag-link-5 tag-link-position-10" style="font-size: 22pt;" aria-label="عمران (۱۲,۸۲۲ مورد)">عمران<span class="tag-link-count"> (12822)</span></a>
+<a href="https://eng-estekhdam.com/tag/environment/" class="tag-cloud-link tag-link-20 tag-link-position-11" style="font-size: 15.841924398625pt;" aria-label="محیط زیست (۶۷۰ مورد)">محیط زیست<span class="tag-link-count"> (670)</span></a>
+<a href="https://eng-estekhdam.com/tag/management/" class="tag-cloud-link tag-link-12 tag-link-position-12" style="font-size: 11.848797250859pt;" aria-label="مدیریت ساخت (۱۰۰ مورد)">مدیریت ساخت<span class="tag-link-count"> (100)</span></a>
+<a href="https://eng-estekhdam.com/tag/memari/" class="tag-cloud-link tag-link-112 tag-link-position-13" style="font-size: 19.931271477663pt;" aria-label="معماری (۴,۷۵۱ مورد)">معماری<span class="tag-link-count"> (4751)</span></a>
+<a href="https://eng-estekhdam.com/tag/surveying/" class="tag-cloud-link tag-link-6 tag-link-position-14" style="font-size: 18.584192439863pt;" aria-label="نقشه برداري (۲,۵۰۶ مورد)">نقشه برداري<span class="tag-link-count"> (2506)</span></a></p></div>				
+</div>
+
+<div data-rocket-location-hash="b1c819e713817c7cf5667bd40b50155a" class="typology-sidebar-overlay"></div>		
+		<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/typology-child/*","/wp-content/themes/typology/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<div 
+	id="pum-201602" 
+	role="dialog" 
+	aria-modal="false"
+	class="pum pum-overlay pum-theme-6934 pum-theme- popmake-overlay click_open" 
+	data-popmake="{&quot;id&quot;:201602,&quot;slug&quot;:&quot;%d9%be%d8%a7%d9%be-%d8%a2%d9%be-%da%a9%d8%a7%d9%86%d8%a7%d9%84-%d8%a8%d9%84%d9%87&quot;,&quot;theme_id&quot;:6934,&quot;cookies&quot;:[],&quot;triggers&quot;:[{&quot;type&quot;:&quot;click_open&quot;,&quot;settings&quot;:{&quot;extra_selectors&quot;:&quot;&quot;,&quot;cookie_name&quot;:null}}],&quot;mobile_disabled&quot;:null,&quot;tablet_disabled&quot;:null,&quot;meta&quot;:{&quot;display&quot;:{&quot;stackable&quot;:false,&quot;overlay_disabled&quot;:false,&quot;scrollable_content&quot;:false,&quot;disable_reposition&quot;:false,&quot;size&quot;:false,&quot;responsive_min_width&quot;:false,&quot;responsive_min_width_unit&quot;:false,&quot;responsive_max_width&quot;:false,&quot;responsive_max_width_unit&quot;:false,&quot;custom_width&quot;:false,&quot;custom_width_unit&quot;:false,&quot;custom_height&quot;:false,&quot;custom_height_unit&quot;:false,&quot;custom_height_auto&quot;:false,&quot;location&quot;:false,&quot;position_from_trigger&quot;:false,&quot;position_top&quot;:false,&quot;position_left&quot;:false,&quot;position_bottom&quot;:false,&quot;position_right&quot;:false,&quot;position_fixed&quot;:false,&quot;animation_type&quot;:false,&quot;animation_speed&quot;:false,&quot;animation_origin&quot;:false,&quot;overlay_zindex&quot;:false,&quot;zindex&quot;:false},&quot;close&quot;:{&quot;text&quot;:false,&quot;button_delay&quot;:false,&quot;overlay_click&quot;:false,&quot;esc_press&quot;:false,&quot;f4_press&quot;:false},&quot;click_open&quot;:[]}}">
+
+	<div data-rocket-location-hash="204b688f0d45b57524cfd6dff4d0e4e3" id="popmake-201602" class="pum-container popmake theme-6934 pum-responsive pum-responsive-medium responsive size-medium">
+
+				
+				
+		
+				<div data-rocket-location-hash="43c452955b4e3bafafb3e36dcb6b861a" class="pum-content popmake-content" tabindex="0">
+			<div class="bale-popup-container">
+<div class="bale-popup-icon">
+        <img decoding="async" src="https://bale.ai/logo/bale_logo.svg" alt="پیام رسان بله">
+    </div>
+<h2 class="bale-popup-title">🎉 کانال جدید ما در «بله» راه‌اندازی شد!</h2>
+<p class="bale-popup-message">
+        کاربر گرامی، به اطلاع شما می‌رسانیم که کانال اختصاصی ما در پیام‌رسان بله ایجاد شده است.<br />
+        شما می‌توانید با استفاده از <strong>«نت ملی»</strong> خود، به راحتی و بدون نیاز به فیلترشکن، به این کانال دسترسی پیدا کنید و از جدیدترین اخبار و مطالب ما بهره‌مند شوید.
+    </p>
+<p class="bale-popup-note">
+        👈 کانال تلگرام ما نیز همچنان پابرجاست.
+    </p>
+<div class="bale-popup-button">
+        <a href="http://ble.ir/engestekhdam" target="_blank" rel="noopener noreferrer"><br />
+            ✨ عضویت در کانال بله<br />
+        </a>
+    </div>
+</div>
+		</div>
+
+				
+							<button type="button" class="pum-close popmake-close" aria-label="بستن">
+			&#215;			</button>
+		
+	</div>
+
+</div>
+<script id="wp-postviews-cache-js-extra">
+var viewsCacheL10n = {"admin_ajax_url":"https://eng-estekhdam.com/wp-admin/admin-ajax.php","nonce":"145dc326bb","post_id":"204917"};
+//# sourceURL=wp-postviews-cache-js-extra
+</script>
+<script type="text/rocketlazyloadscript" id="wp-postviews-cache-js" data-rocket-src="https://eng-estekhdam.com/wp-content/plugins/wp-postviews/postviews-cache.js?ver=1.78" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="persian-date-js" data-rocket-src="https://eng-estekhdam.com/wp-content/uploads/local-assets/persian-date.min.js" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="persian-datepicker-js" data-rocket-src="https://eng-estekhdam.com/wp-content/uploads/local-assets/persian-datepicker.min.js" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" async data-wp-strategy="async" fetchpriority="low" id="comment-reply-js" data-rocket-src="https://eng-estekhdam.com/wp-includes/js/comment-reply.min.js?ver=7.1.3"></script>
+<script type="text/rocketlazyloadscript" id="imagesloaded-js" data-rocket-src="https://eng-estekhdam.com/wp-includes/js/imagesloaded.min.js?ver=5.0.0" data-rocket-defer defer></script>
+<script id="typology-main-js-extra">
+var typology_js_settings = {"rtl_mode":"1","header_sticky":"1","logo":"","logo_retina":"","use_gallery":"1","slider_autoplay":"3000","cover_video_image_fallback":""};
+//# sourceURL=typology-main-js-extra
+</script>
+<script type="text/rocketlazyloadscript" id="typology-main-js" data-rocket-src="https://eng-estekhdam.com/wp-content/themes/typology/assets/js/min.js?ver=1.7.1" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="typology_child_script-js" data-rocket-src="https://eng-estekhdam.com/wp-content/themes/typology-child/js/custom.js?ver=1.0" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="jquery-ui-core-js-before">window.addEventListener('DOMContentLoaded', function() {
+jQuery.uiBackCompat = true;
+//# sourceURL=jquery-ui-core-js-before
+});</script>
+<script type="text/rocketlazyloadscript" id="jquery-ui-core-js" data-rocket-src="https://eng-estekhdam.com/wp-includes/js/jquery/ui/core.min.js?ver=1.14.2" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="wp-hooks-js" data-rocket-src="https://eng-estekhdam.com/wp-includes/js/dist/hooks.min.js?ver=f0f188028580e8dc1255"></script>
+<script id="popup-maker-site-js-extra">
+var pum_vars = {"version":"1.25.0","pm_dir_url":"https://eng-estekhdam.com/wp-content/plugins/popup-maker/","ajaxurl":"https://eng-estekhdam.com/wp-admin/admin-ajax.php","restapi":"https://eng-estekhdam.com/wp-json/pum/v1","rest_nonce":null,"default_theme":"6934","debug_mode":"","disable_tracking":"","disable_url_params":"","home_url":"/","message_position":"top","core_sub_forms_enabled":"1","popups":[],"cookie_domain":"","paramNames":{"popup_id":"pid","cta":"cta","notrack":"notrack"},"analytics_enabled":"1","analytics_route":"analytics","analytics_api":"https://eng-estekhdam.com/wp-json/pum/v1"};
+var pum_sub_vars = {"ajaxurl":"https://eng-estekhdam.com/wp-admin/admin-ajax.php","message_position":"top"};
+var pum_popups = {"pum-201602":{"triggers":[],"cookies":[],"disable_on_mobile":false,"disable_on_tablet":false,"explain":null,"type_section":null,"theme_id":6934,"size":"medium","responsive_min_width":"0%","responsive_max_width":"100%","custom_width":"640px","custom_height_auto":false,"custom_height":"380px","scrollable_content":false,"animation_type":"fade","animation_speed":350,"animation_origin":"center top","open_sound":"none","custom_sound":"","location":"center top","position_top":100,"position_bottom":0,"position_left":0,"position_right":0,"position_from_trigger":false,"position_fixed":false,"overlay_disabled":false,"stackable":false,"disable_reposition":false,"zindex":1999999999,"close_button_delay":0,"close_on_form_submission":false,"close_on_form_submission_delay":0,"close_on_overlay_click":false,"close_on_esc_press":false,"close_on_f4_press":false,"disable_form_reopen":false,"disable_accessibility":false,"theme_slug":"","id":201602,"slug":"%d9%be%d8%a7%d9%be-%d8%a2%d9%be-%da%a9%d8%a7%d9%86%d8%a7%d9%84-%d8%a8%d9%84%d9%87"}};
+//# sourceURL=popup-maker-site-js-extra
+</script>
+<script type="text/rocketlazyloadscript" id="popup-maker-site-js" data-rocket-src="//eng-estekhdam.com/wp-content/uploads/pum/pum-site-scripts.js?defer&#038;generated=1778952714&#038;ver=1.25.0" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="google-recaptcha-js" data-rocket-src="https://www.google.com/recaptcha/api.js?render=6LeK8uQUAAAAAO_DQkxq9AXFLvF_2L1PEzToe_7G&#038;ver=3.0"></script>
+<script type="text/rocketlazyloadscript" id="wp-polyfill-js" data-rocket-src="https://eng-estekhdam.com/wp-includes/js/dist/vendor/wp-polyfill.min.js?ver=3.15.0"></script>
+<script type="text/rocketlazyloadscript" id="wpcf7-recaptcha-js-before">
+var wpcf7_recaptcha = {
+    "sitekey": "6LeK8uQUAAAAAO_DQkxq9AXFLvF_2L1PEzToe_7G",
+    "actions": {
+        "homepage": "homepage",
+        "contactform": "contactform"
+    }
+};
+//# sourceURL=wpcf7-recaptcha-js-before
+</script>
+<script type="text/rocketlazyloadscript" id="wpcf7-recaptcha-js" data-rocket-src="https://eng-estekhdam.com/wp-content/plugins/contact-form-7/modules/recaptcha/index.js?ver=6.1.7" data-rocket-defer defer></script>
+<script type="text/rocketlazyloadscript" id="heartbeat-js" data-rocket-src="https://eng-estekhdam.com/wp-content/plugins/mihan-wp-rocket/assets/js/heartbeat.js?ver=3.23.2.2" data-rocket-defer defer></script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://eng-estekhdam.com/wp-includes/js/wp-emoji-release.min.js?ver=7.1.3"}}
+</script>
+<script type="text/rocketlazyloadscript" data-rocket-type="module">
+/*! This file is auto-generated */
+var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof HTMLScriptElement))throw new Error("Element missing: "+e);const r=JSON.parse(t.text),s=(window._wpemojiSettings=r,"wpEmojiSettingsSupports"),o=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(s,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const r=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===r[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,r){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!r(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,r){let a;const s=(a="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),o=(s.textBaseline="top",s.font="600 32px Arial",{});return e.forEach(e=>{o[e]=t(s,e,n,r)}),o}function a(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}r.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(s));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(o),u.toString(),c.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"});const a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=e=>{i(n=e.data),a.terminate(),t(n)})}catch(e){}i(n=f(o,u,c,p))}t(n)}).then(e=>{for(const n in e)r.supports[n]=e[n],r.supports.everything=r.supports.everything&&r.supports[n],"flag"!==n&&(r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&r.supports[n]);var t;r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&!r.supports.flag,r.supports.everything||((t=r.source||{}).concatemoji?a(t.concatemoji):t.wpemoji&&t.twemoji&&(a(t.twemoji),a(t.wpemoji)))});
+//# sourceURL=https://eng-estekhdam.com/wp-includes/js/wp-emoji-loader.min.js
+</script>
+
+	<script>var rocket_beacon_data = {"ajax_url":"https:\/\/eng-estekhdam.com\/wp-admin\/admin-ajax.php","nonce":"be74efddba","url":"https:\/\/eng-estekhdam.com\/1405\/07\/09\/%d8%a7%d8%b3%d8%aa%d8%ae%d8%af%d8%a7%d9%85-%da%a9%d8%a7%d8%b1%d8%b4%d9%86%d8%a7%d8%b3-%d8%af%d9%81%d8%aa%d8%b1-%d9%81%d9%86%db%8c-%d8%a2%d8%b4%d9%86%d8%a7-%d8%a8%d9%87-%d8%aa%d9%87%db%8c%d9%87-%d8%b5","is_mobile":false,"width_threshold":1600,"height_threshold":700,"delay":500,"debug":null,"status":{"atf":true,"lrc":true,"preconnect_external_domain":true},"elements":"img, video, picture, p, main, div, li, svg, section, header, span","lrc_threshold":1800,"preconnect_external_domain_elements":["link","script","iframe"],"preconnect_external_domain_exclusions":["static.cloudflareinsights.com","rel=\"profile\"","rel=\"preconnect\"","rel=\"dns-prefetch\"","rel=\"icon\""]}</script><script type="text/rocketlazyloadscript" data-name="wpr-wpr-beacon" data-rocket-src='https://eng-estekhdam.com/wp-content/plugins/mihan-wp-rocket/assets/js/wpr-beacon.min.js' async></script></body>
+</html>
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me - Debug: cached@1791348546 -->
