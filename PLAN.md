@@ -1,6 +1,6 @@
 # Build plan: job posting collector
 
-Agreed build plan, reviewed in its own pull request before any code. Every requirement sentence
+Agreed build plan. Every requirement sentence
 of the brief maps to a row in section 13. Site facts were observed live on 2026-10-07 (15 Mehr 1405).
 
 ## 1. What we are building
@@ -292,19 +292,19 @@ Safety rules for the page: every value inserted with `textContent` / `createElem
 
 **Where:** `tests/fixtures/eng_estekhdam/`.
 
-| File | Kind | Purpose |
+| Files | Kind | Purpose |
 |---|---|---|
-| `listing_page_1.html` | real, saved 2026-10-07 | normal listing |
-| `listing_page_7.html` | real | the page where the window ends |
-| `listing_out_of_range.html` | real (`/page/99999/`) | 200 with zero cards |
-| `posting_normal.html` | real | full body, tags, related ads, paywall, report widget |
-| `posting_two_tags.html` | real | tag mapping |
+| `snapshot/listing-00001…00008.html` | real, one consistent capture 2026-10-07T17:00Z | listings; window ends on page 7 |
+| `snapshot/listing-99999.html` | real (`/page/99999/`) | 200 with zero cards |
+| `snapshot/posting-<id>.html` (80) | real | every posting linked from pages 1–8: bodies, tags, related ads, paywall, report widget |
+| `snapshot/manifest.json` | generated | URL → file map used by the fake network |
 | `challenge_page.html` | hand-made | firewall page |
 | `listing_missing_date.html` | hand-made (edited real page) | `FIELD_MISSING` |
 | `posting_malicious.html` | hand-made, harmless | XSS checks |
 
-A small script `scripts/capture_fixtures.py` re-downloads the real ones; `fixtures/README.md`
-records date and URL of each.
+`scripts/capture_fixtures.py` re-captures the snapshot; `fixtures/eng_estekhdam/README.md`
+records when and how. A full snapshot (not a few pages) lets step 5 run a complete offline
+collection and doubles as evidence if a live run is blocked.
 
 **How:** no test touches the network. The HTTP layer is injected; tests swap in a fake that maps
 URL → fixture file (or → timeout / 503 to simulate failures). The clock is injected and frozen.
