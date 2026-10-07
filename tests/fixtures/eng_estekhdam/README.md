@@ -28,7 +28,13 @@ and replaces `snapshot/` only if every page succeeded:
 python scripts/capture_fixtures.py --max-page 8
 ```
 
-## Hand-made files
+## `handmade/`: written by hand
 
-Added in later steps for cases the live site cannot be relied on to show (firewall page,
-missing date, harmless "malicious" posting). Each one is listed here with what was changed.
+For cases the live site cannot be relied on to show. Minimal markup that copies the real page
+frame (body classes, `article` classes, date and tag elements).
+
+| File | What it contains | Used to prove |
+|---|---|---|
+| `challenge_page.html` | An invented "checking your browser" firewall page (the real BitNinja page was never seen; any page without the site's frame is an error either way) | `BLOCKED_CHALLENGE` |
+| `listing_invalid_cards.html` | One valid card, one with no date (kept via the URL date, `FALLBACK_USED`), and six broken ones: unreadable date, card/URL date mismatch, `javascript:` link, off-site look-alike link, no post id, empty title | One issue per card, valid and fallback cards kept |
+| `posting_malicious.html` | **Harmless** attacks that only set `window.__pwned = 1`: `<script>`, `onerror`/`onmouseover`, `javascript:` iframe/object/link, hidden "ignore all previous instructions" text, a members-only block, a related ad placed before the main posting, and escaped markup in the title | Only visible plain text survives; step 7 shows it renders as text |

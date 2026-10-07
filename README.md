@@ -64,7 +64,28 @@ Stored text and queries pass through the same `normalize()`: Latin letters are c
 and Arabic-Indic digits become `0–9`; the zero-width non-joiner (half-space) and repeated
 whitespace become one space.
 
-### Tag mapping *(step 3)*
+### Tag mapping
+
+Tags come only from the posting's own labels on the source; nothing is generated, and the
+site-wide menu is never copied onto a posting.
+
+| Source label | Stored tag | Where it is read |
+|---|---|---|
+| Province category, e.g. `category-tehran` → "تهران" | `kind=province`, `slug=tehran`, `label=تهران` | article class on the card; `rel="category tag"` link on the posting page (an ad can name two provinces) |
+| Field tag, e.g. `tag-civil` → "عمران" | `kind=field`, `slug=civil`, `label=عمران` | article class on the card; `.entry-tags a[rel=tag]` on the posting page |
+
+The posting page's labels are stored; if they differ from the card's, a `TAGS_MISMATCH` warning
+is recorded. Field tags seen on the site (labels as the site writes them):
+
+| slug | label | slug | label |
+|---|---|---|---|
+| `civil` | عمران | `structure` | سازه |
+| `memari` | معماری | `marine` | سازه دریایی |
+| `surveying` | نقشه برداري | `hydraulic` | سازه هیدرولیکی |
+| `road` | راه ترابری | `geotechnic` | خاک پی |
+| `rail` | راه آهن | `earthquake` | زلزله |
+| `water` | آب فاضلاب | `environment` | محیط زیست |
+| `transportation` | حمل نقل | `management` | مدیریت ساخت |
 
 ### Identity of a posting and how changes are handled *(step 4)*
 
