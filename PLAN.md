@@ -121,7 +121,7 @@ a **saved HTML snapshot** where there is a page. The summary groups by code with
 | record | `URL_REJECTED` | error | Not http(s) or not on the source domain |
 | record | `TAGS_MISMATCH` | warning | Listing tags ≠ posting page tags |
 | record | `BODY_SHORT` | warning | Body under 40 characters |
-| record | `FALLBACK_USED` | warning | A secondary extraction rule was needed (see §8) |
+| record | `ID_MISMATCH` | error | Posting page is not the post the card links to |
 | store | `DB_WRITE_FAILED` | error | SQLite error for one record |
 | run | `BREAKER_TRIPPED` | error | Too many failures; source stopped (see §8) |
 | run | `UNEXPECTED_ERROR` | error | Bug: traceback saved in detail |
@@ -183,16 +183,21 @@ and core stay untouched. No plugin loader: one site does not justify it.
 **[to build #N]**: planned, implemented by issue #N; relabelled **[built #N]** when that PR merges. **[design]**: written design answer only, deliberately not implemented.
 
 **Prevent**
-- **[to build #3]** Select by meaning, not position: post ID class, `rel="tag"`, `.post-date-hidden`,
+- **[built #3]** Select by meaning, not position: post ID class, `rel="tag"`, `.post-date-hidden`,
   `article.typology-single-post`. Never "the third div".
-- **[to build #3]** Two independent sources for key facts: date from card + URL + posting page; ID
-  from class + URL match; title from listing + `<h1>`. Disagreement = `DATE_MISMATCH` etc.
+- **[built #3]** Independent sources for key facts: date from card + URL + posting page
+  (`DATE_MISMATCH`); the posting page must carry the card's post ID (`ID_MISMATCH`).
+- **[built #3]** Body text drops active content, widgets, the members-only block and hidden
+  elements (`[hidden]`, `display:none`): hidden text is a common way to plant instructions.
 
 **Detect during a run (hard checks)**
-- **[to build #3]** Page check before parsing (`check_page`): listing must have body class
-  `home`/`paged` and `.typology-posts`; posting must have `article.typology-single-post`.
-  Otherwise `LAYOUT_UNRECOGNIZED` / `BLOCKED_CHALLENGE`.
-- **[to build #3]** Per-record validation (§6 record codes).
+- **[built #3]** Page check before parsing (`check_page`): listing = body class `home` + the
+  `.typology-section` frame (the out-of-range page has the frame but no `.typology-posts`, so it
+  stays a listing and step 5 reports it as `LISTING_EMPTY_EARLY`); posting = body class
+  `single-post` + `article.typology-single-post`. Otherwise `BLOCKED_CHALLENGE` only when the page
+  lacks the site's theme frame and its *visible* text mentions a browser check (every real page
+  loads a reCAPTCHA script), else `LAYOUT_UNRECOGNIZED`.
+- **[built #3]** Per-record validation (§6 record codes).
 
 **Detect across runs (soft checks)**
 - **[to build #5]** Health numbers stored per run: cards per page, % body OK, % date OK, % tags OK.
@@ -209,8 +214,9 @@ and core stay untouched. No plugin loader: one site does not justify it.
   new for it, status `parser_broken`. Protects good stored data and stops hammering the site.
 - **[to build #5]** Rejected records never enter `postings`; they appear only in `run_issues`, with a snapshot.
 - **[to build #4]** No-empty-overwrite rule (§4).
-- **[to build #3]** Fallbacks are allowed only where a second rule is equally validated (date from URL
-  when the card date div is missing) and always raise `FALLBACK_USED`. Never guess.
+- **[design]** Fallbacks (e.g. date from the URL when the card date is missing), each raising
+  `FALLBACK_USED`. Not built: a missing field is reported as `FIELD_MISSING` instead, which is
+  simpler and never hides a layout change.
 
 **Isolate**
 - **[to build #5]** `--source` runs one source; a source's failure never touches another.
