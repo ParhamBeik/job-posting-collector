@@ -65,6 +65,7 @@ postings
   content_hash                      sha256(title, body, date, tags): detects edits
   search_text                       normalize(title + "\n" + body)
   parser_version                    e.g. 'eng-estekhdam/1': which parser produced the row
+  members_only_omitted              1 if the source hid part of the posting (contact details)
 
 posting_tags (posting_id, kind 'province'|'field', slug 'civil', label 'عمران')
 
@@ -122,6 +123,8 @@ a **saved HTML snapshot** where there is a page. The summary groups by code with
 | record | `TAGS_MISMATCH` | warning | Listing tags ≠ posting page tags |
 | record | `BODY_SHORT` | warning | Body under 40 characters |
 | record | `ID_MISMATCH` | error | Posting page is not the post the card links to |
+| record | `TITLE_MISMATCH` | warning | Listing title ≠ posting page title (page title stored) |
+| record | `FALLBACK_USED` | warning | Card date missing; validated URL date used |
 | store | `DB_WRITE_FAILED` | error | SQLite error for one record |
 | run | `BREAKER_TRIPPED` | error | Too many failures; source stopped (see §8) |
 | run | `UNEXPECTED_ERROR` | error | Bug: traceback saved in detail |
@@ -186,7 +189,8 @@ and core stay untouched. No plugin loader: one site does not justify it.
 - **[built #3]** Select by meaning, not position: post ID class, `rel="tag"`, `.post-date-hidden`,
   `article.typology-single-post`. Never "the third div".
 - **[built #3]** Independent sources for key facts: date from card + URL + posting page
-  (`DATE_MISMATCH`); the posting page must carry the card's post ID (`ID_MISMATCH`).
+  (`DATE_MISMATCH`); the posting page must carry the card's post ID (`ID_MISMATCH`); listing
+  title vs `<h1>` (`TITLE_MISMATCH` warning; the `<h1>` is stored).
 - **[built #3]** Body text drops active content, widgets, the members-only block and hidden
   elements (`[hidden]`, `display:none`): hidden text is a common way to plant instructions.
 
@@ -214,9 +218,9 @@ and core stay untouched. No plugin loader: one site does not justify it.
   new for it, status `parser_broken`. Protects good stored data and stops hammering the site.
 - **[to build #5]** Rejected records never enter `postings`; they appear only in `run_issues`, with a snapshot.
 - **[to build #4]** No-empty-overwrite rule (§4).
-- **[design]** Fallbacks (e.g. date from the URL when the card date is missing), each raising
-  `FALLBACK_USED`. Not built: a missing field is reported as `FIELD_MISSING` instead, which is
-  simpler and never hides a layout change.
+- **[built #3]** One fallback: when the card date is missing, the already-validated URL date is
+  used and `FALLBACK_USED` is raised; the posting page date is still checked against it, so two
+  independent sources remain. Nothing else is guessed.
 
 **Isolate**
 - **[to build #5]** `--source` runs one source; a source's failure never touches another.
