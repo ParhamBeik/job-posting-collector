@@ -20,7 +20,9 @@ Saved as served, unedited, so parser tests see the real markup: inline scripts a
 the 5 related ads on each posting page, the members-only `rcp_restricted` block (its contact
 details are not in the public HTML), and the "report this ad" widget.
 
-To refresh (changes test expectations, so only when the site's HTML changes):
+To refresh (changes test expectations, so only when the site's HTML changes). The script only
+requests URLs on `eng-estekhdam.com`, never follows redirects, writes to a temporary folder,
+and replaces `snapshot/` only if every page succeeded:
 
 ```bash
 python scripts/capture_fixtures.py --max-page 8
