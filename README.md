@@ -104,7 +104,7 @@ is recorded. Field tags seen on the site (labels as the site writes them):
   - same fingerprint → `unchanged`; only `last_seen_at` moves;
   - different fingerprint → `updated`: fields, tags and search text replaced, `updated_at` moves.
 - `collected_at` is the first time the posting was stored and never changes.
-- **No data loss:** a new empty title, body or URL never overwrites stored text; the stored value
+- **No data loss:** a new empty title, body, URL or tag label never overwrites stored text; the stored value
   is kept and an `EMPTY_FIELD_KEPT` warning is recorded.
 - Old postings are never deleted.
 - `members_only_omitted = 1` marks postings whose contact section was members-only on the

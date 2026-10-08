@@ -106,6 +106,18 @@ def test_empty_field_never_overwrites_stored_text(conn):
     assert row == {"title": "عنوان جدید", "body": POSTING.body}
 
 
+@pytest.mark.parametrize("empty_label", ["", "   ", None])
+def test_empty_tag_label_never_erases_a_stored_label(conn, empty_label):
+    storage.upsert_posting(conn, POSTING, T0)
+    blank = (Tag("province", "tehran", empty_label), Tag("field", "civil", "عمران"))
+    result, issues = storage.upsert_posting(conn, replace(POSTING, tags=blank), T1)
+    assert result == "unchanged"  # with the stored label kept, nothing actually changed
+    assert [(i.code, i.severity) for i in issues] == [("EMPTY_FIELD_KEPT", "warning")]
+    assert rows(conn, "SELECT slug, label FROM posting_tags WHERE kind = 'province'") == [
+        {"slug": "tehran", "label": "تهران"}
+    ]
+
+
 def test_tags_are_replaced_on_update_not_added(conn):
     storage.upsert_posting(conn, POSTING, T0)
     storage.upsert_posting(conn, replace(POSTING, tags=(Tag("province", "kerman", "کرمان"),)), T1)

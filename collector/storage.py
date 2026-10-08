@@ -146,7 +146,25 @@ def upsert_posting(conn: sqlite3.Connection, posting: Posting, now: datetime) ->
                     issues.append(Issue.warning(
                         "EMPTY_FIELD_KEPT", f"post {posting.source_post_id}: new {name} empty, stored one kept", posting.url
                     ))
-        posting = replace(posting, **fields)  # what will actually be stored
+        tags = posting.tags
+        if row:
+            stored_labels = {
+                (r["kind"], r["slug"]): r["label"]
+                for r in conn.execute("SELECT kind, slug, label FROM posting_tags WHERE posting_id = ?", (row["id"],))
+            }
+            kept = []
+            for tag in tags:
+                old = stored_labels.get((tag.kind, tag.slug))
+                if not (tag.label or "").strip() and (old or "").strip():  # same rule for tag labels
+                    tag = replace(tag, label=old)
+                    issues.append(Issue.warning(
+                        "EMPTY_FIELD_KEPT",
+                        f"post {posting.source_post_id}: new label of {tag.kind} {tag.slug} empty, stored one kept",
+                        posting.url,
+                    ))
+                kept.append(tag)
+            tags = tuple(kept)
+        posting = replace(posting, **fields, tags=tags)  # what will actually be stored
         digest = content_hash(posting)
 
         if row and row["content_hash"] == digest:

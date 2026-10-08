@@ -126,7 +126,7 @@ a **saved HTML snapshot** where there is a page. The summary groups by code with
 | record | `TITLE_MISMATCH` | warning | Listing title ≠ posting page title (page title stored) |
 | record | `FALLBACK_USED` | warning | Card date missing; validated URL date used |
 | store | `DB_WRITE_FAILED` | error | SQLite error for one record |
-| store | `EMPTY_FIELD_KEPT` | warning | New title/body/URL empty; stored value kept |
+| store | `EMPTY_FIELD_KEPT` | warning | New title/body/URL or tag label empty; stored value kept |
 | run | `BREAKER_TRIPPED` | error | Too many failures; source stopped (see §8) |
 | run | `UNEXPECTED_ERROR` | error | Bug: traceback saved in detail |
 
