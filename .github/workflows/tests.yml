@@ -15,4 +15,5 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e ".[dev]"
+      - run: python -m playwright install --with-deps chromium  # for the one browser (XSS) test
       - run: pytest
