@@ -230,6 +230,7 @@ def test_every_response_has_a_strict_content_security_policy(client):
     for response in (client.get("/api/tags"), client.get("/api/postings/999999"), client.post("/api/runs")):
         assert response.headers["content-security-policy"] == "default-src 'self'"
         assert response.headers["x-content-type-options"] == "nosniff"
+        assert response.headers["cache-control"] == "no-cache"
 
 
 def test_the_real_launcher_runs_the_same_command_as_the_terminal(monkeypatch, tmp_path):

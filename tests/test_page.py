@@ -18,3 +18,19 @@ def test_run_issues_list_every_item_and_fold_big_groups(page, server):
     assert group.locator("li").count() == MANY
     assert group.get_attribute("open") is None  # folded: more than 20
     assert page.locator("#run-issues details", has_text="FIELD_MISSING").get_attribute("open") is not None
+
+
+def test_swapped_dates_are_fixed_instead_of_failing(page, server):
+    page.goto(server + "/?date_from=2026-10-08&date_to=2026-10-01")
+    page.locator("#results li").wait_for()
+    assert page.locator("#search-error").is_hidden()
+    assert page.input_value("[name=date_from]") == "2026-10-01" and page.input_value("[name=date_to]") == "2026-10-08"
+
+
+def test_no_match_explains_itself_and_show_all_brings_everything_back(page, server):
+    page.goto(server + "/?q=no-such-words-anywhere")
+    page.locator("#empty").wait_for()
+    assert "No postings match" in page.locator("#empty").inner_text()
+    page.click("#show-all")
+    page.locator("#results li").wait_for()
+    assert page.locator("#empty").is_hidden() and "q=" not in page.url

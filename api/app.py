@@ -102,6 +102,7 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
         response = await call_next(request)
         response.headers["Content-Security-Policy"] = DOCS_CSP if request.url.path in DOC_PATHS else CSP
         response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Cache-Control"] = "no-cache"  # always revalidate: an updated page or data is never stale
         return response
 
     app.mount("/static", StaticFiles(directory=STATIC), name="static")
