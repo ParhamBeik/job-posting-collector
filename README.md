@@ -3,14 +3,31 @@
 Collects recent job postings from [eng-estekhdam.com](https://eng-estekhdam.com/) into SQLite,
 with an HTTP API and a search page.
 
-> Work in progress. Sections marked *(step N)* are filled in by that build step
-> (issues #1–#8). The design and the requirement checklist are in [`PLAN.md`](PLAN.md); the
-> way each step is built and reviewed is in [`docs/WORKFLOW.md`](docs/WORKFLOW.md).
+It collects the postings of the last 7 days in Tehran time by reading the site's HTML pages,
+stores them with UTC timestamps, and serves them with date, keyword and tag filters. Each run
+reports whether the whole window was covered and lists every page or record that failed.
+
+**Quick start** (after [Setup](#setup)):
+
+```bash
+python -m collector collect     # about 75 polite requests, a little over a minute
+python -m api                   # then open http://127.0.0.1:8000/
+```
+
+| Document | What is in it |
+|---|---|
+| [`docs/DESIGN.md`](docs/DESIGN.md) | Components, one run step by step, data model, adding a site, broken-parser handling, trade-offs |
+| [`docs/LIVE_RUN.md`](docs/LIVE_RUN.md) | The recorded live run and its independent check |
+| [`docs/AI_NOTES.md`](docs/AI_NOTES.md), [`docs/TIME_LOG.md`](docs/TIME_LOG.md) | AI use and time spent |
+| [`PLAN.md`](PLAN.md), [`docs/WORKFLOW.md`](docs/WORKFLOW.md) | Full plan with the requirement checklist; how each step was built and reviewed (issue → PR → Codex review → merge) |
 
 ## Requirements
 
-- Python 3.12
-- Dependencies pinned in `pyproject.toml`
+- Python 3.12 (3.12.13 locally on macOS; GitHub Actions runs the tests on Ubuntu)
+- Dependencies pinned in `pyproject.toml`: httpx 0.28.1, beautifulsoup4 4.15.0, lxml 6.1.3,
+  jdatetime 6.1.0, tzdata 2026.5, FastAPI 0.142.2, uvicorn 0.54.0; for tests pytest 9.1.1 and
+  pytest-playwright 0.9.0 (Playwright 1.63, Chromium)
+- SQLite comes with Python; no server to install
 
 ## Setup
 
@@ -96,8 +113,10 @@ Open `http://127.0.0.1:8000/`. The page shows:
 - **Last run** with its status badge, window and counts, and a **Collect now** button. While a
   run is going, the button is disabled and a progress line updates every 2 seconds (pages read,
   errors, warnings); when it ends, the final status and issue codes are shown and the data reloads.
-- **Postings per day** for the 7-day window, each day labelled in Jalali and Gregorian; click a
-  day to filter by it.
+- **Postings per day, by industry** for the 7-day window: one stacked bar per Tehran day (Jalali
+  and Gregorian labels), split into industry groups built from the site's own field tags (table
+  below). Hover or focus a bar for its breakdown; "Show as a table" gives the same numbers as a
+  table; click a day to filter by it.
 - **Search**: date from/to (the Jalali date appears beside each), keyword, tag (with counts),
   Search and Reset. The filters are copied into the page URL, so a search can be bookmarked or shared.
 - **Results** ("Showing 1–20 of 68"), each with title, Jalali and Gregorian date (Tehran), tags
@@ -109,7 +128,16 @@ Scraped text is only ever inserted as text (`textContent`), never as HTML, and l
 made for `http`/`https` addresses. `tests/test_page_xss.py` loads a deliberately malicious
 posting in a real browser and checks that the attack shows as plain characters and never runs.
 
-![Search results and a posting's full text](docs/screenshots/page-detail.png)
+![Desktop: last run, postings per day by industry, search](docs/screenshots/page-search.png)
+
+| Desktop: list and an open posting | Phone |
+|---|---|
+| ![Desktop: the list and an open posting](docs/screenshots/page-detail.png) | ![Phone: last run and the chart](docs/screenshots/page-phone.png) |
+
+Persian text uses the open-source Vazirmatn font (SIL Open Font License, `api/static/fonts/OFL.txt`),
+served by the app itself so the page loads nothing from other sites. With no filters the list shows
+every stored posting (up to 100 per page; a 7-day window is about 70); **Show all** clears the
+filters, swapped dates are put in order, and an empty list says why (nothing collected yet, or no match).
 
 The server listens on `http://127.0.0.1:8000` only. There is no login (the brief leaves authentication
 out), and **Collect now** starts a process, so do not expose it publicly (`--host 0.0.0.0`).
@@ -137,6 +165,30 @@ is a 422 with a message.
 
 ## Example API queries
 
+Each filter alone:
+
+```bash
+# Date only: postings of 8 October (one Tehran day; both ends inclusive)
+curl "http://127.0.0.1:8000/api/postings?date_from=2026-10-08&date_to=2026-10-08"
+```
+
+```bash
+# Tag only, by slug
+curl "http://127.0.0.1:8000/api/postings?tag=civil"
+```
+
+```bash
+# Keyword only (Latin, any case)
+curl "http://127.0.0.1:8000/api/postings?q=autocad"
+```
+
+Combined (AND) and more:
+
+```bash
+# Keyword + tag + dates together
+curl "http://127.0.0.1:8000/api/postings?q=AutoCAD&tag=civil&date_from=2026-10-02&date_to=2026-10-08"
+```
+
 ```bash
 # Civil-engineering postings from 3 to 5 October (Tehran days)
 curl "http://127.0.0.1:8000/api/postings?tag=civil&date_from=2026-10-03&date_to=2026-10-05"
@@ -160,6 +212,10 @@ curl -X POST -H "X-Collect-Trigger: 1" http://127.0.0.1:8000/api/runs
 ```bash
 curl http://127.0.0.1:8000/api/runs?limit=1
 ```
+
+Results are newest first: by Tehran day, then, within a day, by the site's post ID, highest first
+(the site gives no time of day; its IDs follow creation order). Outputs of these queries on live
+data are in [`docs/LIVE_RUN.md`](docs/LIVE_RUN.md).
 
 ## How data is handled
 
@@ -211,6 +267,23 @@ is recorded. Field tags seen on the site (labels as the site writes them):
 | `water` | آب فاضلاب | `environment` | محیط زیست |
 | `transportation` | حمل نقل | `management` | مدیریت ساخت |
 
+### Industry groups (for the chart)
+
+The chart groups the site's field tags into six industries; nothing is guessed from the text.
+An ad with several field tags is counted **once**, in its most specific group (priority 1 first),
+so each day's segments add up to that day's ads. An ad without a known field tag is "Other".
+
+| Group | Field tags (slugs) | Priority |
+|---|---|---|
+| Civil & structures | `civil`, `structure`, `marine`, `hydraulic`, `geotechnic`, `earthquake` | 6 (the broadest: on about 2 of 3 ads) |
+| Architecture | `memari` | 2 |
+| Surveying | `surveying` | 1 |
+| Roads, rail & transport | `road`, `rail`, `transportation` | 3 |
+| Water & environment | `water`, `environment` | 4 |
+| Construction management | `management` | 5 |
+
+The mapping is in the adapter (`field_groups`), the groups and the rule in `collector/industry.py`.
+
 ### Identity of a posting and how changes are handled
 
 - **Identity:** `(source, source_post_id)`, the source's own WordPress post ID (e.g. `205126`),
@@ -227,14 +300,49 @@ is recorded. Field tags seen on the site (labels as the site writes them):
 - `members_only_omitted = 1` marks postings whose contact section was members-only on the
   source and therefore not collected.
 
-## Design *(step 8)*
+## Design
 
-## Live collection evidence *(step 8)*
+[`docs/DESIGN.md`](docs/DESIGN.md), with diagrams: the components and how a run flows through
+them; the data model; a trace of one posting from the site to the page; how another site is
+added (one adapter file, its fixtures, one line); how a broken parser is detected, contained,
+isolated and repaired; how untrusted HTML is kept harmless; trade-offs and what was left out.
 
-## Time spent, limitations and unfinished work *(step 8)*
+## Live collection evidence
 
-See [`docs/TIME_LOG.md`](docs/TIME_LOG.md).
+[`docs/LIVE_RUN.md`](docs/LIVE_RUN.md). On 2026-10-08 a fresh clone collected the window
+2026-10-02 .. 2026-10-08 Tehran (`2026-10-01T20:30:00Z` .. `2026-10-08T20:30:00Z`): status
+`success`, **69 postings**, 0 rejected, no issues, in 1 min 17 s. It made 76 page requests:
+7 listing pages (10 ads each, 70 cards seen, the last one already older than the window) and
+69 posting pages, one per ad, because only the posting page has the full text. A separate script that
+re-read every page found all 69, nothing missing or extra, every field matching.
 
-## AI use *(step 8)*
+## Time spent, limitations and unfinished work
 
-See [`docs/AI_NOTES.md`](docs/AI_NOTES.md).
+About **7 h 30 min** of focused work over two days (7 Oct 18:00–22:00, 8 Oct 13:30–17:00 Tehran);
+per step in [`docs/TIME_LOG.md`](docs/TIME_LOG.md).
+
+Limitations: one source; runs are started by hand (no scheduler, as asked); no login, so the
+server must stay on `127.0.0.1`; within one day the order follows the site's post IDs because the
+site shows no times; members-only contact details are never collected. Designed but not built:
+a health drift alert, a layout fingerprint and a per-source on/off switch
+([`docs/DESIGN.md`](docs/DESIGN.md#a-broken-parser-prevent-detect-contain-isolate-repair)).
+
+## AI use
+
+Claude Code wrote the plan, code, tests and docs with me, step by step; Codex reviewed every pull
+request as a second reviewer. Every AI output was checked against the live site, a test or a
+measurement before it was kept. Three examples (the full log is
+[`docs/AI_NOTES.md`](docs/AI_NOTES.md)):
+
+1. **Changed: "an empty listing page means there are no more postings."** Checked on the live
+   site: `/page/99999/` answers HTTP 200 with zero ads, so an empty page proves nothing. Now an
+   empty page before the window ends is `LISTING_EMPTY_EARLY` and the run is `incomplete`, never
+   a quiet success; a test covers it.
+2. **Changed: read the posting text from `article.typology-post`.** A live posting page holds six
+   such articles (the ad plus five related ads), so the body would have mixed ads. Now only the
+   main `typology-single-post` article is read, its post ID must equal the card's, and a test with
+   a related ad placed first proves it.
+3. **Rejected after questioning: a fixed 30-minute limit to declare a run dead.** The number was a
+   guess. Replaced by a heartbeat after every request and a 3-minute limit derived from the
+   longest healthy silence (one request with all retries, about 97 s); verified by killing a live
+   run, which was marked `failed` after 3 minutes and no longer blocked Collect now.

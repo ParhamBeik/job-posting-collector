@@ -4,79 +4,115 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Job postings · eng-estekhdam</title>
+  <link rel="preload" href="/static/fonts/Vazirmatn.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/static/style.css">
   <script src="/static/app.js" defer></script>
 </head>
 <body>
-  <header class="bar">
-    <h1>Job postings <small>eng-estekhdam.com · last 7 days (Tehran)</small></h1>
-    <div id="run-status" class="run-status" aria-live="polite">Loading last run…</div>
-    <button id="collect" type="button">Collect now</button>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <h1>Job postings</h1>
+        <p class="muted">eng-estekhdam.com · the last 7 days, Tehran time</p>
+      </div>
+      <button id="collect" class="primary" type="button">Collect now</button>
+    </div>
   </header>
-  <div id="progress" class="progress" hidden aria-live="polite"></div>
+  <div id="progress" class="progress" hidden aria-live="polite"><div class="wrap" id="progress-text"></div></div>
 
-  <main>
-    <section aria-labelledby="per-day-title">
-      <h2 id="per-day-title">Postings per day <small>click a day to filter</small></h2>
-      <div id="days" class="days"></div>
+  <main class="wrap">
+    <section class="tiles" id="run-status" aria-label="Last collection run" aria-live="polite">
+      <div class="tile"><span class="tile-label">Last run</span><span class="tile-value">Loading…</span></div>
     </section>
 
-    <section aria-labelledby="search-title">
-      <h2 id="search-title">Search</h2>
+    <section class="panel" aria-labelledby="per-day-title">
+      <div class="panel-head">
+        <h2 id="per-day-title">Postings per day, by industry</h2>
+        <span class="muted">click a day to see its postings</span>
+      </div>
+      <div id="legend" class="legend"></div>
+      <div class="chart">
+        <div id="days" class="days"></div>
+        <div id="tooltip" class="tooltip" role="tooltip" hidden></div>
+      </div>
+      <details class="table-view">
+        <summary>Show as a table</summary>
+        <div class="table-scroll"><table id="days-table" class="grid-table"></table></div>
+      </details>
+    </section>
+
+    <section class="panel" aria-labelledby="search-title">
+      <div class="panel-head">
+        <h2 id="search-title">Search</h2>
+        <span class="muted">filters combine; leave all empty to see every posting</span>
+      </div>
       <form id="search" class="search">
-        <label>From (Tehran day)
-          <input type="date" name="date_from"><span class="jalali" data-for="date_from"></span>
+        <label class="field">
+          <span class="field-label">From <small>(Tehran day)</small><span class="jalali" data-for="date_from" dir="rtl"></span></span>
+          <input type="date" name="date_from">
         </label>
-        <label>To (Tehran day)
-          <input type="date" name="date_to"><span class="jalali" data-for="date_to"></span>
+        <label class="field">
+          <span class="field-label">To <small>(Tehran day)</small><span class="jalali" data-for="date_to" dir="rtl"></span></span>
+          <input type="date" name="date_to">
         </label>
-        <label>Keyword
-          <input type="search" name="q" dir="auto" placeholder="e.g. مهندس عمران or AutoCAD">
+        <label class="field">
+          <span class="field-label">Keyword</span>
+          <input type="search" name="q" dir="auto" placeholder="مهندس عمران · AutoCAD">
         </label>
-        <label>Tag
-          <select name="tag" dir="auto"><option value="">Any tag</option></select>
+        <label class="field">
+          <span class="field-label">Tag</span>
+          <select name="tag"><option value="">Any tag</option></select>
         </label>
         <div class="buttons">
-          <button type="submit">Search</button>
-          <button type="button" id="reset">Reset</button>
+          <button type="submit" class="primary">Search</button>
+          <button type="button" id="show-all">Show all</button>
         </div>
       </form>
       <p id="search-error" class="error" hidden></p>
     </section>
 
     <div class="columns">
-      <section aria-labelledby="results-title">
-        <h2 id="results-title">Results</h2>
-        <p id="showing" class="muted"></p>
+      <section class="panel" aria-labelledby="results-title">
+        <div class="panel-head">
+          <h2 id="results-title">Postings</h2>
+          <span id="showing" class="muted"></span>
+        </div>
         <ol id="results" class="results"></ol>
-        <div class="pager">
+        <p id="empty" class="empty" hidden></p>
+        <div id="pager" class="pager" hidden>
           <button type="button" id="prev">← Newer</button>
           <button type="button" id="next">Older →</button>
         </div>
       </section>
 
-      <section id="detail" class="detail" aria-labelledby="detail-title" hidden>
-        <h2 id="detail-title" dir="auto"></h2>
-        <p id="detail-meta" class="muted"></p>
+      <section id="detail" class="panel detail" aria-labelledby="detail-title" hidden>
+        <div class="detail-head">
+          <h2 id="detail-title" dir="auto"></h2>
+          <button type="button" id="detail-close" class="icon" aria-label="Close">×</button>
+        </div>
+        <p id="detail-meta" class="meta"></p>
         <div id="detail-tags" class="chips"></div>
         <p id="detail-note" class="note" hidden>Contact details are members-only on the source site and were not collected.</p>
         <div id="detail-body" class="body" dir="auto"></div>
-        <p><a id="detail-link" rel="noopener noreferrer" target="_blank">Open original ↗</a></p>
+        <a id="detail-link" class="original" rel="noopener noreferrer" target="_blank">Open the original posting ↗</a>
       </section>
     </div>
 
-    <section aria-labelledby="runs-title">
-      <h2 id="runs-title">Run history <small>click a run for its issues</small></h2>
+    <section class="panel" aria-labelledby="runs-title">
+      <div class="panel-head">
+        <h2 id="runs-title">Run history</h2>
+        <span class="muted">click a run to see its issues</span>
+      </div>
       <div class="table-scroll">
-      <table class="runs">
-        <thead>
-          <tr>
-            <th>#</th><th>Started (Tehran)</th><th>Status</th><th>New</th><th>Updated</th><th>Unchanged</th>
-            <th>Rejected</th><th>Errors / warnings</th><th>Cards/page</th><th>Date OK</th><th>Body OK</th><th>Tags OK</th>
-          </tr>
-        </thead>
-        <tbody id="runs"></tbody>
-      </table>
+        <table class="grid-table runs">
+          <thead>
+            <tr>
+              <th>#</th><th>Started (Tehran)</th><th>Status</th><th>New</th><th>Updated</th><th>Unchanged</th>
+              <th>Rejected</th><th>Errors / warnings</th><th>Cards/page</th><th>Date OK</th><th>Body OK</th><th>Tags OK</th>
+            </tr>
+          </thead>
+          <tbody id="runs"></tbody>
+        </table>
       </div>
       <div id="run-issues" class="run-issues" hidden></div>
     </section>
