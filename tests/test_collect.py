@@ -7,6 +7,7 @@ from pathlib import Path
 
 import httpx
 import pytest
+from bs4 import BeautifulSoup
 
 from collector import storage
 from collector.__main__ import main
@@ -36,6 +37,21 @@ def in_window_count(first=date(2026, 10, 1), last=date(2026, 10, 7)) -> int:
         for n in range(1, 9)
         for text in re.findall(r'class="post-date-hidden">([^<]+)<', page(SOURCE.listing_url(n)))
     )
+
+
+def with_cards(listing_url: str, cards: list) -> str:
+    """A listing page whose cards are replaced by the given ones (in that order)."""
+    soup = BeautifulSoup(page(listing_url), "lxml")
+    box = soup.select_one(".typology-posts")
+    for card in box.select("article.typology-post"):
+        card.extract()
+    for card in cards:
+        box.append(BeautifulSoup(str(card), "lxml").article)
+    return str(soup)
+
+
+def cards(listing_url: str) -> list:
+    return BeautifulSoup(page(listing_url), "lxml").select("article.typology-post")
 
 
 class FakeSite(DirFetcher):
@@ -90,6 +106,12 @@ def test_full_run_collects_exactly_the_window_then_reruns_without_duplicates(con
 
     again = run(conn, tmp_path, FakeSite(), now=NOW + timedelta(minutes=5))
     assert (again.status, again.results["unchanged"], count(conn)) == ("success", 68, 68)
+
+
+def test_postings_are_stamped_with_the_run_clock(conn, tmp_path):
+    run(conn, tmp_path, FakeSite())
+    stamps = conn.execute("SELECT DISTINCT collected_at, updated_at, last_seen_at FROM postings").fetchall()
+    assert [tuple(r) for r in stamps] == [("2026-10-07T17:00:00Z",) * 3]
 
 
 def test_window_dates_stored_are_inside_the_utc_window(conn, tmp_path):
@@ -157,6 +179,20 @@ def test_shifted_ads_are_counted_once_and_order_problems_are_reported(conn, tmp_
     assert count(conn) == report.found == count(conn, "SELECT count(DISTINCT source_post_id) FROM postings")
 
 
+def test_broken_order_keeps_paging_until_a_page_is_wholly_older(conn, tmp_path):
+    # Page 7 (two 10 Mehr, six 9 Mehr, two 8 Mehr) is split: the two older cards come first, and
+    # three in-window cards slip onto page 8. Stopping at the first older card would miss them.
+    seven, eight = cards(SOURCE.listing_url(7)), cards(SOURCE.listing_url(8))
+    site = FakeSite({
+        SOURCE.listing_url(7): with_cards(SOURCE.listing_url(7), seven[8:] + seven[:5]),
+        SOURCE.listing_url(8): with_cards(SOURCE.listing_url(8), seven[5:8] + eight),
+        SOURCE.listing_url(9): page(SOURCE.listing_url(8)),
+    })
+    report = run(conn, tmp_path, site)
+    assert (report.status, report.found, count(conn), report.pages_listing) == ("success_with_warnings", 68, 68, 9)
+    assert "LISTING_ORDER_BROKEN" in codes(report)
+
+
 # --- blocked, broken parser, crash -------------------------------------------------------------
 
 def test_firewall_page_blocks_the_run_and_is_saved_for_inspection(conn, tmp_path):
@@ -180,6 +216,16 @@ def test_firewall_on_a_posting_page_stops_asking(conn, tmp_path):
     assert site.requested[-1] == POSTING_URLS[0]  # no request after the refusal
 
 
+def test_problem_run_folder_replays_the_whole_run(conn, tmp_path):
+    # A problem on a posting page: the folder also holds the listing pages and the other postings.
+    bad = POSTING_URLS[5]
+    report = run(conn, tmp_path, FakeSite({bad: page(POSTING_URLS[6])}))
+    assert (report.status, codes(report)) == ("partial", ["ID_MISMATCH"])
+    folder = tmp_path / "snapshots" / str(report.run_id)
+    replay = run(conn, tmp_path, DirFetcher(folder))
+    assert (replay.status, codes(replay), replay.found) == ("partial", ["ID_MISMATCH"], 68)
+
+
 def test_unrecognized_first_page_trips_the_breaker(conn, tmp_path):
     report = run(conn, tmp_path, FakeSite({SOURCE.listing_url(1): "<html><body><p>New design!</p></body></html>"}))
     assert (report.status, report.exit_code) == ("parser_broken", 4)
@@ -193,6 +239,8 @@ def test_mostly_invalid_postings_trip_the_breaker_and_store_nothing(conn, tmp_pa
     assert (report.status, report.exit_code) == ("parser_broken", 4)
     assert codes(report).count("ID_MISMATCH") == 68 and codes(report)[-1] == "BREAKER_TRIPPED"
     assert count(conn) == 0
+    row = conn.execute("SELECT rejected, pages_posting, new FROM runs").fetchone()
+    assert tuple(row) == (68, 68, 0)  # the run row tells the same story as the printed report
 
 
 def test_a_few_invalid_postings_do_not_trip_the_breaker(conn, tmp_path):

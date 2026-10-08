@@ -62,11 +62,12 @@ The last lines it prints, and the exit code, tell you how the run went:
 | `failed` | 5 | A bug; the traceback is in the run's issues |
 | not started | 6 | Another run is in progress |
 
-Each problem is an issue with a code (`PLAN.md` §6), stored with the run. A page that caused a
-problem is saved to `var/snapshots/<run id>/` with a `manifest.json`, so it can be replayed offline:
+Each problem is an issue with a code (`PLAN.md` §6), stored with the run. When a run has a
+problem, every page it read is saved to `var/snapshots/<run id>/` with a `manifest.json`, so the
+whole run can be replayed offline (use the run's start time as `--now`):
 
 ```bash
-python -m collector collect --from-dir var/snapshots/12/
+python -m collector collect --from-dir var/snapshots/12/ --now 2026-10-08T06:00:00Z
 ```
 
 Replaying the committed site snapshot needs the moment it was taken, so the window matches:

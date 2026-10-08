@@ -59,31 +59,45 @@ class RunReport:
 
 
 class _Run:
-    def __init__(self, conn, source, fetcher, report: RunReport, snapshot_dir: Path, page_cap: int):
+    def __init__(self, conn, source, fetcher, report: RunReport, snapshot_dir: Path, page_cap: int, clock):
         self.conn, self.source, self.fetcher, self.report = conn, source, fetcher, report
-        self.snapshot_dir, self.page_cap = snapshot_dir, page_cap
+        self.snapshot_dir, self.page_cap, self.clock = snapshot_dir, page_cap, clock
+        self.fetched: dict[str, tuple[str, str]] = {}  # url → (html, kind), every page read this run
         self.saved: dict[str, str] = {}  # url → snapshot file
 
     # --- recording ------------------------------------------------------------------------
 
-    def record(self, stage: str, issues: list[Issue], page_url: str | None = None, html: str | None = None, kind: str = "") -> None:
-        path = self._snapshot(page_url, html, kind) if issues and html is not None else None
+    def fetch(self, url: str, kind: str) -> str | None:
+        html, issues = self.fetcher.get(url)
+        if html is not None:
+            self.fetched[url] = (html, kind)
+            if self.saved:  # already saving this run: keep the replay folder complete
+                self._save(url)
+        self.record("fetch", issues)
+        return html
+
+    def record(self, stage: str, issues: list[Issue], page_url: str | None = None) -> None:
+        if issues and not self.saved:
+            for url in self.fetched:  # first problem: save the pages that led here too
+                self._save(url)
+        path = str(self.snapshot_dir / self.saved[page_url]) if issues and page_url in self.saved else None
         for issue in issues:
             self.report.issues.append((stage, issue))
             storage.add_issue(self.conn, self.report.run_id, issue, stage, path)
 
-    def _snapshot(self, url: str, html: str, kind: str) -> str:
-        """Save a problem page so it can become a test fixture (repair flow)."""
-        if url not in self.saved:
-            self.snapshot_dir.mkdir(parents=True, exist_ok=True)
-            name = f"{len(self.saved) + 1:03d}-{kind}.html"
-            (self.snapshot_dir / name).write_text(html, encoding="utf-8")
-            self.saved[url] = name
-            pages = [{"url": u, "kind": f.split("-", 1)[1][:-5], "file": f, "status": 200} for u, f in self.saved.items()]
-            (self.snapshot_dir / "manifest.json").write_text(
-                json.dumps({"pages": pages}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-            )
-        return str(self.snapshot_dir / self.saved[url])
+    def _save(self, url: str) -> None:
+        """Save a page of a run that had problems; the folder replays with --from-dir (repair flow)."""
+        if url in self.saved:
+            return
+        html, kind = self.fetched[url]
+        self.snapshot_dir.mkdir(parents=True, exist_ok=True)
+        name = f"{len(self.saved) + 1:03d}-{kind}.html"
+        (self.snapshot_dir / name).write_text(html, encoding="utf-8")
+        self.saved[url] = name
+        pages = [{"url": u, "kind": self.fetched[u][1], "file": f, "status": 200} for u, f in self.saved.items()]
+        (self.snapshot_dir / "manifest.json").write_text(
+            json.dumps({"pages": pages}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
 
     def progress(self) -> None:
         storage.update_run(
@@ -123,11 +137,10 @@ class _Run:
         """Walk listing pages until a card older than the window. Returns (candidates, covered, stop)."""
         candidates: dict[str, ListingItem] = {}
         self.cards_seen = self.card_errors = self.date_problems = 0
-        previous = None
+        previous, order_broken = None, False
         for page in range(1, self.page_cap + 1):
             url = self.source.listing_url(page)
-            html, issues = self.fetcher.get(url)
-            self.record("fetch", issues)
+            html = self.fetch(url, "listing")
             if html is None:
                 return candidates, False, None
             self.report.pages_listing += 1
@@ -135,7 +148,7 @@ class _Run:
 
             code = self.source.check_page(html, "listing")
             if code:
-                self.record("page", [Issue.error(code, f"listing page {page} not recognized", url)], url, html, "listing")
+                self.record("page", [Issue.error(code, f"listing page {page} not recognized", url)], url)
                 if code in BLOCKING_CODES:
                     return candidates, False, "blocked"
                 if page == 1:  # the very first page is unreadable: the parser no longer fits the site
@@ -144,24 +157,27 @@ class _Run:
                 return candidates, False, None
 
             items, issues = self.source.parse_listing(html)
-            self.record("listing", issues, url, html, "listing")
+            self.record("listing", issues, url)
             errors = sum(issue.severity == "error" for issue in issues)
             self.card_errors += errors
             self.cards_seen += len(items) + errors
             self.date_problems += sum(issue.code in {"FALLBACK_USED", "DATE_UNPARSEABLE", "DATE_MISMATCH"} for issue in issues)
             if not items and not errors:
-                self.record("listing", [Issue.error("LISTING_EMPTY_EARLY", f"page {page} has no cards before the window ended", url)], url, html, "listing")
+                self.record("listing", [Issue.error("LISTING_EMPTY_EARLY", f"page {page} has no cards before the window ended", url)], url)
                 return candidates, False, None
 
             reached_end = False
             for item in items:
                 if previous and item.published_date > previous:
+                    order_broken = True
                     self.record("listing", [Issue.warning("LISTING_ORDER_BROKEN", f"page {page}: {item.published_date} after {previous}", url)])
                 previous = item.published_date
                 if item.published_date < window.first_day:
                     reached_end = True
                 elif item.published_date <= window.last_day:
                     candidates.setdefault(item.source_post_id, item)  # an ad can shift onto the next page mid-run
+            if order_broken:  # stop only on a page with nothing newer than the window's first day
+                reached_end = all(item.published_date < window.first_day for item in items)
             if reached_end:
                 return candidates, True, None
             if len(items) + errors < CARDS_PER_PAGE:
@@ -172,21 +188,20 @@ class _Run:
     def read_postings(self, candidates: dict[str, ListingItem]) -> tuple[list[Posting], int, bool]:
         postings, invalid = [], 0
         for item in candidates.values():
-            html, issues = self.fetcher.get(item.url)
-            self.record("fetch", issues)
+            html = self.fetch(item.url, "posting")
             if html is None:
                 continue
             self.report.pages_posting += 1
             self.progress()
             code = self.source.check_page(html, "posting")
             if code:
-                self.record("page", [Issue.error(code, f"post {item.source_post_id}: page not recognized", item.url)], item.url, html, "posting")
+                self.record("page", [Issue.error(code, f"post {item.source_post_id}: page not recognized", item.url)], item.url)
                 if code in BLOCKING_CODES:
                     return postings, invalid, True  # stop asking a site that is refusing us
                 invalid += 1
                 continue
             posting, issues = self.source.parse_posting(html, item)
-            self.record("posting", issues, item.url, html, "posting")
+            self.record("posting", issues, item.url)
             if posting is None:
                 invalid += 1
             else:
@@ -196,15 +211,18 @@ class _Run:
     def store(self, postings: list[Posting]) -> None:
         for posting in postings:
             try:
-                result, issues = storage.upsert_posting(self.conn, posting, utc_now())
+                result, issues = storage.upsert_posting(self.conn, posting, self.clock())
             except sqlite3.Error as error:
                 self.report.rejected += 1
                 self.record("store", [Issue.error("DB_WRITE_FAILED", f"post {posting.source_post_id}: {error}", posting.url)])
                 continue
             self.report.results[result] += 1
             self.record("store", issues)
+
+    def save_counters(self) -> None:
         storage.update_run(
             self.conn, self.report.run_id,
+            pages_listing=self.report.pages_listing, pages_posting=self.report.pages_posting,
             new=self.report.results["new"], updated=self.report.results["updated"],
             unchanged=self.report.results["unchanged"], rejected=self.report.rejected,
         )
@@ -235,12 +253,13 @@ def collect(conn, source, fetcher, clock=utc_now, snapshot_root: Path = Path("va
         window_start=format_utc(report.window.start), window_end=format_utc(report.window.end),
         parser_version=source.parser_version,
     )
-    run = _Run(conn, source, fetcher, report, snapshot_root / str(run_id), page_cap)
+    run = _Run(conn, source, fetcher, report, snapshot_root / str(run_id), page_cap, clock)
     try:
         report.status = run.run()
     except Exception:  # a bug must still end the run visibly
         run.record("run", [Issue.error("UNEXPECTED_ERROR", traceback.format_exc(limit=5))])
         report.status = "failed"
+    run.save_counters()  # every ending, including breaker, blocked and crash
     storage.finish_run(conn, run_id, report.status, clock())
     return report
 
