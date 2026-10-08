@@ -79,9 +79,57 @@ python -m collector --db var/replay.db collect --from-dir tests/fixtures/eng_est
 That run reports 68 postings for 9–15 Mehr 1405 (2026-10-01..07 Tehran); running it again reports
 68 unchanged. `--now` is refused without `--from-dir`: a live run always uses the real clock.
 
-## Start the API and the page *(steps 6–7)*
+## Start the API *(the page comes in step 7)*
 
-## Example API queries *(step 6)*
+```bash
+python -m api
+```
+
+It listens on `http://127.0.0.1:8000` only. There is no login (the brief leaves authentication
+out), and **Collect now** starts a process, so do not expose it publicly (`--host 0.0.0.0`).
+Options: `--db`, `--host`, `--port`. Every response carries
+`Content-Security-Policy: default-src 'self'`; that is also why the Swagger page (`/docs`, which
+loads scripts from a CDN) is off. The machine-readable schema is at `/openapi.json`.
+
+| Route | What it returns |
+|---|---|
+| `GET /api/postings` | Search: `date_from`, `date_to` (`YYYY-MM-DD` Tehran days, both inclusive), `q` (keyword), `tag` (slug or Persian label), `page`, `page_size` (default 20, max 100). Newest first, `{items, total, page, page_size}` |
+| `GET /api/postings/{id}` | One posting with its full text |
+| `GET /api/tags` | Every tag with its kind, Persian label and count |
+| `GET /api/stats` | Postings per Tehran day for the current 7-day window (with Jalali dates) and the top tags |
+| `GET /api/runs?limit=20` | Run history: status, counts, health numbers, error and warning counts |
+| `GET /api/runs/{id}` | One run with its issues grouped by code (counters update while it runs) |
+| `POST /api/runs` | **Collect now**: needs header `X-Collect-Trigger: 1` (else 403); 409 if a run is active; otherwise 202 with `run_id` and the collect command starts as a separate process, logging to `var/logs/run-<id>.log` |
+
+Filters combine with AND. All timestamps are UTC with `Z`; each posting also has
+`published_date_tehran` and `published_date_jalali`. A bad date, or `date_from` after `date_to`,
+is a 422 with a message.
+
+## Example API queries
+
+```bash
+# Civil-engineering postings from 3 to 5 October (Tehran days)
+curl "http://127.0.0.1:8000/api/postings?tag=civil&date_from=2026-10-03&date_to=2026-10-05"
+```
+
+```bash
+# Keyword phrase in Persian, any spelling variant (ي/ی, ۵/5, upper/lower case)
+curl -G "http://127.0.0.1:8000/api/postings" --data-urlencode "q=مهندس عمران"
+```
+
+```bash
+# Tag by its Persian label, second page of 10
+curl -G "http://127.0.0.1:8000/api/postings" --data-urlencode "tag=تهران" -d page=2 -d page_size=10
+```
+
+```bash
+# Start a collection from the API, then follow it
+curl -X POST -H "X-Collect-Trigger: 1" http://127.0.0.1:8000/api/runs
+```
+
+```bash
+curl http://127.0.0.1:8000/api/runs?limit=1
+```
 
 ## How data is handled
 
