@@ -26,6 +26,7 @@ CSP = "default-src 'self'"
 SNIPPET = 160  # characters of body shown in a result row
 TOP_TAGS = 10
 _DAY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+YEARS = range(1900, 2101)  # far from date.min/max, so the UTC conversion cannot overflow
 LOG_DIR = Path("var/logs")
 
 
@@ -53,9 +54,12 @@ def parse_day(name: str, value: str | None) -> date | None:
     try:
         if not _DAY.match(value):
             raise ValueError
-        return date.fromisoformat(value)
+        day = date.fromisoformat(value)
     except ValueError:
         raise HTTPException(422, f"{name} must be a real date written YYYY-MM-DD (Tehran day), got {value!r}")
+    if day.year not in YEARS:
+        raise HTTPException(422, f"{name} must be between {YEARS.start} and {YEARS.stop - 1}, got {value!r}")
+    return day
 
 
 def like_pattern(text: str) -> str:

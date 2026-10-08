@@ -143,7 +143,7 @@ def test_all_filters_combine_with_and(client):
 
 @pytest.mark.parametrize(
     "params",
-    [{"date_from": "2026-13-01"}, {"date_to": "06/10/2026"}, {"date_from": "2026-10-7"}, {"date_to": "20261007"},
+    [{"date_from": "2026-13-01"}, {"date_to": "06/10/2026"}, {"date_from": "2026-10-7"}, {"date_to": "20261007"}, {"date_from": "0001-01-01"}, {"date_to": "9999-12-31"},
      {"date_from": "2026-10-07", "date_to": "2026-10-01"}, {"page": 0}, {"page_size": 101}],
 )
 def test_bad_parameters_are_422_with_a_message(client, params):
