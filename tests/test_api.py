@@ -290,3 +290,26 @@ def test_within_one_day_the_newest_post_id_comes_first(tmp_path):
     conn.close()
     client = TestClient(create_app(db, clock=lambda: NOW))
     assert [i["source_post_id"] for i in search(client)["items"]] == ["205137", "205134", "205131"]
+
+
+def test_stats_split_each_day_into_industry_groups_that_add_up(client, db):
+    data = client.get("/api/stats").json()
+    assert [g["key"] for g in data["groups"]][-1] == "other"
+    for day in data["days"]:
+        assert sum(day["groups"].values()) == day["count"]
+    assert sum(sum(d["groups"].values()) for d in data["days"]) == 70
+    # every field tag the real site uses belongs to a group: only the hand-made untagged ads are "other"
+    assert sum(d["groups"]["other"] for d in data["days"]) == 2
+    slugs = {r[0] for r in sql(db, "SELECT DISTINCT slug FROM posting_tags WHERE kind = 'field'")}
+    assert slugs <= set(SOURCES["eng-estekhdam"].field_groups)
+
+
+@pytest.mark.parametrize(
+    "fields, group",
+    [(["civil", "memari"], "architecture"), (["civil"], "civil"), (["surveying", "road"], "surveying"),
+     (["structure", "management"], "management"), ([], "other"), (["something-new"], "other")],
+)
+def test_an_ad_with_several_field_tags_counts_once_in_its_most_specific_group(fields, group):
+    from collector.industry import primary_group
+
+    assert primary_group(fields, SOURCES["eng-estekhdam"].field_groups) == group

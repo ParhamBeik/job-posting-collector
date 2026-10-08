@@ -12,6 +12,7 @@ from collector.sources.eng_estekhdam import EngEstekhdam
 class Source(Protocol):
     name: str
     parser_version: str
+    field_groups: dict[str, str]  # field-tag slug → industry group key (collector/industry.py)
 
     def listing_url(self, page: int) -> str:
         """Address of listing page `page` (1-based)."""

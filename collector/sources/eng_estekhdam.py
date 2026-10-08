@@ -68,6 +68,16 @@ def _slug(href: str, kind: str) -> str | None:
 class EngEstekhdam:
     name = "eng-estekhdam"
     parser_version = "eng-estekhdam/1"
+    # The site's field tags (README tag table) → industry groups for the chart (collector/industry.py).
+    field_groups = {
+        "civil": "civil", "structure": "civil", "marine": "civil", "hydraulic": "civil",
+        "geotechnic": "civil", "earthquake": "civil",
+        "memari": "architecture",
+        "surveying": "surveying",
+        "road": "transport", "rail": "transport", "transportation": "transport",
+        "water": "water", "environment": "water",
+        "management": "management",
+    }
 
     def listing_url(self, page: int) -> str:
         return f"{BASE}/" if page == 1 else f"{BASE}/page/{page}/"

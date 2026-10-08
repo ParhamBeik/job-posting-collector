@@ -20,6 +20,7 @@ from collector import storage
 from collector.core import utc_now
 from collector.dates import TEHRAN, collection_window, format_utc, tehran_midnight_utc
 from collector.models import Issue
+from collector.industry import GROUPS, primary_group
 from collector.normalize import normalize
 from collector.sources import SOURCES
 
@@ -204,24 +205,28 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
         window = collection_window(clock())
         start, end = format_utc(window.start), format_utc(window.end)
         with connect() as conn:
-            per_instant = dict(conn.execute(
-                "SELECT published_at, count(*) FROM postings WHERE published_at >= ? AND published_at < ?"
-                " GROUP BY published_at", (start, end),
-            ).fetchall())
+            ads = conn.execute(
+                "SELECT p.source, p.published_at, group_concat(t.slug) AS fields FROM postings p"
+                " LEFT JOIN posting_tags t ON t.posting_id = p.id AND t.kind = 'field'"
+                " WHERE p.published_at >= ? AND p.published_at < ? GROUP BY p.id", (start, end),
+            ).fetchall()
             top = conn.execute(
                 "SELECT t.kind, t.slug, max(t.label) AS label, count(*) AS count FROM posting_tags t"
                 " JOIN postings p ON p.id = t.posting_id WHERE p.published_at >= ? AND p.published_at < ?"
                 " GROUP BY t.kind, t.slug ORDER BY count DESC, t.kind, t.slug LIMIT ?", (start, end, TOP_TAGS),
             ).fetchall()
             total = conn.execute("SELECT count(*) FROM postings").fetchone()[0]
-        per_day: dict[date, int] = {}
-        for instant, n in per_instant.items():
-            per_day[tehran_day(instant)] = per_day.get(tehran_day(instant), 0) + n
         days = [window.first_day + timedelta(days=i) for i in range((window.last_day - window.first_day).days + 1)]
+        per_day = {d: {key: 0 for key, _, _ in GROUPS} for d in days}
+        for ad in ads:
+            mapping = getattr(SOURCES.get(ad["source"]), "field_groups", {})
+            per_day[tehran_day(ad["published_at"])][primary_group((ad["fields"] or "").split(","), mapping)] += 1
         return {
             "window": {"first_day": window.first_day.isoformat(), "last_day": window.last_day.isoformat(),
                        "start": start, "end": end},
-            "days": [{"date": d.isoformat(), "jalali": jalali(d), "count": per_day.get(d, 0)} for d in days],
+            "groups": [{"key": key, "label": label, "label_fa": label_fa} for key, label, label_fa in GROUPS],
+            "days": [{"date": d.isoformat(), "jalali": jalali(d), "count": sum(per_day[d].values()),
+                      "groups": per_day[d]} for d in days],
             "top_tags": [dict(r) for r in top],
             "total_postings": total,
         }
