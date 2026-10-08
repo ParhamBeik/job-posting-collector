@@ -32,6 +32,9 @@ DOCS_CSP = (
     "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
     "font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; worker-src 'self' blob:"
 )
+# The site gives only a day, so within one day the site's post ID (assigned in creation order,
+# so nearly the site's own listing order) decides; our row id only breaks remaining ties.
+NEWEST_FIRST = "p.published_at DESC, CAST(p.source_post_id AS INTEGER) DESC, p.id DESC"
 SNIPPET = 160  # characters of body shown in a result row
 TOP_TAGS = 10
 _DAY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -169,7 +172,7 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
         with connect() as conn:
             total = conn.execute(f"SELECT count(*) FROM postings p{clause}", args).fetchone()[0]
             rows = conn.execute(
-                f"SELECT p.* FROM postings p{clause} ORDER BY p.published_at DESC, p.id DESC LIMIT ? OFFSET ?",
+                f"SELECT p.* FROM postings p{clause} ORDER BY {NEWEST_FIRST} LIMIT ? OFFSET ?",
                 [*args, page_size, (page - 1) * page_size],
             ).fetchall()
             tags = tags_of(conn, [r["id"] for r in rows])
