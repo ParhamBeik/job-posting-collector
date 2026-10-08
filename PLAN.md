@@ -151,7 +151,7 @@ into our standard `Posting` shape. Everything else is shared and site-agnostic.
 ```
 collector/
   core.py              run loop: window, pages, stop rule, retries, pacing, statuses
-  http.py              fetch with timeout/retry/pacing; injectable for tests
+  fetch.py             fetch with timeout/retry/pacing, or replay a saved folder; injectable for tests
   dates.py             Jalali parsing, Tehran ⇄ UTC helpers
   normalize.py         one normalize() for search and tags
   storage.py           SQLite schema, upsert, runs, issues
@@ -161,7 +161,7 @@ collector/
     eng_estekhdam.py   the adapter: URLs, selectors, page checks, tag mapping
 api/
   app.py               FastAPI routes
-  static/index.html    the page (HTML + CSS + JS)
+  static/              the page: index.html, style.css, app.js
 tests/
   fixtures/eng_estekhdam/   saved HTML
   test_*.py
@@ -175,8 +175,8 @@ class Source(Protocol):
     parser_version: str
     def listing_url(self, page: int) -> str: ...
     def check_page(self, html: str, kind: str) -> str | None: ...        # None or an issue code
-    def parse_listing(self, html: str) -> list[ListingItem]: ...
-    def parse_posting(self, html: str, item: ListingItem) -> Posting: ...
+    def parse_listing(self, html: str) -> tuple[list[ListingItem], list[Issue]]: ...
+    def parse_posting(self, html: str, item: ListingItem) -> tuple[Posting | None, list[Issue]]: ...
 ```
 
 Adding Site B = `sources/site_b.py` + its fixtures + one line in `SOURCES`. Database, API, page
@@ -344,6 +344,9 @@ Each test gets a fresh SQLite file in a temp folder.
 | Untrusted HTML | stored text has no tags; `javascript:` link → `URL_REJECTED`; browser test: literal text shown, nothing executes |
 
 ## 13. Requirement checklist (every sentence of the brief)
+
+Status 2026-10-08: every row below is built and has its proof in the repository (PRs #9–#15 and
+the step 8 PR); the live run is in `docs/LIVE_RUN.md`.
 
 | Brief | Plan | Proof |
 |---|---|---|
