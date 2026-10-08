@@ -34,3 +34,16 @@ def test_no_match_explains_itself_and_show_all_brings_everything_back(page, serv
     page.click("#show-all")
     page.locator("#results li").wait_for()
     assert page.locator("#empty").is_hidden() and "q=" not in page.url
+
+
+def test_day_chart_has_a_tooltip_a_legend_and_a_table_view(page, server):
+    page.goto(server)
+    page.locator(".day").first.wait_for()
+    assert page.locator(".day").count() == 7
+    page.locator(".day[data-date='2026-10-07']").hover()
+    tip = page.locator("#tooltip")
+    tip.wait_for()
+    assert "Civil & structures" in tip.inner_text() and "Total" in tip.inner_text()  # the seeded ad is tagged civil
+    assert page.locator("#legend .legend-item").count() == 1
+    page.click(".table-view summary")
+    assert page.locator("#days-table tbody tr").count() == 7

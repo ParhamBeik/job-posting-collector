@@ -167,18 +167,68 @@ function closeDetail() {
 
 async function loadStats() {
   const { data } = await api("/api/stats");
+  const colour = (key) => `var(--g-${key})`;
+  const totals = Object.fromEntries(data.groups.map((g) => [g.key, 0]));
+  for (const day of data.days) for (const [key, n] of Object.entries(day.groups)) totals[key] += n;
+  const shown = data.groups.filter((g) => totals[g.key] > 0); // colours stay fixed per group, never re-assigned
+
+  $("legend").replaceChildren(...shown.map((g) => {
+    const swatch = el("span", { class: "swatch" });
+    swatch.style.background = colour(g.key); // CSSOM, allowed by the CSP
+    return el("span", { class: "legend-item" }, swatch, `${g.label} `, el("span", { class: "muted" }, `(${totals[g.key]})`));
+  }));
+
   const most = Math.max(1, ...data.days.map((d) => d.count));
   $("days").replaceChildren(...data.days.map((day) => {
-    const fill = el("div", { class: "fill" });
-    fill.style.height = `${Math.round((day.count / most) * 100)}%`; // CSSOM, allowed by the CSP
+    const stack = el("div", { class: "stack" }, shown.filter((g) => day.groups[g.key]).map((g) => {
+      const seg = el("div", { class: "seg" });
+      seg.style.background = colour(g.key);
+      seg.style.flex = `${day.groups[g.key]} 1 0`;
+      return seg;
+    }));
+    const share = day.count / most; // the tallest day fills the plot, leaving room for its count label
+    stack.style.height = `calc(${share * 100}% - ${share * 26}px)`;
+    const parts = shown.filter((g) => day.groups[g.key]).map((g) => `${g.label} ${day.groups[g.key]}`).join(", ");
     const button = el("button", {
-      type: "button", class: "day", "data-date": day.date, title: `Show postings of ${day.date}`,
+      type: "button", class: "day", "data-date": day.date,
+      "aria-label": `${day.date}: ${day.count} postings${parts ? ` (${parts})` : ""}. Show them.`,
       onclick: () => filterDay(day.date),
-    }, el("span", { class: "count" }, day.count), fill,
+    }, el("div", { class: "plot" }, el("span", { class: "count" }, day.count), stack),
       el("span", { class: "label", dir: "rtl" }, jalaliShort(day.date)), el("span", { class: "label greg" }, day.date.slice(5)));
+    button.addEventListener("mouseenter", () => showTooltip(button, day, shown));
+    button.addEventListener("focus", () => showTooltip(button, day, shown));
+    button.addEventListener("mouseleave", () => { $("tooltip").hidden = true; });
+    button.addEventListener("blur", () => { $("tooltip").hidden = true; });
     return button;
   }));
+
+  $("days-table").replaceChildren(
+    el("thead", {}, el("tr", {}, el("th", {}, "Tehran day"), shown.map((g) => el("th", {}, g.label)), el("th", {}, "Total"))),
+    el("tbody", {}, data.days.map((day) => el("tr", {},
+      el("td", {}, el("span", { dir: "rtl" }, jalaliOf(day.date)), ` · ${day.date}`),
+      shown.map((g) => el("td", {}, day.groups[g.key])), el("td", {}, el("strong", {}, day.count))))),
+  );
   highlightDay(filtersFromForm());
+}
+
+function showTooltip(button, day, shown) {
+  const tip = $("tooltip");
+  const rows = shown.filter((g) => day.groups[g.key]).map((g) => {
+    const swatch = el("span", { class: "swatch" });
+    swatch.style.background = `var(--g-${g.key})`;
+    return el("div", { class: "tt-row" }, swatch, el("span", {}, g.label), el("span", { class: "tt-n" }, day.groups[g.key]));
+  });
+  tip.replaceChildren(
+    el("div", { class: "tt-title" }, el("span", { dir: "rtl" }, jalaliOf(day.date)), ` · ${day.date}`),
+    ...(rows.length ? rows : [el("div", {}, "No postings")]),
+    el("div", { class: "tt-row" }, el("strong", {}, "Total"), el("strong", { class: "tt-n" }, day.count)),
+  );
+  tip.hidden = false;
+  const chart = tip.parentElement.getBoundingClientRect();
+  const box = button.getBoundingClientRect();
+  const left = box.left - chart.left + box.width / 2 - tip.offsetWidth / 2;
+  tip.style.left = `${Math.max(0, Math.min(left, chart.width - tip.offsetWidth))}px`;
+  tip.style.top = "0px";
 }
 
 function filterDay(day) {
@@ -207,15 +257,26 @@ async function loadTags() {
 
 // --- runs, Collect now ----------------------------------------------------------------------
 
+const tehranDay = (iso) => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tehran" }).format(new Date(iso));
+
+function tile(label, value, sub, kind = "") {
+  return el("div", { class: `tile ${kind}` },
+    el("span", { class: "tile-label" }, label), el("span", { class: "tile-value" }, value),
+    sub ? el("span", { class: "tile-sub" }, sub) : null);
+}
+
 function showLastRun(run) {
   if (!run) {
-    $("run-status").replaceChildren("No collection run yet. Press Collect now.");
+    $("run-status").replaceChildren(tile("Last run", "None yet", "Press Collect now to collect the last 7 days", "wide"));
     return;
   }
+  const first = run.window_start ? tehranDay(run.window_start) : null;
+  const last = run.window_end ? tehranDay(new Date(Date.parse(run.window_end) - 1000).toISOString()) : null;
   $("run-status").replaceChildren(
-    `Last run #${run.id} · ${tehran(run.started_at)} Tehran · `, badge(run.status),
-    run.window_start ? ` · window ${tehran(run.window_start)} → ${tehran(run.window_end)}` : "",
-    ` · ${run.new} new, ${run.updated} updated, ${run.unchanged} unchanged, ${run.rejected} rejected`,
+    tile("Last run", badge(run.status), `#${run.id} · ${tehran(run.started_at)}`, "main"),
+    tile("Window (Tehran days)", first ? el("span", { dir: "rtl" }, `${jalaliShort(first)} – ${jalaliShort(last)}`) : "—",
+      first ? `${first} → ${last.slice(5)}` : "", "main"),
+    tile("New", run.new), tile("Updated", run.updated), tile("Unchanged", run.unchanged), tile("Rejected", run.rejected),
   );
 }
 
