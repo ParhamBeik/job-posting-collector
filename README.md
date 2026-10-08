@@ -26,6 +26,12 @@ pip install -e ".[dev]"
 pytest
 ```
 
+The one browser test (`tests/test_page_xss.py`) needs Chromium for Playwright, once:
+
+```bash
+python -m playwright install chromium
+```
+
 Tests never touch the live website; they use saved pages in `tests/fixtures/`.
 GitHub Actions runs them on every pull request.
 
@@ -79,13 +85,33 @@ python -m collector --db var/replay.db collect --from-dir tests/fixtures/eng_est
 That run reports 68 postings for 9–15 Mehr 1405 (2026-10-01..07 Tehran); running it again reports
 68 unchanged. `--now` is refused without `--from-dir`: a live run always uses the real clock.
 
-## Start the API *(the page comes in step 7)*
+## Start the API and the page
 
 ```bash
 python -m api
 ```
 
-It listens on `http://127.0.0.1:8000` only. There is no login (the brief leaves authentication
+Open `http://127.0.0.1:8000/`. The page shows:
+
+- **Last run** with its status badge, window and counts, and a **Collect now** button. While a
+  run is going, the button is disabled and a progress line updates every 2 seconds (pages read,
+  errors, warnings); when it ends, the final status and issue codes are shown and the data reloads.
+- **Postings per day** for the 7-day window, each day labelled in Jalali and Gregorian; click a
+  day to filter by it.
+- **Search**: date from/to (the Jalali date appears beside each), keyword, tag (with counts),
+  Search and Reset. The filters are copied into the page URL, so a search can be bookmarked or shared.
+- **Results** ("Showing 1–20 of 68"), each with title, Jalali and Gregorian date (Tehran), tags
+  and a snippet; click one for the full text, collected/updated times (UTC) and a link to the original.
+- **Run history**: the last 10 runs with counts and health numbers; click one for its issues
+  grouped by code, with the URLs involved.
+
+Scraped text is only ever inserted as text (`textContent`), never as HTML, and links are only
+made for `http`/`https` addresses. `tests/test_page_xss.py` loads a deliberately malicious
+posting in a real browser and checks that the attack shows as plain characters and never runs.
+
+![Search results and a posting's full text](docs/screenshots/page-detail.png)
+
+The server listens on `http://127.0.0.1:8000` only. There is no login (the brief leaves authentication
 out), and **Collect now** starts a process, so do not expose it publicly (`--host 0.0.0.0`).
 Options: `--db`, `--host`, `--port`. Interactive API docs (Swagger, with "Try it out") are at
 `http://127.0.0.1:8000/docs`; the schema is at `/openapi.json`.
