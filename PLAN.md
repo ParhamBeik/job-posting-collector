@@ -89,7 +89,7 @@ must not erase good data).
 | How often does collection run? | Only when a person starts it: by typing `python -m collector collect`, or by pressing **Collect now** on the page (§11), which launches that same command. The brief requires a manual start and says scheduling is not required. |
 | Recommended cadence | Once a day. Each run covers 7 days, so a missed day loses nothing. The README shows a one-line cron example as an optional idea (not built). |
 | Running twice in a row | Safe: upsert matches post IDs, so a second run reports `unchanged`, never duplicates. |
-| Two runs at the same time | Prevented: one storage function `start_run()` refuses if another run row is `running` and younger than 30 min. The command and the button both go through it. |
+| Two runs at the same time | Prevented: one storage function `start_run()` refuses if another run row is `running` and alive. A run refreshes `heartbeat_at` after every page request; no heartbeat for 3 min (about twice the longest healthy silence, one request with all retries ≈ 97 s) means the process died, and the run is marked `failed`, also when the API reads runs, so the page never waits on a dead run. The command and the button both go through it. |
 | Requests per run | ≈ 7 listing pages + ≈ 70 posting pages ≈ 80 requests. |
 | Speed inside a run | 1 request per second, one at a time (no parallel requests). ≈ 2 minutes. |
 | Timeouts / retries | 10 s connect, 20 s read; up to 3 attempts with 2 s then 4 s waits; only for timeouts, connection errors, 429 and 5xx. |
@@ -293,7 +293,7 @@ One `index.html`, right-to-left aware (`dir="auto"` on Persian text), no framewo
   from a malicious page in the same browser); one run at a time; README warns not to expose
   the server publicly.
 - Tests: `202` + process launched (launcher replaced by a fake); `409` while running; `403`
-  without the header; stale `running` row older than 30 min does not block forever.
+  without the header; a `running` row with no heartbeat for 3 min is marked failed and does not block.
 
 Safety rules for the page: every value inserted with `textContent` / `createElement`, never
 `innerHTML`; links only if `http:`/`https:`, `rel="noopener noreferrer"`; no inline scripts

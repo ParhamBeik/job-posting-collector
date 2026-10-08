@@ -263,6 +263,33 @@ def test_a_bug_ends_the_run_as_failed_and_recorded(conn, tmp_path):
     assert tuple(row) == ("failed", "2026-10-07T17:00:00Z")
 
 
+def test_a_long_run_that_keeps_working_is_never_taken_for_dead(conn, tmp_path):
+    # Fake clock: a minute passes at every look, so the run "lasts" over an hour. Before each page
+    # request a reader (the API) checks for dead runs; the heartbeat must keep this one alive.
+    ticks = iter(range(10_000))
+    clock = lambda: NOW + timedelta(minutes=next(ticks))  # noqa: E731
+    seen = []
+
+    class WatchedSite(FakeSite):
+        def get(self, url):
+            now = NOW + timedelta(minutes=next(ticks))
+            storage.expire_stale_runs(conn, now)
+            seen.append(conn.execute("SELECT status FROM runs").fetchone()[0])
+            return super().get(url)
+
+    report = collect(conn, SOURCE, WatchedSite(), clock, tmp_path / "snapshots")
+    assert report.status == "success" and set(seen) == {"running"} and len(seen) == 75
+
+
+def test_a_run_that_stops_answering_is_marked_failed_after_three_minutes(conn):
+    run_id = storage.start_run(conn, "eng-estekhdam", NOW)
+    storage.update_run(conn, run_id, heartbeat_at="2026-10-07T17:05:00Z")
+    storage.expire_stale_runs(conn, NOW + timedelta(minutes=7, seconds=59))
+    assert conn.execute("SELECT status FROM runs").fetchone()[0] == "running"
+    storage.expire_stale_runs(conn, NOW + timedelta(minutes=8, seconds=1))
+    assert conn.execute("SELECT status FROM runs").fetchone()[0] == "failed"
+
+
 def test_a_second_run_cannot_start_while_one_is_running(conn, tmp_path):
     storage.start_run(conn, "eng-estekhdam", NOW)
     with pytest.raises(storage.RunActive):

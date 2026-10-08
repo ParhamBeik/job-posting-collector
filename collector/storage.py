@@ -18,7 +18,10 @@ from collector.models import Issue, Posting
 from collector.normalize import normalize
 
 DEFAULT_DB = Path("var/jobs.db")
-STALE_RUN = timedelta(minutes=30)
+# A run refreshes heartbeat_at after every page request. The longest a healthy run can stay
+# silent is one request with all its retries: 3 attempts x (10 s connect + 20 s read) + 2 s + 4 s
+# backoff + 1 s pacing = about 97 s (collector/fetch.py). 3 minutes is about twice that.
+STALE_AFTER = timedelta(minutes=3)
 RUN_STATUSES = (
     "running",
     "success",
@@ -33,7 +36,7 @@ RUN_STATUSES = (
 RUN_FIELDS = (
     "window_start", "window_end", "pages_listing", "pages_posting",
     "new", "updated", "unchanged", "rejected",
-    "cards_per_page_avg", "body_ok_pct", "date_ok_pct", "tags_ok_pct", "parser_version",
+    "cards_per_page_avg", "body_ok_pct", "date_ok_pct", "tags_ok_pct", "parser_version", "heartbeat_at",
 )
 
 SCHEMA = """
@@ -82,7 +85,8 @@ CREATE TABLE IF NOT EXISTS runs (
     body_ok_pct        REAL,
     date_ok_pct        REAL,
     tags_ok_pct        REAL,
-    parser_version     TEXT
+    parser_version     TEXT,
+    heartbeat_at       TEXT  -- last sign of life of a running run
 );
 
 CREATE TABLE IF NOT EXISTS run_issues (
@@ -111,6 +115,8 @@ def connect(path: Path | str = DEFAULT_DB) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA journal_mode = WAL")  # the API can read while a collection writes
     conn.executescript(SCHEMA)
+    if "heartbeat_at" not in {r["name"] for r in conn.execute("PRAGMA table_info(runs)")}:
+        conn.execute("ALTER TABLE runs ADD COLUMN heartbeat_at TEXT")  # databases made before step 7
     return conn
 
 
@@ -213,8 +219,8 @@ def upsert_posting(conn: sqlite3.Connection, posting: Posting, now: datetime) ->
 def start_run(conn: sqlite3.Connection, source: str, now: datetime) -> int:
     """Create a 'running' run row, or raise RunActive. The single rule for 'one run at a time'.
 
-    A 'running' row older than 30 minutes is a run that died without finishing: it is marked
-    'failed' with an issue instead of blocking collection forever.
+    A 'running' row with no heartbeat for 3 minutes is a run that died without finishing: it is
+    marked 'failed' with an issue instead of blocking collection.
     """
     conn.execute("BEGIN IMMEDIATE")  # takes the write lock, so two starters cannot both pass the check
     try:
@@ -222,7 +228,8 @@ def start_run(conn: sqlite3.Connection, source: str, now: datetime) -> int:
         if conn.execute("SELECT 1 FROM runs WHERE status = 'running'").fetchone():
             raise RunActive("another collection run is in progress")
         run_id = conn.execute(
-            "INSERT INTO runs (source, started_at, status) VALUES (?, ?, 'running')", (source, format_utc(now))
+            "INSERT INTO runs (source, started_at, heartbeat_at, status) VALUES (?, ?, ?, 'running')",
+            (source, format_utc(now), format_utc(now))
         ).lastrowid
         conn.execute("COMMIT")
     except BaseException:
@@ -244,10 +251,11 @@ def expire_stale_runs(conn: sqlite3.Connection, now: datetime) -> None:
 
 def _expire_stale(conn: sqlite3.Connection, now: datetime) -> None:
     for (stale_id,) in conn.execute(
-        "SELECT id FROM runs WHERE status = 'running' AND started_at < ?", (format_utc(now - STALE_RUN),)
+        "SELECT id FROM runs WHERE status = 'running' AND coalesce(heartbeat_at, started_at) < ?",
+        (format_utc(now - STALE_AFTER),)
     ).fetchall():
         conn.execute("UPDATE runs SET status = 'failed', finished_at = ? WHERE id = ?", (format_utc(now), stale_id))
-        _insert_issue(conn, stale_id, Issue.error("UNEXPECTED_ERROR", "run never finished (stale after 30 min)"), "run")
+        _insert_issue(conn, stale_id, Issue.error("UNEXPECTED_ERROR", f"no sign of life for {STALE_AFTER.seconds // 60} min: the process stopped without finishing"), "run")
 
 
 def update_run(conn: sqlite3.Connection, run_id: int, **fields) -> None:

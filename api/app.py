@@ -4,8 +4,6 @@ Read-only except POST /api/runs, which starts the same collect command as the te
 separate process. Every response carries a strict Content-Security-Policy.
 """
 
-import base64
-import hashlib
 import re
 import subprocess
 import sys
@@ -15,7 +13,6 @@ from pathlib import Path
 
 import jdatetime
 from fastapi import FastAPI, Header, HTTPException, Query
-from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -27,7 +24,14 @@ from collector.normalize import normalize
 from collector.sources import SOURCES
 
 CSP = "default-src 'self'"
-CDN = "https://cdn.jsdelivr.net"  # where FastAPI's Swagger page loads its script and style
+# FastAPI's own docs pages (/docs Swagger, /redoc ReDoc) load their code from a CDN and run inline
+# scripts. They show only our API schema, never scraped HTML, so they get a looser policy.
+DOC_PATHS = {"/docs", "/docs/oauth2-redirect", "/redoc"}
+DOCS_CSP = (
+    "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; "
+    "font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https:; worker-src 'self' blob:"
+)
 SNIPPET = 160  # characters of body shown in a result row
 TOP_TAGS = 10
 _DAY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
@@ -83,8 +87,7 @@ def snippet(body: str, query: str) -> str:
 
 
 def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clock=utc_now) -> FastAPI:
-    # /docs is served below with its own, narrower exception to the CSP; ReDoc is not needed.
-    app = FastAPI(title="Job posting collector", docs_url=None, redoc_url=None)
+    app = FastAPI(title="Job posting collector")  # docs at /docs (Swagger) and /redoc
 
     def connect():
         conn = storage.connect(db)
@@ -94,7 +97,7 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
     @app.middleware("http")
     async def security_headers(request, call_next):
         response = await call_next(request)
-        response.headers.setdefault("Content-Security-Policy", CSP)  # /docs sets its own
+        response.headers["Content-Security-Policy"] = DOCS_CSP if request.url.path in DOC_PATHS else CSP
         response.headers["X-Content-Type-Options"] = "nosniff"
         return response
 
@@ -103,20 +106,6 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
     @app.get("/", include_in_schema=False)
     def index():
         return FileResponse(STATIC / "index.html")
-
-    @app.get("/docs", include_in_schema=False)
-    def docs():
-        """Swagger UI. The one exception to the strict CSP: this page shows only our own API
-        schema (never scraped HTML), loads Swagger from the CDN, and may run exactly one inline
-        script, the startup script below, allowed by its hash rather than 'unsafe-inline'."""
-        page = get_swagger_ui_html(openapi_url=app.openapi_url, title=f"{app.title} - API docs")
-        startup = re.search(r"<script>(.*?)</script>", page.body.decode(), re.S).group(1)
-        digest = base64.b64encode(hashlib.sha256(startup.encode()).digest()).decode()
-        page.headers["Content-Security-Policy"] = (
-            f"default-src 'self'; script-src {CDN} 'sha256-{digest}'; style-src {CDN}; "
-            "img-src 'self' data: https://fastapi.tiangolo.com"
-        )
-        return page
 
     def tags_of(conn, ids: list[int]) -> dict[int, list[dict]]:
         found: dict[int, list[dict]] = {i: [] for i in ids}

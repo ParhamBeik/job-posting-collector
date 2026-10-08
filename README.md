@@ -66,7 +66,7 @@ The last lines it prints, and the exit code, tell you how the run went:
 | `blocked` | 3 | The site answered with a firewall/challenge page; the run stopped asking |
 | `parser_broken` | 4 | Listing page 1 unrecognized, or more than 30 % of records invalid: **nothing stored** |
 | `failed` | 5 | A bug; the traceback is in the run's issues |
-| not started | 6 | Another run is in progress |
+| not started | 6 | Another run is in progress (a run that shows no sign of life for 3 minutes is marked `failed` and no longer blocks) |
 
 Each problem is an issue with a code (`PLAN.md` §6), stored with the run. When a run has a
 problem, every page it read is saved to `var/snapshots/<run id>/` with a `manifest.json`, so the
@@ -113,14 +113,13 @@ posting in a real browser and checks that the attack shows as plain characters a
 
 The server listens on `http://127.0.0.1:8000` only. There is no login (the brief leaves authentication
 out), and **Collect now** starts a process, so do not expose it publicly (`--host 0.0.0.0`).
-Options: `--db`, `--host`, `--port`. Interactive API docs (Swagger, with "Try it out") are at
-`http://127.0.0.1:8000/docs`; the schema is at `/openapi.json`.
+Options: `--db`, `--host`, `--port`. Interactive API docs are at `http://127.0.0.1:8000/docs`
+(Swagger, with "Try it out") and `/redoc`; the schema is at `/openapi.json`.
 
 Every response carries `Content-Security-Policy: default-src 'self'` (the browser may load
-nothing from anywhere else). `/docs` is the one exception: it may also load Swagger's script and
-style from `cdn.jsdelivr.net` and run exactly one inline script, its startup script, allowed by
-its SHA-256 hash rather than by allowing inline scripts in general. That page shows only our own
-API schema, never scraped HTML.
+nothing from anywhere else, and no inline script may run). The docs pages (`/docs`, `/redoc`) are
+the exception: they load FastAPI's Swagger/ReDoc code from `cdn.jsdelivr.net` and run inline
+scripts, so they get a looser policy. They show only our own API schema, never scraped HTML.
 
 | Route | What it returns |
 |---|---|
