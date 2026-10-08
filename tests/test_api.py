@@ -1,6 +1,6 @@
 """HTTP API against a temp database: the replayed site snapshot plus a few hand-made postings."""
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -259,3 +259,27 @@ def test_docs_page_works_under_its_own_narrow_csp_exception(client):
     paths = client.get("/openapi.json").json()["paths"]
     assert {"/api/postings", "/api/postings/{posting_id}", "/api/tags", "/api/stats", "/api/runs", "/api/runs/{run_id}"} <= set(paths)
     assert "/docs" not in paths
+
+
+def test_reading_runs_expires_a_run_that_died(client, db):
+    conn = storage.connect(db)
+    dead = storage.start_run(conn, "eng-estekhdam", NOW - timedelta(minutes=31))
+    conn.close()
+    run = client.get(f"/api/runs/{dead}").json()
+    assert run["status"] == "failed" and [g["code"] for g in run["issues"]] == ["UNEXPECTED_ERROR"]
+    assert client.post("/api/runs", headers={"X-Collect-Trigger": "1"}).status_code == 202  # not blocked
+
+    conn = storage.connect(db)
+    for (run_id,) in conn.execute("SELECT id FROM runs WHERE status = 'running'").fetchall():
+        storage.finish_run(conn, run_id, "success", NOW)
+    conn.close()
+
+
+def test_reading_runs_leaves_a_live_run_alone(client, db):
+    conn = storage.connect(db)
+    live = storage.start_run(conn, "eng-estekhdam", NOW - timedelta(minutes=29))
+    conn.close()
+    assert client.get("/api/runs", params={"limit": 1}).json()["items"][0]["status"] == "running"
+    conn = storage.connect(db)
+    storage.finish_run(conn, live, "success", NOW)
+    conn.close()

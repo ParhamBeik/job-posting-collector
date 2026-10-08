@@ -216,20 +216,11 @@ def start_run(conn: sqlite3.Connection, source: str, now: datetime) -> int:
     A 'running' row older than 30 minutes is a run that died without finishing: it is marked
     'failed' with an issue instead of blocking collection forever.
     """
-    stale_before = format_utc(now - STALE_RUN)
     conn.execute("BEGIN IMMEDIATE")  # takes the write lock, so two starters cannot both pass the check
     try:
-        if conn.execute(
-            "SELECT 1 FROM runs WHERE status = 'running' AND started_at >= ?", (stale_before,)
-        ).fetchone():
+        _expire_stale(conn, now)
+        if conn.execute("SELECT 1 FROM runs WHERE status = 'running'").fetchone():
             raise RunActive("another collection run is in progress")
-        for (stale_id,) in conn.execute(
-            "SELECT id FROM runs WHERE status = 'running' AND started_at < ?", (stale_before,)
-        ).fetchall():
-            conn.execute(
-                "UPDATE runs SET status = 'failed', finished_at = ? WHERE id = ?", (format_utc(now), stale_id)
-            )
-            _insert_issue(conn, stale_id, Issue.error("UNEXPECTED_ERROR", "run never finished (stale after 30 min)"), "run")
         run_id = conn.execute(
             "INSERT INTO runs (source, started_at, status) VALUES (?, ?, 'running')", (source, format_utc(now))
         ).lastrowid
@@ -238,6 +229,25 @@ def start_run(conn: sqlite3.Connection, source: str, now: datetime) -> int:
         conn.execute("ROLLBACK")
         raise
     return run_id
+
+
+def expire_stale_runs(conn: sqlite3.Connection, now: datetime) -> None:
+    """Mark runs that died without finishing as failed; readers call this so nothing waits forever."""
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        _expire_stale(conn, now)
+        conn.execute("COMMIT")
+    except BaseException:
+        conn.execute("ROLLBACK")
+        raise
+
+
+def _expire_stale(conn: sqlite3.Connection, now: datetime) -> None:
+    for (stale_id,) in conn.execute(
+        "SELECT id FROM runs WHERE status = 'running' AND started_at < ?", (format_utc(now - STALE_RUN),)
+    ).fetchall():
+        conn.execute("UPDATE runs SET status = 'failed', finished_at = ? WHERE id = ?", (format_utc(now), stale_id))
+        _insert_issue(conn, stale_id, Issue.error("UNEXPECTED_ERROR", "run never finished (stale after 30 min)"), "run")
 
 
 def update_run(conn: sqlite3.Connection, run_id: int, **fields) -> None:

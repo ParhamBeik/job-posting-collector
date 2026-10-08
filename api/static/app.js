@@ -104,6 +104,11 @@ async function search() {
     $("search-error").hidden = false;
     return;
   }
+  const lastPage = Math.max(1, Math.ceil(data.total / data.page_size));
+  if (data.page > lastPage) { // e.g. ?page=999 from an old or edited link: go to the last real page
+    state.page = lastPage;
+    return search();
+  }
   const first = data.total ? (data.page - 1) * data.page_size + 1 : 0;
   const last = Math.min(data.total, data.page * data.page_size);
   $("showing").textContent = data.total ? `Showing ${first}–${last} of ${data.total}` : "No postings match these filters.";
@@ -221,14 +226,19 @@ async function showRunIssues(id) {
     box.replaceChildren(el("p", {}, `Run #${id}: no issues.`));
     return;
   }
-  box.replaceChildren(el("p", {}, `Run #${id} issues by code:`), el("ul", {}, data.issues.map((group) =>
-    el("li", {}, el("strong", {}, `${group.code} `), el("span", { class: "muted" }, `${group.severity} × ${group.count}`),
-      el("ul", {}, group.items.slice(0, 20).map((issue) => {
+  // Every issue is listed; big groups start folded so the list stays readable.
+  box.replaceChildren(el("p", {}, `Run #${id} issues by code:`), ...data.issues.map((group) => {
+    const details = el("details", {},
+      el("summary", {}, el("strong", {}, `${group.code} `), el("span", { class: "muted" }, `${group.severity} × ${group.count}`)),
+      el("ul", {}, group.items.map((issue) => {
         const href = safeUrl(issue.url);
         return el("li", {}, issue.detail.split("\n")[0], " ",
-          href ? el("a", { href, rel: "noopener noreferrer", target: "_blank" }, issue.url) : "");
-      })),
-    ))));
+          href ? el("a", { href, rel: "noopener noreferrer", target: "_blank" }, issue.url) : "",
+          issue.snapshot_path ? el("span", { class: "muted" }, ` · saved page: ${issue.snapshot_path}`) : "");
+      })));
+    details.open = group.count <= 20;
+    return details;
+  }));
 }
 
 async function collectNow() {

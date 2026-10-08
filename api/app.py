@@ -242,12 +242,14 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
     @app.get("/api/runs")
     def runs(limit: int = Query(20, ge=1, le=100)):
         with connect() as conn:
+            storage.expire_stale_runs(conn, clock())  # a crashed run must not look "running" forever
             rows = conn.execute("SELECT * FROM runs ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
             return {"items": [run_json(conn, r) for r in rows]}
 
     @app.get("/api/runs/{run_id}")
     def run(run_id: int):
         with connect() as conn:
+            storage.expire_stale_runs(conn, clock())
             row = conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()
             if row is None:
                 raise HTTPException(404, f"no run {run_id}")
