@@ -40,6 +40,7 @@ flowchart LR
 | `collector/core.py` | One run: decide the window once, read listing pages until a card older than the window, fetch each in-window posting, check everything, then store; set the status | No |
 | `collector/fetch.py` | `HttpFetcher`: one request at a time, ≥ 1 s apart, timeouts, at most 3 attempts, no redirects. `DirFetcher`: the same interface over a saved folder (tests and replay) | No |
 | `collector/sources/eng_estekhdam.py` | The adapter: URLs, page checks, selectors, what counts as body, tag mapping, record checks | **Yes, only here** |
+| `collector/industry.py` | Six industry groups and the "count once, most specific group" rule for the per-day chart; each adapter maps its own field tags to them | No (the tag → group map lives in the adapter) |
 | `collector/dates.py`, `normalize.py` | Jalali → Gregorian, Tehran day ↔ UTC range, one text normalization for search and tags | No |
 | `collector/storage.py` | Schema, insert-or-update by `(source, source_post_id)`, run rows with heartbeat, issues | No |
 | `api/app.py` | Search and run endpoints, Collect now, security headers | No |

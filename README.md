@@ -113,8 +113,10 @@ Open `http://127.0.0.1:8000/`. The page shows:
 - **Last run** with its status badge, window and counts, and a **Collect now** button. While a
   run is going, the button is disabled and a progress line updates every 2 seconds (pages read,
   errors, warnings); when it ends, the final status and issue codes are shown and the data reloads.
-- **Postings per day** for the 7-day window, each day labelled in Jalali and Gregorian; click a
-  day to filter by it.
+- **Postings per day, by industry** for the 7-day window: one stacked bar per Tehran day (Jalali
+  and Gregorian labels), split into industry groups built from the site's own field tags (table
+  below). Hover or focus a bar for its breakdown; "Show as a table" gives the same numbers as a
+  table; click a day to filter by it.
 - **Search**: date from/to (the Jalali date appears beside each), keyword, tag (with counts),
   Search and Reset. The filters are copied into the page URL, so a search can be bookmarked or shared.
 - **Results** ("Showing 1–20 of 68"), each with title, Jalali and Gregorian date (Tehran), tags
@@ -126,9 +128,11 @@ Scraped text is only ever inserted as text (`textContent`), never as HTML, and l
 made for `http`/`https` addresses. `tests/test_page_xss.py` loads a deliberately malicious
 posting in a real browser and checks that the attack shows as plain characters and never runs.
 
+![Desktop: last run, postings per day by industry, search](docs/screenshots/page-search.png)
+
 | Desktop: list and an open posting | Phone |
 |---|---|
-| ![Desktop: the list and an open posting](docs/screenshots/page-detail.png) | ![Phone: postings per day and search](docs/screenshots/page-phone.png) |
+| ![Desktop: the list and an open posting](docs/screenshots/page-detail.png) | ![Phone: last run and the chart](docs/screenshots/page-phone.png) |
 
 Persian text uses the open-source Vazirmatn font (SIL Open Font License, `api/static/fonts/OFL.txt`),
 served by the app itself so the page loads nothing from other sites. With no filters the list shows
@@ -262,6 +266,23 @@ is recorded. Field tags seen on the site (labels as the site writes them):
 | `rail` | راه آهن | `earthquake` | زلزله |
 | `water` | آب فاضلاب | `environment` | محیط زیست |
 | `transportation` | حمل نقل | `management` | مدیریت ساخت |
+
+### Industry groups (for the chart)
+
+The chart groups the site's field tags into six industries; nothing is guessed from the text.
+An ad with several field tags is counted **once**, in its most specific group (priority 1 first),
+so each day's segments add up to that day's ads. An ad without a known field tag is "Other".
+
+| Group | Field tags (slugs) | Priority |
+|---|---|---|
+| Civil & structures | `civil`, `structure`, `marine`, `hydraulic`, `geotechnic`, `earthquake` | 6 (the broadest: on about 2 of 3 ads) |
+| Architecture | `memari` | 2 |
+| Surveying | `surveying` | 1 |
+| Roads, rail & transport | `road`, `rail`, `transportation` | 3 |
+| Water & environment | `water`, `environment` | 4 |
+| Construction management | `management` | 5 |
+
+The mapping is in the adapter (`field_groups`), the groups and the rule in `collector/industry.py`.
 
 ### Identity of a posting and how changes are handled
 
