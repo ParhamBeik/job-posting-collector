@@ -2,7 +2,7 @@
 // never as HTML, and links are only followed when they are http(s). See PLAN.md section 11.
 "use strict";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 100; // the API maximum: a normal 7-day window (about 70 ads) fits on one page
 const POLL_MS = 2000;
 const FILTERS = ["date_from", "date_to", "q", "tag"];
 const tehranTime = new Intl.DateTimeFormat("en-GB", {
@@ -50,6 +50,8 @@ async function api(path, options = {}) {
 const utcTime = (iso) => iso ? iso.replace("T", " ").replace("Z", " UTC") : "—";
 const tehran = (iso) => iso ? tehranTime.format(new Date(iso)) : "—";
 const jalaliOf = (day) => day ? jalaliDay.format(new Date(day + "T00:00:00Z")) : "";
+const jalaliShort = (day) => new Intl.DateTimeFormat("fa-IR-u-ca-persian", { timeZone: "UTC", month: "short", day: "numeric" })
+  .format(new Date(day + "T00:00:00Z"));
 const pct = (value) => value === null || value === undefined ? "—" : `${value}%`;
 const badge = (status) => el("span", { class: `badge ${status}` }, status.replaceAll("_", " "));
 
@@ -62,6 +64,8 @@ function tagChips(tags) {
 
 function filtersFromForm() {
   const form = $("search");
+  const { date_from: from, date_to: to } = form.elements;
+  if (from.value && to.value && from.value > to.value) [from.value, to.value] = [to.value, from.value]; // swapped dates
   const filters = {};
   for (const name of FILTERS) {
     const value = form.elements[name].value.trim();
@@ -111,14 +115,21 @@ async function search() {
   }
   const first = data.total ? (data.page - 1) * data.page_size + 1 : 0;
   const last = Math.min(data.total, data.page * data.page_size);
-  $("showing").textContent = data.total ? `Showing ${first}–${last} of ${data.total}` : "No postings match these filters.";
+  const filtered = Object.keys(filters).length > 0;
+  $("showing").textContent = data.total ? `Showing ${first}–${last} of ${data.total}` : "";
+  $("empty").hidden = data.total > 0;
+  $("empty").textContent = filtered
+    ? "No postings match these filters. Press “Show all” to see every posting."
+    : "No postings stored yet. Press “Collect now” to collect the last 7 days.";
+  $("pager").hidden = lastPage <= 1;
   $("results").replaceChildren(...data.items.map((item) => el("li", {
     class: item.id === state.selected ? "selected" : "",
     "data-id": item.id,
     onclick: () => showDetail(item.id),
   },
     el("div", { class: "title", dir: "auto" }, item.title),
-    el("div", { class: "muted" }, `${item.published_date_jalali} · ${item.published_date_tehran} (Tehran)`),
+    el("div", { class: "meta" }, el("span", { dir: "rtl" }, jalaliOf(item.published_date_tehran)),
+      ` · ${item.published_date_tehran} (Tehran)`),
     tagChips(item.tags),
     el("div", { class: "snippet", dir: "auto" }, item.snippet),
   )));
@@ -132,10 +143,10 @@ async function showDetail(id) {
   state.selected = id;
   for (const li of $("results").children) li.classList.toggle("selected", Number(li.dataset.id) === id);
   $("detail").hidden = false;
+  document.body.classList.add("detail-open");
   $("detail-title").textContent = data.title;
-  $("detail-meta").textContent =
-    `Published ${data.published_date_jalali} · ${data.published_date_tehran} (Tehran) · ` +
-    `collected ${utcTime(data.collected_at)} · updated ${utcTime(data.updated_at)}`;
+  $("detail-meta").replaceChildren("Published ", el("span", { dir: "rtl" }, jalaliOf(data.published_date_tehran)),
+    ` · ${data.published_date_tehran} (Tehran) · collected ${utcTime(data.collected_at)} · updated ${utcTime(data.updated_at)}`);
   $("detail-tags").replaceChildren(tagChips(data.tags));
   $("detail-note").hidden = !data.members_only_omitted;
   $("detail-body").textContent = data.body;
@@ -144,7 +155,12 @@ async function showDetail(id) {
   link.hidden = !href;
   if (href) link.href = href;
   else link.removeAttribute("href");
-  $("detail").scrollIntoView({ block: "nearest" }); // below the list on narrow screens
+  $("detail").scrollTop = 0;
+}
+
+function closeDetail() {
+  $("detail").hidden = true;
+  document.body.classList.remove("detail-open");
 }
 
 // --- per-day bars and tags ------------------------------------------------------------------
@@ -159,7 +175,7 @@ async function loadStats() {
       type: "button", class: "day", "data-date": day.date, title: `Show postings of ${day.date}`,
       onclick: () => filterDay(day.date),
     }, el("span", { class: "count" }, day.count), fill,
-      el("span", { class: "label" }, jalaliOf(day.date)), el("span", { class: "label" }, day.date));
+      el("span", { class: "label", dir: "rtl" }, jalaliShort(day.date)), el("span", { class: "label greg" }, day.date.slice(5)));
     return button;
   }));
   highlightDay(filtersFromForm());
@@ -185,7 +201,7 @@ async function loadTags() {
   const select = $("search").elements.tag;
   const chosen = select.value || new URLSearchParams(location.search).get("tag") || "";
   select.replaceChildren(el("option", { value: "" }, "Any tag"),
-    ...data.items.map((t) => el("option", { value: t.slug }, `${t.label || t.slug} (${t.kind}, ${t.count})`)));
+    ...data.items.map((t) => el("option", { value: t.slug }, `${t.label || t.slug} · ${t.kind === "province" ? "province" : "field"} (${t.count})`)));
   select.value = chosen;
 }
 
@@ -257,7 +273,7 @@ async function collectNow() {
 
 function showProgress(...parts) {
   $("progress").hidden = false;
-  $("progress").replaceChildren(...parts);
+  $("progress-text").replaceChildren(...parts);
 }
 
 function follow(id) {
@@ -299,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
     search();
   });
   $("search").addEventListener("input", showJalaliBesideDates);
-  $("reset").addEventListener("click", () => {
+  $("show-all").addEventListener("click", () => {
     $("search").reset();
     showJalaliBesideDates();
     state.page = 1;
@@ -308,5 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("prev").addEventListener("click", () => { state.page -= 1; search(); });
   $("next").addEventListener("click", () => { state.page += 1; search(); });
   $("collect").addEventListener("click", collectNow);
+  $("detail-close").addEventListener("click", closeDetail);
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeDetail(); });
   refresh().catch((error) => showProgress(`Could not load data: ${error.message}`));
 });
