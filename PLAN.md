@@ -126,6 +126,7 @@ a **saved HTML snapshot** where there is a page. The summary groups by code with
 | record | `TITLE_MISMATCH` | warning | Listing title ≠ posting page title (page title stored) |
 | record | `FALLBACK_USED` | warning | Card date missing; validated URL date used |
 | store | `DB_WRITE_FAILED` | error | SQLite error for one record |
+| store | `EMPTY_FIELD_KEPT` | warning | New title/body/URL or tag label empty; stored value kept |
 | run | `BREAKER_TRIPPED` | error | Too many failures; source stopped (see §8) |
 | run | `UNEXPECTED_ERROR` | error | Bug: traceback saved in detail |
 
@@ -217,7 +218,7 @@ and core stay untouched. No plugin loader: one site does not justify it.
   30% of records in a run fail validation (minimum 5 records), stop the source, write nothing
   new for it, status `parser_broken`. Protects good stored data and stops hammering the site.
 - **[to build #5]** Rejected records never enter `postings`; they appear only in `run_issues`, with a snapshot.
-- **[to build #4]** No-empty-overwrite rule (§4).
+- **[built #4]** No-empty-overwrite rule (§4): stored text kept, `EMPTY_FIELD_KEPT` warning.
 - **[built #3]** One fallback: when the card date is missing, the already-validated URL date is
   used and `FALLBACK_USED` is raised; the posting page date is still checked against it, so two
   independent sources remain. Nothing else is guessed.

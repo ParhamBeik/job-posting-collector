@@ -29,7 +29,14 @@ pytest
 Tests never touch the live website; they use saved pages in `tests/fixtures/`.
 GitHub Actions runs them on every pull request.
 
-## Initialize the database *(step 4)*
+## Initialize the database
+
+```bash
+python -m collector init-db            # creates var/jobs.db (safe to run again)
+python -m collector --db other.db init-db
+```
+
+The collect command and the API also create the tables if they are missing.
 
 ## Collect postings *(step 5)*
 
@@ -87,7 +94,21 @@ is recorded. Field tags seen on the site (labels as the site writes them):
 | `water` | آب فاضلاب | `environment` | محیط زیست |
 | `transportation` | حمل نقل | `management` | مدیریت ساخت |
 
-### Identity of a posting and how changes are handled *(step 4)*
+### Identity of a posting and how changes are handled
+
+- **Identity:** `(source, source_post_id)`, the source's own WordPress post ID (e.g. `205126`),
+  enforced by a `UNIQUE` constraint. Not the URL or title: the URL slug is built from the title
+  and changes when the title is edited.
+- **Re-collecting** the same posting never adds a row. A SHA-256 fingerprint of everything stored
+  from the source (URL, title, body, date, tags, members-only flag) decides the result:
+  - same fingerprint → `unchanged`; only `last_seen_at` moves;
+  - different fingerprint → `updated`: fields, tags and search text replaced, `updated_at` moves.
+- `collected_at` is the first time the posting was stored and never changes.
+- **No data loss:** a new empty title, body, URL or tag label never overwrites stored text; the stored value
+  is kept and an `EMPTY_FIELD_KEPT` warning is recorded.
+- Old postings are never deleted.
+- `members_only_omitted = 1` marks postings whose contact section was members-only on the
+  source and therefore not collected.
 
 ## Design *(step 8)*
 
