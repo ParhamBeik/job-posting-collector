@@ -59,9 +59,9 @@ class RunReport:
 
 
 class _Run:
-    def __init__(self, conn, source, fetcher, report: RunReport, snapshot_dir: Path, page_cap: int, clock):
+    def __init__(self, conn, source, fetcher, report: RunReport, snapshot_dir: Path, page_cap: int, clock, run_clock):
         self.conn, self.source, self.fetcher, self.report = conn, source, fetcher, report
-        self.snapshot_dir, self.page_cap, self.clock = snapshot_dir, page_cap, clock
+        self.snapshot_dir, self.page_cap, self.clock, self.run_clock = snapshot_dir, page_cap, clock, run_clock
         self.fetched: dict[str, tuple[str, str]] = {}  # url → (html, kind), every page read this run
         self.saved: dict[str, str] = {}  # url → snapshot file
 
@@ -69,7 +69,7 @@ class _Run:
 
     def fetch(self, url: str, kind: str) -> str | None:
         html, issues = self.fetcher.get(url)
-        storage.update_run(self.conn, self.report.run_id, heartbeat_at=format_utc(self.clock()))  # still alive
+        storage.update_run(self.conn, self.report.run_id, heartbeat_at=format_utc(self.run_clock()))  # still alive
         if html is not None:
             self.fetched[url] = (html, kind)
             if self.saved:  # already saving this run: keep the replay folder complete
@@ -177,6 +177,10 @@ class _Run:
                     reached_end = True
                 elif item.published_date <= window.last_day:
                     candidates.setdefault(item.source_post_id, item)  # an ad can shift onto the next page mid-run
+                else:  # dated after "today": e.g. posted after midnight while this run was going
+                    self.record("listing", [Issue.warning(
+                        "DATE_AFTER_WINDOW", f"post {item.source_post_id}: dated {item.published_date}, "
+                        f"after today ({window.last_day}); left for the next run", item.url)])
             if order_broken:  # stop only on a page with nothing newer than the window's first day
                 reached_end = all(item.published_date < window.first_day for item in items)
             if reached_end:
@@ -243,25 +247,30 @@ class _Run:
 
 
 def collect(conn, source, fetcher, clock=utc_now, snapshot_root: Path = Path("var/snapshots"),
-            run_id: int | None = None, page_cap: int = PAGE_CAP) -> RunReport:
-    """Run one collection. Raises storage.RunActive if another run is in progress."""
-    started = clock()
+            run_id: int | None = None, page_cap: int = PAGE_CAP, run_clock=None) -> RunReport:
+    """Run one collection. Raises storage.RunActive if another run is in progress.
+
+    `clock` is the moment the pages describe: it decides the window and stamps the postings.
+    `run_clock` stamps the run row itself (start, heartbeat, finish) and defaults to `clock`.
+    They differ only in a replay (`--now`): the pages are from the past, the run happens now.
+    """
+    run_clock = run_clock or clock
     if run_id is None:
-        run_id = storage.start_run(conn, source.name, started)
-    report = RunReport(run_id, collection_window(started))  # "today" is decided once, here
+        run_id = storage.start_run(conn, source.name, run_clock())
+    report = RunReport(run_id, collection_window(clock()))  # "today" is decided once, here
     storage.update_run(
         conn, run_id,
         window_start=format_utc(report.window.start), window_end=format_utc(report.window.end),
-        parser_version=source.parser_version, heartbeat_at=format_utc(clock()),
+        parser_version=source.parser_version, heartbeat_at=format_utc(run_clock()),
     )
-    run = _Run(conn, source, fetcher, report, snapshot_root / str(run_id), page_cap, clock)
+    run = _Run(conn, source, fetcher, report, snapshot_root / str(run_id), page_cap, clock, run_clock)
     try:
         report.status = run.run()
     except Exception:  # a bug must still end the run visibly
         run.record("run", [Issue.error("UNEXPECTED_ERROR", traceback.format_exc(limit=5))])
         report.status = "failed"
     run.save_counters()  # every ending, including breaker, blocked and crash
-    storage.finish_run(conn, run_id, report.status, clock())
+    storage.finish_run(conn, run_id, report.status, run_clock())
     return report
 
 

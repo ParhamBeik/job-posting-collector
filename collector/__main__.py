@@ -41,7 +41,8 @@ def main(argv: list[str] | None = None) -> int:
         clock = lambda: fixed  # noqa: E731
     fetcher = DirFetcher(args.from_dir) if args.from_dir else HttpFetcher()
     try:
-        report = collect(conn, SOURCES[args.source], fetcher, clock, args.snapshots, args.run_id)
+        # The run row always gets real times, so a replay shows when it actually ran.
+        report = collect(conn, SOURCES[args.source], fetcher, clock, args.snapshots, args.run_id, run_clock=utc_now)
     except storage.RunActive as error:
         print(f"not started: {error}", file=sys.stderr)
         return NOT_STARTED
