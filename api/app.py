@@ -16,7 +16,8 @@ from pathlib import Path
 import jdatetime
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.openapi.docs import get_swagger_ui_html
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from collector import storage
 from collector.core import utc_now
@@ -32,6 +33,7 @@ TOP_TAGS = 10
 _DAY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 YEARS = range(1900, 2101)  # far from date.min/max, so the UTC conversion cannot overflow
 LOG_DIR = Path("var/logs")
+STATIC = Path(__file__).parent / "static"
 
 
 def launch_collector(db: Path, run_id: int) -> None:
@@ -95,6 +97,12 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
         response.headers.setdefault("Content-Security-Policy", CSP)  # /docs sets its own
         response.headers["X-Content-Type-Options"] = "nosniff"
         return response
+
+    app.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+    @app.get("/", include_in_schema=False)
+    def index():
+        return FileResponse(STATIC / "index.html")
 
     @app.get("/docs", include_in_schema=False)
     def docs():
