@@ -87,9 +87,14 @@ python -m api
 
 It listens on `http://127.0.0.1:8000` only. There is no login (the brief leaves authentication
 out), and **Collect now** starts a process, so do not expose it publicly (`--host 0.0.0.0`).
-Options: `--db`, `--host`, `--port`. Every response carries
-`Content-Security-Policy: default-src 'self'`; that is also why the Swagger page (`/docs`, which
-loads scripts from a CDN) is off. The machine-readable schema is at `/openapi.json`.
+Options: `--db`, `--host`, `--port`. Interactive API docs (Swagger, with "Try it out") are at
+`http://127.0.0.1:8000/docs`; the schema is at `/openapi.json`.
+
+Every response carries `Content-Security-Policy: default-src 'self'` (the browser may load
+nothing from anywhere else). `/docs` is the one exception: it may also load Swagger's script and
+style from `cdn.jsdelivr.net` and run exactly one inline script, its startup script, allowed by
+its SHA-256 hash rather than by allowing inline scripts in general. That page shows only our own
+API schema, never scraped HTML.
 
 | Route | What it returns |
 |---|---|

@@ -242,3 +242,20 @@ def test_the_real_launcher_runs_the_same_command_as_the_terminal(monkeypatch, tm
     [(command, kw)] = calls
     assert command[1:] == ["-m", "collector", "--db", "var/jobs.db", "collect", "--run-id", "7"]
     assert kw["start_new_session"] and (tmp_path / "logs" / "run-7.log").exists()
+
+
+def test_docs_page_works_under_its_own_narrow_csp_exception(client):
+    import base64
+    import hashlib
+    import re
+
+    page = client.get("/docs")
+    assert page.status_code == 200
+    csp = page.headers["content-security-policy"]
+    [startup] = re.findall(r"<script>(.*?)</script>", page.text, re.S)  # exactly one inline script
+    digest = base64.b64encode(hashlib.sha256(startup.encode()).digest()).decode()
+    assert f"'sha256-{digest}'" in csp and "unsafe-inline" not in csp and "unsafe-eval" not in csp
+    assert client.get("/api/tags").headers["content-security-policy"] == "default-src 'self'"
+    paths = client.get("/openapi.json").json()["paths"]
+    assert {"/api/postings", "/api/postings/{posting_id}", "/api/tags", "/api/stats", "/api/runs", "/api/runs/{run_id}"} <= set(paths)
+    assert "/docs" not in paths
