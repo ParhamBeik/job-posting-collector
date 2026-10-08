@@ -346,8 +346,7 @@ Each test gets a fresh SQLite file in a temp folder.
 ## 13. Requirement checklist (every sentence of the brief)
 
 Status 2026-10-08: every row below is built and has its proof in the repository (PRs #9–#15 and
-the step 8 PR; the live run is in `docs/LIVE_RUN.md`), **except the actual time per step**, which
-only Parham can fill in (`docs/TIME_LOG.md`).
+the step 8 PR; the live run is in `docs/LIVE_RUN.md`; time per step in `docs/TIME_LOG.md`).
 
 | Brief | Plan | Proof |
 |---|---|---|

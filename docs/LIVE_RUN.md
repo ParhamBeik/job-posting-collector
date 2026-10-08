@@ -24,7 +24,7 @@ exit code: 0                           # ended 2026-10-08T13:22:23Z, 1 min 17 s
 | Window (Tehran) | 2026-10-02 .. 2026-10-08 = ۱۰ to ۱۶ مهر ۱۴۰۵, today and the 6 days before |
 | Window (UTC, stored and queried) | `2026-10-01T20:30:00Z` ≤ published_at < `2026-10-08T20:30:00Z` |
 | Status | `success`, exit code 0 |
-| Requests | 76 (7 listing pages, 69 posting pages), at least 1 s apart, 1 min 17 s in total |
+| Requests | 76 = 7 listing pages (10 ads each: 70 cards seen, 69 in the window, the 70th older, which stops the reading) + 69 posting pages (one per ad, for its full text); at least 1 s apart, 1 min 17 s in total |
 | Postings | 69 found in the window, 69 stored, 0 rejected |
 | Failed pages / invalid records | none (`run_issues` is empty for this run) |
 | Health numbers | 10.0 cards per listing page; date OK 100 %; body OK 100 %; tags OK 100 % |

@@ -126,7 +126,14 @@ Scraped text is only ever inserted as text (`textContent`), never as HTML, and l
 made for `http`/`https` addresses. `tests/test_page_xss.py` loads a deliberately malicious
 posting in a real browser and checks that the attack shows as plain characters and never runs.
 
-![Search results and a posting's full text](docs/screenshots/page-detail.png)
+| Desktop: list and an open posting | Phone |
+|---|---|
+| ![Desktop: the list and an open posting](docs/screenshots/page-detail.png) | ![Phone: postings per day and search](docs/screenshots/page-phone.png) |
+
+Persian text uses the open-source Vazirmatn font (SIL Open Font License, `api/static/fonts/OFL.txt`),
+served by the app itself so the page loads nothing from other sites. With no filters the list shows
+every stored posting (up to 100 per page; a 7-day window is about 70); **Show all** clears the
+filters, swapped dates are put in order, and an empty list says why (nothing collected yet, or no match).
 
 The server listens on `http://127.0.0.1:8000` only. There is no login (the brief leaves authentication
 out), and **Collect now** starts a process, so do not expose it publicly (`--host 0.0.0.0`).
@@ -283,12 +290,15 @@ isolated and repaired; how untrusted HTML is kept harmless; trade-offs and what 
 
 [`docs/LIVE_RUN.md`](docs/LIVE_RUN.md). On 2026-10-08 a fresh clone collected the window
 2026-10-02 .. 2026-10-08 Tehran (`2026-10-01T20:30:00Z` .. `2026-10-08T20:30:00Z`): status
-`success`, 76 pages, **69 postings**, 0 rejected, no issues, in 1 min 17 s. A separate script that
+`success`, **69 postings**, 0 rejected, no issues, in 1 min 17 s. It made 76 page requests:
+7 listing pages (10 ads each, 70 cards seen, the last one already older than the window) and
+69 posting pages, one per ad, because only the posting page has the full text. A separate script that
 re-read every page found all 69, nothing missing or extra, every field matching.
 
 ## Time spent, limitations and unfinished work
 
-Time per step: [`docs/TIME_LOG.md`](docs/TIME_LOG.md).
+About **7 h 30 min** of focused work over two days (7 Oct 18:00–22:00, 8 Oct 13:30–17:00 Tehran);
+per step in [`docs/TIME_LOG.md`](docs/TIME_LOG.md).
 
 Limitations: one source; runs are started by hand (no scheduler, as asked); no login, so the
 server must stay on `127.0.0.1`; within one day the order follows the site's post IDs because the
