@@ -15,6 +15,7 @@ import jdatetime
 from fastapi import FastAPI, Header, HTTPException, Query
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from collector import storage
 from collector.core import utc_now
@@ -40,6 +41,10 @@ SNIPPET = 160  # characters of body shown in a result row
 TOP_TAGS = 10
 _DAY = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 YEARS = range(1900, 2101)  # far from date.min/max, so the UTC conversion cannot overflow
+# Host names the page may be opened under. Checking the Host header stops DNS rebinding: a
+# hostile site that points its own name at 127.0.0.1 would otherwise count as same-origin and
+# could send the X-Collect-Trigger header.
+LOCAL_HOSTS = ("127.0.0.1", "localhost")
 LOG_DIR = Path("var/logs")
 STATIC = Path(__file__).parent / "static"
 
@@ -90,8 +95,10 @@ def snippet(body: str, query: str) -> str:
     return ("…" if start else "") + part + ("…" if start + SNIPPET < len(text) else "")
 
 
-def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clock=utc_now) -> FastAPI:
+def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clock=utc_now,
+               hosts=LOCAL_HOSTS) -> FastAPI:
     app = FastAPI(title="Job posting collector")  # docs at /docs (Swagger) and /redoc
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(hosts))  # any other Host → 400
 
     def connect():
         conn = storage.connect(db)

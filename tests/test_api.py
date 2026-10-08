@@ -15,6 +15,7 @@ from collector.sources import SOURCES
 
 SNAPSHOT = Path(__file__).parent / "fixtures" / "eng_estekhdam" / "snapshot"
 NOW = datetime(2026, 10, 7, 17, 0, tzinfo=timezone.utc)
+LOCAL = "http://127.0.0.1"  # the app answers only to local host names
 
 
 def handmade(post_id, title, body, day, tags=(), published_at=None):
@@ -51,7 +52,7 @@ def launched():
 
 @pytest.fixture
 def client(db, launched):
-    return TestClient(create_app(db, launch=lambda path, run_id: launched.append(run_id), clock=lambda: NOW))
+    return TestClient(create_app(db, launch=lambda path, run_id: launched.append(run_id), clock=lambda: NOW), base_url=LOCAL)
 
 
 def search(client, **params):
@@ -201,6 +202,15 @@ def test_collect_now_needs_the_trigger_header(client, launched):
     assert launched == []
 
 
+def test_a_foreign_host_name_is_refused_so_dns_rebinding_cannot_start_runs(client, launched):
+    # A hostile site that points its own name at 127.0.0.1 sends its name in the Host header.
+    foreign = {"Host": "attacker.example:8000", "X-Collect-Trigger": "1"}
+    assert client.post("/api/runs", headers=foreign).status_code == 400
+    assert client.get("/api/postings", headers=foreign).status_code == 400
+    assert launched == []
+    assert client.get("/api/postings", headers={"Host": "localhost:8000"}).status_code == 200
+
+
 def test_collect_now_starts_one_run_and_refuses_a_second(client, launched, db):
     started = client.post("/api/runs", headers={"X-Collect-Trigger": "1"})
     assert started.status_code == 202
@@ -220,7 +230,7 @@ def test_a_process_that_cannot_start_ends_its_run_as_failed(db):
     def broken(path, run_id):
         raise OSError("no python")
 
-    client = TestClient(create_app(db, launch=broken, clock=lambda: NOW), raise_server_exceptions=False)
+    client = TestClient(create_app(db, launch=broken, clock=lambda: NOW), base_url=LOCAL, raise_server_exceptions=False)
     response = client.post("/api/runs", headers={"X-Collect-Trigger": "1"})
     assert response.status_code == 500
     assert sql(db, "SELECT status FROM runs ORDER BY id DESC LIMIT 1")[0][0] == "failed"
@@ -288,7 +298,7 @@ def test_within_one_day_the_newest_post_id_comes_first(tmp_path):
     for post_id in ("205137", "205131", "205134"):  # stored in this order (row ids 1, 2, 3)
         storage.upsert_posting(conn, handmade(post_id, f"ad {post_id}", "body text", date(2026, 10, 8))[0], NOW)
     conn.close()
-    client = TestClient(create_app(db, clock=lambda: NOW))
+    client = TestClient(create_app(db, clock=lambda: NOW), base_url=LOCAL)
     assert [i["source_post_id"] for i in search(client)["items"]] == ["205137", "205134", "205131"]
 
 
