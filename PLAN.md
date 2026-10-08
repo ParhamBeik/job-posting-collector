@@ -205,7 +205,7 @@ and core stay untouched. No plugin loader: one site does not justify it.
 - **[built #3]** Per-record validation (§6 record codes).
 
 **Detect across runs (soft checks)**
-- **[to build #5]** Health numbers stored per run: cards per page, % body OK, % date OK, % tags OK.
+- **[built #5]** Health numbers stored per run: cards per page, % body OK, % date OK, % tags OK.
   The page shows them next to the previous runs.
 - **[design]** Drift alert: compare to the median of the last 10 successful runs; a drop over
   20 points raises `HEALTH_DRIFT`.
@@ -214,17 +214,17 @@ and core stay untouched. No plugin loader: one site does not justify it.
 - **[design]** Daily smoke run of listing page 1 that only checks the page shape.
 
 **Contain (stop bad data from spreading)**
-- **[to build #5]** Circuit breaker: if the first listing page fails the page check, or more than
+- **[built #5]** Circuit breaker: if the first listing page fails the page check, or more than
   30% of records in a run fail validation (minimum 5 records), stop the source, write nothing
   new for it, status `parser_broken`. Protects good stored data and stops hammering the site.
-- **[to build #5]** Rejected records never enter `postings`; they appear only in `run_issues`, with a snapshot.
+- **[built #5]** Rejected records never enter `postings`; they appear only in `run_issues`, with a snapshot.
 - **[built #4]** No-empty-overwrite rule (§4): stored text kept, `EMPTY_FIELD_KEPT` warning.
 - **[built #3]** One fallback: when the card date is missing, the already-validated URL date is
   used and `FALLBACK_USED` is raised; the posting page date is still checked against it, so two
   independent sources remain. Nothing else is guessed.
 
 **Isolate**
-- **[to build #5]** `--source` runs one source; a source's failure never touches another.
+- **[built #5]** `--source` runs one source; a source's failure never touches another.
 - **[design]** `sources.toml` with `enabled = false` to park a broken source; API keeps serving
   its stored data; page shows the source as "paused".
 
@@ -233,7 +233,7 @@ and core stay untouched. No plugin loader: one site does not justify it.
 2. Copy the saved snapshot from `var/snapshots/<run>/` into `tests/fixtures/`.
 3. Write a test that fails on it.
 4. Fix the selectors; bump `parser_version`.
-5. **[to build #5]** Replay: `collect --from-dir var/snapshots/<run>/` re-parses saved pages offline
+5. **[built #5]** Replay: `collect --from-dir var/snapshots/<run>/` re-parses saved pages offline
    (the same code path the tests use).
 6. Re-enable, re-collect. Rows from the old `parser_version` are refreshed by upsert.
 

@@ -38,7 +38,46 @@ python -m collector --db other.db init-db
 
 The collect command and the API also create the tables if they are missing.
 
-## Collect postings *(step 5)*
+## Collect postings
+
+```bash
+python -m collector collect
+```
+
+One run collects today and the previous six days in Tehran time. It reads listing pages until it
+meets a card older than the window, then fetches each in-window posting page, checks everything,
+and only then writes to the database. Requests go one at a time, at least 1 second apart, with a
+named User-Agent; timeouts, connection errors, 429 and 5xx are retried at most 3 times (waits 2 s
+and 4 s); redirects and other 4xx are reported, never followed.
+
+The last lines it prints, and the exit code, tell you how the run went:
+
+| Status | Exit | Meaning |
+|---|---|---|
+| `success` / `success_empty` / `success_with_warnings` | 0 | The whole window was read (empty = the site had no postings in it) |
+| `partial` | 1 | Window fully read, but some postings were rejected (see issues) |
+| `incomplete` | 2 | The window was not fully read (a listing page failed, ended early, or the 40-page cap was hit) |
+| `blocked` | 3 | The site answered with a firewall/challenge page; the run stopped asking |
+| `parser_broken` | 4 | Listing page 1 unrecognized, or more than 30 % of records invalid: **nothing stored** |
+| `failed` | 5 | A bug; the traceback is in the run's issues |
+| not started | 6 | Another run is in progress |
+
+Each problem is an issue with a code (`PLAN.md` §6), stored with the run. When a run has a
+problem, every page it read is saved to `var/snapshots/<run id>/` with a `manifest.json`, so the
+whole run can be replayed offline (use the run's start time as `--now`):
+
+```bash
+python -m collector collect --from-dir var/snapshots/12/ --now 2026-10-08T06:00:00Z
+```
+
+Replaying the committed site snapshot needs the moment it was taken, so the window matches:
+
+```bash
+python -m collector --db var/replay.db collect --from-dir tests/fixtures/eng_estekhdam/snapshot --now 2026-10-07T17:00:00Z
+```
+
+That run reports 68 postings for 9–15 Mehr 1405 (2026-10-01..07 Tehran); running it again reports
+68 unchanged. `--now` is refused without `--from-dir`: a live run always uses the real clock.
 
 ## Start the API and the page *(steps 6–7)*
 
