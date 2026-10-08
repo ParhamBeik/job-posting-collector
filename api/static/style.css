@@ -1,0 +1,72 @@
+:root {
+  --bg: #f7f7f5;
+  --panel: #ffffff;
+  --text: #1d1d1b;
+  --muted: #6b6b66;
+  --line: #deded8;
+  --accent: #2357c6;
+  --ok: #1d7a3e;
+  --warn: #a86400;
+  --bad: #b3261e;
+  font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+body { margin: 0; }
+main { max-width: 1200px; margin: 0 auto; padding: 0 16px 48px; }
+h1 { font-size: 1.25rem; margin: 0; }
+h2 { font-size: 1.05rem; margin: 24px 0 8px; }
+small, .muted { color: var(--muted); font-weight: normal; font-size: 0.85rem; }
+button { font: inherit; padding: 6px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: default; }
+button[type="submit"], #collect { background: var(--accent); border-color: var(--accent); color: #fff; }
+.error { color: var(--bad); }
+
+.bar { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.run-status { flex: 1; min-width: 240px; font-size: 0.9rem; }
+.progress { padding: 8px 16px; background: #eef3ff; border-bottom: 1px solid var(--line); font-size: 0.9rem; }
+
+.badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 0.8rem; color: #fff; background: var(--muted); }
+.badge.success, .badge.success_empty { background: var(--ok); }
+.badge.success_with_warnings, .badge.partial, .badge.incomplete, .badge.running { background: var(--warn); }
+.badge.blocked, .badge.parser_broken, .badge.failed { background: var(--bad); }
+
+.days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; align-items: end; height: 170px; }
+.day { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; padding: 0; border: none; background: none; text-align: center; }
+.day .fill { background: var(--accent); border-radius: 4px 4px 0 0; min-height: 2px; }
+.day.active .fill { background: var(--ok); }
+.day .count { font-weight: 600; }
+.day .label { font-size: 0.75rem; color: var(--muted); }
+
+.search { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; background: var(--panel); padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+.search label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; }
+.search input, .search select { font: inherit; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; min-width: 150px; }
+.jalali { font-size: 0.8rem; color: var(--muted); min-height: 1em; }
+.buttons { display: flex; gap: 8px; }
+
+.columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+@media (max-width: 800px) { .columns { grid-template-columns: 1fr; } }
+
+.results { list-style: none; padding: 0; margin: 0; }
+.results li { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+.results li:hover, .results li.selected { border-color: var(--accent); }
+.results .title { font-weight: 600; }
+.results .snippet { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+.pager { display: flex; justify-content: space-between; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.chip { font-size: 0.75rem; padding: 1px 8px; border-radius: 10px; background: #e9eef8; }
+.chip.province { background: #f1ebe0; }
+
+.detail { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 0 16px 8px; align-self: start; position: sticky; top: 8px; max-height: calc(100vh - 16px); overflow: auto; }
+.detail .body { white-space: pre-line; line-height: 1.8; }
+.note { font-size: 0.85rem; color: var(--warn); }
+
+.table-scroll { overflow-x: auto; }
+.runs { width: 100%; min-width: 760px; border-collapse: collapse; background: var(--panel); font-size: 0.85rem; }
+.runs th, .runs td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; }
+.runs tbody tr { cursor: pointer; }
+.runs tbody tr:hover, .runs tbody tr.selected { background: #eef3ff; }
+.run-issues { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 16px; margin-top: 8px; font-size: 0.85rem; }
+.run-issues li { margin: 2px 0; overflow-wrap: anywhere; }

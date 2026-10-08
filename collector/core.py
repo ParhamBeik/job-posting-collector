@@ -69,6 +69,7 @@ class _Run:
 
     def fetch(self, url: str, kind: str) -> str | None:
         html, issues = self.fetcher.get(url)
+        storage.update_run(self.conn, self.report.run_id, heartbeat_at=format_utc(self.clock()))  # still alive
         if html is not None:
             self.fetched[url] = (html, kind)
             if self.saved:  # already saving this run: keep the replay folder complete
@@ -251,7 +252,7 @@ def collect(conn, source, fetcher, clock=utc_now, snapshot_root: Path = Path("va
     storage.update_run(
         conn, run_id,
         window_start=format_utc(report.window.start), window_end=format_utc(report.window.end),
-        parser_version=source.parser_version,
+        parser_version=source.parser_version, heartbeat_at=format_utc(clock()),
     )
     run = _Run(conn, source, fetcher, report, snapshot_root / str(run_id), page_cap, clock)
     try:

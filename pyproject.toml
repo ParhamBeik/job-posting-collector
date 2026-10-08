@@ -25,6 +25,7 @@ dev = [
 
 [tool.setuptools]
 packages = ["collector", "collector.sources", "api"]
+package-data = { api = ["static/*"] }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

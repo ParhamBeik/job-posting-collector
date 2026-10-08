@@ -170,14 +170,14 @@ def test_only_one_run_at_a_time(tmp_path):
     first, second = storage.connect(tmp_path / "jobs.db"), storage.connect(tmp_path / "jobs.db")
     run_id = storage.start_run(first, "eng-estekhdam", T0)
     with pytest.raises(storage.RunActive):
-        storage.start_run(second, "eng-estekhdam", T0 + timedelta(minutes=29))
+        storage.start_run(second, "eng-estekhdam", T0 + timedelta(minutes=2))
     storage.finish_run(first, run_id, "success", T0 + timedelta(minutes=2))
     assert storage.start_run(second, "eng-estekhdam", T0 + timedelta(minutes=3)) == run_id + 1
 
 
 def test_stale_running_row_does_not_block_and_is_marked_failed(conn):
     stale = storage.start_run(conn, "eng-estekhdam", T0)
-    fresh = storage.start_run(conn, "eng-estekhdam", T0 + timedelta(minutes=31))
+    fresh = storage.start_run(conn, "eng-estekhdam", T0 + timedelta(minutes=4))
     assert fresh != stale
     assert rows(conn, "SELECT status FROM runs WHERE id = ?", stale) == [{"status": "failed"}]
     assert rows(conn, "SELECT code FROM run_issues WHERE run_id = ?", stale) == [{"code": "UNEXPECTED_ERROR"}]
@@ -206,3 +206,14 @@ def test_unknown_run_fields_and_statuses_are_rejected(conn):
         storage.finish_run(conn, run_id, "running", T1)
     with pytest.raises(ValueError):
         storage.finish_run(conn, run_id, "done", T1)
+
+
+def test_database_from_before_heartbeats_gets_the_column(tmp_path):
+    import sqlite3
+
+    old = sqlite3.connect(tmp_path / "old.db")
+    old.executescript(storage.SCHEMA.replace(",\n    heartbeat_at       TEXT  -- last sign of life of a running run", ""))
+    assert "heartbeat_at" not in {r[1] for r in old.execute("PRAGMA table_info(runs)")}
+    old.close()
+    conn = storage.connect(tmp_path / "old.db")
+    assert storage.start_run(conn, "eng-estekhdam", T0) == 1

@@ -1,6 +1,6 @@
 """HTTP API against a temp database: the replayed site snapshot plus a few hand-made postings."""
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -244,18 +244,38 @@ def test_the_real_launcher_runs_the_same_command_as_the_terminal(monkeypatch, tm
     assert kw["start_new_session"] and (tmp_path / "logs" / "run-7.log").exists()
 
 
-def test_docs_page_works_under_its_own_narrow_csp_exception(client):
-    import base64
-    import hashlib
-    import re
+def test_docs_pages_work_under_their_own_looser_csp(client):
+    from api.app import DOCS_CSP
 
-    page = client.get("/docs")
-    assert page.status_code == 200
-    csp = page.headers["content-security-policy"]
-    [startup] = re.findall(r"<script>(.*?)</script>", page.text, re.S)  # exactly one inline script
-    digest = base64.b64encode(hashlib.sha256(startup.encode()).digest()).decode()
-    assert f"'sha256-{digest}'" in csp and "unsafe-inline" not in csp and "unsafe-eval" not in csp
-    assert client.get("/api/tags").headers["content-security-policy"] == "default-src 'self'"
+    for path in ("/docs", "/redoc"):
+        page = client.get(path)
+        assert page.status_code == 200 and page.headers["content-security-policy"] == DOCS_CSP
+    assert "cdn.jsdelivr.net" in DOCS_CSP and "'unsafe-inline'" in DOCS_CSP
+    for path in ("/", "/api/tags", "/static/app.js", "/openapi.json"):  # everything else stays strict
+        assert client.get(path).headers["content-security-policy"] == "default-src 'self'"
     paths = client.get("/openapi.json").json()["paths"]
     assert {"/api/postings", "/api/postings/{posting_id}", "/api/tags", "/api/stats", "/api/runs", "/api/runs/{run_id}"} <= set(paths)
-    assert "/docs" not in paths
+
+
+def test_reading_runs_expires_a_run_that_died(client, db):
+    conn = storage.connect(db)
+    dead = storage.start_run(conn, "eng-estekhdam", NOW - timedelta(minutes=4))
+    conn.close()
+    run = client.get(f"/api/runs/{dead}").json()
+    assert run["status"] == "failed" and [g["code"] for g in run["issues"]] == ["UNEXPECTED_ERROR"]
+    assert client.post("/api/runs", headers={"X-Collect-Trigger": "1"}).status_code == 202  # not blocked
+
+    conn = storage.connect(db)
+    for (run_id,) in conn.execute("SELECT id FROM runs WHERE status = 'running'").fetchall():
+        storage.finish_run(conn, run_id, "success", NOW)
+    conn.close()
+
+
+def test_reading_runs_leaves_a_live_run_alone(client, db):
+    conn = storage.connect(db)
+    live = storage.start_run(conn, "eng-estekhdam", NOW - timedelta(minutes=2))
+    conn.close()
+    assert client.get("/api/runs", params={"limit": 1}).json()["items"][0]["status"] == "running"
+    conn = storage.connect(db)
+    storage.finish_run(conn, live, "success", NOW)
+    conn.close()
