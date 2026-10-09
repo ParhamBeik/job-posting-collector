@@ -255,9 +255,10 @@ def collect(conn, source, fetcher, clock=utc_now, snapshot_root: Path = Path("va
     They differ only in a replay (`--now`): the pages are from the past, the run happens now.
     """
     run_clock = run_clock or clock
+    window = collection_window(clock())  # "today" is decided once, here, before anything else
     if run_id is None:
         run_id = storage.start_run(conn, source.name, run_clock())
-    report = RunReport(run_id, collection_window(clock()))  # "today" is decided once, here
+    report = RunReport(run_id, window)
     storage.update_run(
         conn, run_id,
         window_start=format_utc(report.window.start), window_end=format_utc(report.window.end),

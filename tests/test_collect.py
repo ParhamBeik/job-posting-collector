@@ -142,6 +142,16 @@ def test_ads_dated_after_the_window_are_not_collected(conn, tmp_path):
     assert report.status == "success_with_warnings"
 
 
+def test_a_run_that_crosses_midnight_keeps_the_window_it_started_with(conn, tmp_path):
+    # Starts 23:59:30 Tehran on 7 Oct (20:29:30Z); every clock read is a minute later, so the run
+    # ends on 8 Oct in Tehran. "Today" was decided at the start: the window stays 1-7 Oct.
+    ticks = iter(range(10_000))
+    clock = lambda: datetime(2026, 10, 7, 20, 29, 30, tzinfo=timezone.utc) + timedelta(minutes=next(ticks))  # noqa: E731
+    report = collect(conn, SOURCE, FakeSite(), clock, tmp_path / "snapshots")
+    assert (report.window.first_day, report.window.last_day) == (date(2026, 10, 1), date(2026, 10, 7))
+    assert (report.status, report.found, count(conn)) == ("success", 68, 68)
+
+
 def test_window_with_no_postings_is_a_successful_empty_run(conn, tmp_path):
     report = run(conn, tmp_path, FakeSite(), now=NOW + timedelta(days=13))  # window 22-28 Mehr
     assert (report.status, report.exit_code, report.found, report.pages_listing) == ("success_empty", 0, 0, 1)
@@ -327,11 +337,11 @@ def test_live_client_identifies_itself_and_never_follows_redirects():
     assert "job-posting-collector" in client.headers["user-agent"]
 
 
-def test_requests_are_paced_one_per_second():
+def test_requests_are_paced_half_a_second_apart():
     fetcher, sleeps = http_fetcher(lambda request: httpx.Response(200, text="ok"))
     fetcher.get("https://eng-estekhdam.com/")
     fetcher.get("https://eng-estekhdam.com/page/2/")
-    assert sleeps == [1.0]
+    assert sleeps == [0.5]
 
 
 def test_temporary_failure_is_retried_and_reported_as_recovered():
