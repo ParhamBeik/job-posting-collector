@@ -164,6 +164,7 @@ Details and the full diagrams: [`docs/DESIGN.md`](docs/DESIGN.md).
 | An edited ad is updated in place; `updated_at` ≠ `collected_at` marks it (shown as "edited on the site") | Keeping old versions | The brief needs no history; an indication of change is enough | Parham (9 Oct) |
 | Fetch everything, check, then store; more than 30 % invalid → store nothing | Store as you go | A redesign must not overwrite good data with half-parsed rows | Claude proposed; Parham confirmed 30 % (9 Oct) |
 | 0.5 s between requests, one at a time, 3 attempts, 40-page cap | Parallel requests | Measured live: half the time, no firewall reaction; parallel would be impolite | Parham asked to halve the time; measured before changing (9 Oct) |
+| Within one day, newest = highest post ID | Reproducing the site's order from list positions | The HTML has no publish time; live check: 62 of 63 in the site's position | Parham (9 Oct), after seeing the live comparison |
 | Keyword = one phrase, substring, after normalization | Every word anywhere | What the brief describes; predictable | Parham (7 Oct) |
 | A full copy of the site saved as test pages | A few hand-picked pages | Whole runs can be tested offline on real HTML | Parham (7 Oct) |
 | Collect now runs the same command as a separate process | A thread in the API | Same code as the terminal; a collector crash cannot take the API down | Parham asked for the button; Claude chose the process |
@@ -247,8 +248,14 @@ two API docs pages get a looser policy because they load Swagger from a CDN.
 
 Filters combine with AND. Timestamps are UTC with `Z`; each posting also has
 `published_date_tehran` and `published_date_jalali`. A bad date, `date_from` after `date_to`, or an
-out-of-range number is a 422 with a message. Within one day, results are ordered by the site's
-post ID, highest first (the site shows no time of day; its IDs follow creation order).
+out-of-range number is a 422 with a message.
+
+**Order within one day.** Results are newest first by Tehran day, then by the site's post ID,
+highest first. The site sorts by an exact publish time that its HTML never shows, and the brief
+rules out the feed that has it, so post ID (creation order) is the closest honest signal. Checked
+against the live site on 9 Oct: 62 of 63 ads in the same position; one pair on 3 Oct is swapped,
+because ad 204966 was created before 204968 but published after it
+([`docs/LIVE_RUN.md`](docs/LIVE_RUN.md#order-compared-with-the-site)). Kept on purpose.
 
 ### Example queries
 
@@ -408,7 +415,8 @@ Known limitations:
 
 - One source; runs are started by hand (no scheduler, as the brief allows).
 - No login, so the server must stay on `127.0.0.1` (or a name you allow with `--allow-host`).
-- Within one day, order follows the site's post IDs, because the site shows no times.
+- Within one day, order follows the site's post IDs, because the site shows no times: on 9 Oct,
+  62 of 63 ads matched the site's position and one pair was swapped (an ad published later than it was created).
 - Members-only contact details are never collected.
 - If an ad is deleted from the site **during** a run, the ads after it move up one place, and one
   ad can slip past the listing pages already read. It is not reported. The next run collects it

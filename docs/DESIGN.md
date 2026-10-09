@@ -267,7 +267,7 @@ The tag → group map is in the adapter (`field_groups`); the groups and the rul
 
 | Choice | Why | Cost |
 |---|---|---|
-| Midnight-Tehran timestamp for date-only postings | The HTML shows only a day; the RSS feed (which has times) is off-limits | Within one day, newest = highest site post ID (creation order), not a true time; an ad created early and published late sorts a little low |
+| Midnight-Tehran timestamp for date-only postings | The HTML shows only a day; the RSS feed (which has times) is off-limits | Within one day, newest = highest site post ID (creation order), not a true time; an ad created early and published late sorts a little low. Live check, 9 Oct: 62 of 63 in the site's position, one pair swapped |
 | Keyword = one phrase, substring after normalization | What the brief describes; predictable | "عمران مهندس" does not find "مهندس عمران"; word-by-word search is a possible next step |
 | SQLite `LIKE`, no full-text index | About 70 postings a week; the brief excludes a search engine | Would need FTS5 at a much larger size |
 | Separate process for Collect now | Same code as the terminal; a collector crash cannot take the API down | One more moving part (log in `var/logs/`) |

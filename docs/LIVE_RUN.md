@@ -57,6 +57,24 @@ The pacing was halved only after one separate live run at 0.5 s (2026-10-09, scr
 70 requests in 42.7 s, every answer HTTP 200, no firewall challenge; response times median 0.32 s,
 90th percentile 0.80 s, slowest 1.88 s.
 
+## Order compared with the site
+
+On 2026-10-09 the order of the running app (`GET /api/postings?page_size=100`, 63 postings after a
+live run) was compared with the site's own listing pages 1–7, read live (7 requests):
+
+```text
+in the window on the site and in the app:   63 = 63   (none missing, none extra)
+same position:                              62 of 63
+the one difference (3 Oct = 11 Mehr):
+  site  … 204971  204966  204968  204964 …
+  app   … 204971  204968  204966  204964 …
+```
+
+The site orders ads by an exact publish time that its HTML does not show; the app orders by the
+Tehran day, then by post ID (creation order). Ad 204966 was created before 204968 but published
+after it, so the site lists it first and the app second. Nothing else differs. The brief allows
+only HTML, so this is kept and documented rather than worked around.
+
 ---
 
 # First live run (2026-10-08)

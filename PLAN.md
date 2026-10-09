@@ -390,8 +390,9 @@ Each test gets a fresh SQLite file in a temp folder.
 
 ## 13. Requirement checklist (every sentence of the brief)
 
-Status 2026-10-08: every row below is built and has its proof in the repository (PRs #9–#15 and
-the step 8 PR; the live run is in `docs/LIVE_RUN.md`; time per step in `docs/TIME_LOG.md`).
+Status 2026-10-09: every row below is built and has its proof in the repository (PRs #9–#16, and
+#18 for the final review; live runs in `docs/LIVE_RUN.md`; each test area in `docs/TESTING.md`;
+time per step in `docs/TIME_LOG.md`).
 
 <details>
 <summary>Requirement checklist: every sentence of the brief → plan section → proof</summary>
