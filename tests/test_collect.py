@@ -131,9 +131,25 @@ def test_run_row_has_window_counters_and_health_numbers(conn, tmp_path):
 
 
 def test_ads_dated_after_the_window_are_not_collected(conn, tmp_path):
-    report = run(conn, tmp_path, FakeSite(), now=NOW - timedelta(days=2))  # window 29 Sep - 5 Oct
-    assert report.found == count(conn) == in_window_count(date(2026, 9, 29), date(2026, 10, 5))
-    assert conn.execute("SELECT max(published_at) FROM postings").fetchone()[0] < "2026-10-05T20:30:00Z"
+    # Window 30 Sep - 6 Oct. (One day back, not two: the snapshot ends on listing page 8, so a
+    # window starting 29 Sep would need page 9 and the run would be incomplete.)
+    report = run(conn, tmp_path, FakeSite(), now=NOW - timedelta(days=1))
+    assert report.found == count(conn) == in_window_count(date(2026, 9, 30), date(2026, 10, 6))
+    assert conn.execute("SELECT max(published_at) FROM postings").fetchone()[0] < "2026-10-06T20:30:00Z"
+    # Skipped, but never silently: one warning per card dated 7 Oct (after "today").
+    after = in_window_count(date(2026, 10, 7), date(2026, 10, 7))
+    assert codes(report) == ["DATE_AFTER_WINDOW"] * after and after > 0
+    assert report.status == "success_with_warnings"
+
+
+def test_a_run_that_crosses_midnight_keeps_the_window_it_started_with(conn, tmp_path):
+    # Starts 23:59:30 Tehran on 7 Oct (20:29:30Z); every clock read is a minute later, so the run
+    # ends on 8 Oct in Tehran. "Today" was decided at the start: the window stays 1-7 Oct.
+    ticks = iter(range(10_000))
+    clock = lambda: datetime(2026, 10, 7, 20, 29, 30, tzinfo=timezone.utc) + timedelta(minutes=next(ticks))  # noqa: E731
+    report = collect(conn, SOURCE, FakeSite(), clock, tmp_path / "snapshots")
+    assert (report.window.first_day, report.window.last_day) == (date(2026, 10, 1), date(2026, 10, 7))
+    assert (report.status, report.found, count(conn)) == ("success", 68, 68)
 
 
 def test_window_with_no_postings_is_a_successful_empty_run(conn, tmp_path):
@@ -321,11 +337,11 @@ def test_live_client_identifies_itself_and_never_follows_redirects():
     assert "job-posting-collector" in client.headers["user-agent"]
 
 
-def test_requests_are_paced_one_per_second():
+def test_requests_are_paced_half_a_second_apart():
     fetcher, sleeps = http_fetcher(lambda request: httpx.Response(200, text="ok"))
     fetcher.get("https://eng-estekhdam.com/")
     fetcher.get("https://eng-estekhdam.com/page/2/")
-    assert sleeps == [1.0]
+    assert sleeps == [0.5]
 
 
 def test_temporary_failure_is_retried_and_reported_as_recovered():
@@ -396,6 +412,21 @@ def test_cli_replays_a_snapshot_and_returns_the_status_exit_code(tmp_path, capsy
     assert main(args) == 0
     out = capsys.readouterr().out
     assert "SUCCESS" in out and "68 found, 68 new" in out and "2026-09-30T20:30:00Z" in out
+
+
+def test_cli_replay_stamps_the_run_row_with_the_real_time(tmp_path):
+    # --now sets the window and the postings' collected_at (the moment the pages were saved);
+    # the run row says when the replay really ran, so run history never shows a run "in the past".
+    db = tmp_path / "j.db"
+    before = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    assert main(["--db", str(db), "collect", "--from-dir", str(SNAPSHOT), "--now", "2026-10-07T17:00:00Z",
+                 "--snapshots", str(tmp_path / "s")]) == 0
+    conn = storage.connect(db)
+    run_row = conn.execute("SELECT started_at, heartbeat_at, finished_at, window_start FROM runs").fetchone()
+    assert all(stamp >= before for stamp in tuple(run_row)[:3])
+    assert run_row["window_start"] == "2026-09-30T20:30:00Z"
+    assert count(conn, "SELECT count(DISTINCT collected_at) FROM postings") == 1
+    assert count(conn, "SELECT max(collected_at) FROM postings") == "2026-10-07T17:00:00Z"
 
 
 def test_cli_refuses_a_fake_clock_for_live_runs(tmp_path):

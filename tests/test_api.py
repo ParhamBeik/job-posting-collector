@@ -15,6 +15,7 @@ from collector.sources import SOURCES
 
 SNAPSHOT = Path(__file__).parent / "fixtures" / "eng_estekhdam" / "snapshot"
 NOW = datetime(2026, 10, 7, 17, 0, tzinfo=timezone.utc)
+LOCAL = "http://127.0.0.1"  # the app answers only to local host names
 
 
 def handmade(post_id, title, body, day, tags=(), published_at=None):
@@ -51,7 +52,7 @@ def launched():
 
 @pytest.fixture
 def client(db, launched):
-    return TestClient(create_app(db, launch=lambda path, run_id: launched.append(run_id), clock=lambda: NOW))
+    return TestClient(create_app(db, launch=lambda path, run_id: launched.append(run_id), clock=lambda: NOW), base_url=LOCAL)
 
 
 def search(client, **params):
@@ -151,6 +152,19 @@ def test_bad_parameters_are_422_with_a_message(client, params):
     assert response.status_code == 422 and response.json()["detail"]
 
 
+@pytest.mark.parametrize("url", [
+    "/api/postings?q=%25", "/api/postings?q=_", "/api/postings?q=%5C", "/api/postings?q=%27;DROP TABLE postings;--",
+    "/api/postings?q=%F0%9F%98%80", "/api/postings?q=" + "a" * 20000, "/api/postings?q=%00", "/api/postings?tag=%00",
+    "/api/postings?page=" + "9" * 25, "/api/postings?page=999999999", "/api/postings?page=x", "/api/postings?page_size=0",
+    "/api/postings?date_from=abc", "/api/postings?date_from=%202026-10-01", "/api/postings?date_to=2100-12-31",
+    "/api/postings/" + "9" * 25, "/api/postings/9223372036854775808", "/api/postings/-1", "/api/postings/abc",
+    "/api/runs/" + "9" * 25, "/api/runs/9223372036854775808", "/api/runs?limit=1000", "/static/../api/app.py",
+])
+def test_odd_inputs_get_an_answer_never_a_server_error(db, url):
+    client = TestClient(create_app(db, clock=lambda: NOW), base_url=LOCAL, raise_server_exceptions=False)
+    assert client.get(url).status_code in (200, 404, 422)
+
+
 def test_one_posting_has_the_full_body(client, db):
     row_id, body = sql(db, "SELECT id, body FROM postings WHERE source_post_id = 'k1'")[0]
     data = client.get(f"/api/postings/{row_id}").json()
@@ -195,10 +209,42 @@ def test_run_history_and_issues_grouped_by_code(client, db):
     assert client.get("/api/runs/999").status_code == 404
 
 
+def test_run_history_pages_newest_first_with_a_total(tmp_path):
+    conn = storage.connect(tmp_path / "runs.db")
+    for _ in range(25):
+        storage.finish_run(conn, storage.start_run(conn, "eng-estekhdam", NOW), "success", NOW)
+    conn.close()
+    client = TestClient(create_app(tmp_path / "runs.db", clock=lambda: NOW), base_url=LOCAL)
+    pages = [client.get("/api/runs", params={"limit": 10, "page": n}).json() for n in (1, 2, 3, 4)]
+    assert [len(p["items"]) for p in pages] == [10, 10, 5, 0] and {p["total"] for p in pages} == {25}
+    ids = [r["id"] for p in pages for r in p["items"]]
+    assert ids == sorted(ids, reverse=True) and len(set(ids)) == 25
+
+
 def test_collect_now_needs_the_trigger_header(client, launched):
     assert client.post("/api/runs").status_code == 403
     assert client.post("/api/runs", headers={"X-Collect-Trigger": "yes"}).status_code == 403
     assert launched == []
+
+
+def test_a_foreign_host_name_is_refused_so_dns_rebinding_cannot_start_runs(client, launched):
+    # A hostile site that points its own name at 127.0.0.1 sends its name in the Host header.
+    foreign = {"Host": "attacker.example:8000", "X-Collect-Trigger": "1"}
+    assert client.post("/api/runs", headers=foreign).status_code == 400
+    assert client.get("/api/postings", headers=foreign).status_code == 400
+    assert launched == []
+    assert client.get("/api/postings", headers={"Host": "localhost:8000"}).status_code == 200
+
+
+def test_api_command_accepts_extra_host_names_for_remote_machines(monkeypatch, tmp_path):
+    started = {}
+    monkeypatch.setattr("uvicorn.run", lambda app, host, port: started.update(app=app))
+    monkeypatch.setattr("sys.argv", ["api", "--db", str(tmp_path / "j.db"), "--allow-host", "box.example"])
+    from api.__main__ import main
+    main()
+    client = TestClient(started["app"], base_url="http://box.example")
+    assert client.get("/api/tags").status_code == 200
+    assert client.get("/api/tags", headers={"Host": "other.example"}).status_code == 400
 
 
 def test_collect_now_starts_one_run_and_refuses_a_second(client, launched, db):
@@ -220,7 +266,7 @@ def test_a_process_that_cannot_start_ends_its_run_as_failed(db):
     def broken(path, run_id):
         raise OSError("no python")
 
-    client = TestClient(create_app(db, launch=broken, clock=lambda: NOW), raise_server_exceptions=False)
+    client = TestClient(create_app(db, launch=broken, clock=lambda: NOW), base_url=LOCAL, raise_server_exceptions=False)
     response = client.post("/api/runs", headers={"X-Collect-Trigger": "1"})
     assert response.status_code == 500
     assert sql(db, "SELECT status FROM runs ORDER BY id DESC LIMIT 1")[0][0] == "failed"
@@ -288,7 +334,7 @@ def test_within_one_day_the_newest_post_id_comes_first(tmp_path):
     for post_id in ("205137", "205131", "205134"):  # stored in this order (row ids 1, 2, 3)
         storage.upsert_posting(conn, handmade(post_id, f"ad {post_id}", "body text", date(2026, 10, 8))[0], NOW)
     conn.close()
-    client = TestClient(create_app(db, clock=lambda: NOW))
+    client = TestClient(create_app(db, clock=lambda: NOW), base_url=LOCAL)
     assert [i["source_post_id"] for i in search(client)["items"]] == ["205137", "205134", "205131"]
 
 

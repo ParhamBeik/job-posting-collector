@@ -2,10 +2,11 @@
 // never as HTML, and links are only followed when they are http(s). See PLAN.md section 11.
 "use strict";
 
-const PAGE_SIZE = 100; // the API maximum: a normal 7-day window (about 70 ads) fits on one page
+const PAGE_SIZES = [20, 50, 100]; // postings per page the reader can choose; 100 is the API maximum
+const RUNS_PER_PAGE = 10;
 const POLL_MS = 2000;
 const FILTERS = ["date_from", "date_to", "q", "tag"];
-const tehranTime = new Intl.DateTimeFormat("en-GB", {
+const tehranTime = new Intl.DateTimeFormat("sv-SE", { // "2026-10-07 20:30": ISO order, never ambiguous
   timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
 });
 const jalaliDay = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
@@ -13,7 +14,7 @@ const jalaliDay = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
 });
 
 const $ = (id) => document.getElementById(id);
-const state = { page: 1, selected: null, polling: null };
+const state = { page: 1, pageSize: PAGE_SIZES[0], runsPage: 1, selected: null, polling: null };
 
 // Build an element; children are elements or strings (strings become text nodes, never markup).
 function el(tag, attrs = {}, ...children) {
@@ -83,6 +84,7 @@ function showJalaliBesideDates() {
 function writeUrl(filters) {
   const params = new URLSearchParams(filters);
   if (state.page > 1) params.set("page", state.page);
+  if (state.pageSize !== PAGE_SIZES[0]) params.set("page_size", state.pageSize);
   history.replaceState(null, "", params.toString() ? `?${params}` : location.pathname);
 }
 
@@ -90,6 +92,9 @@ function readUrl() {
   const params = new URLSearchParams(location.search);
   for (const name of FILTERS) $("search").elements[name].value = params.get(name) || "";
   state.page = Math.max(1, parseInt(params.get("page"), 10) || 1);
+  const size = parseInt(params.get("page_size"), 10);
+  state.pageSize = PAGE_SIZES.includes(size) ? size : PAGE_SIZES[0];
+  $("page-size").value = String(state.pageSize);
   showJalaliBesideDates();
 }
 
@@ -98,7 +103,7 @@ function readUrl() {
 async function search() {
   const filters = filtersFromForm();
   writeUrl(filters);
-  const params = new URLSearchParams({ ...filters, page: state.page, page_size: PAGE_SIZE });
+  const params = new URLSearchParams({ ...filters, page: state.page, page_size: state.pageSize });
   $("search-error").hidden = true;
   let data;
   try {
@@ -129,14 +134,18 @@ async function search() {
   },
     el("div", { class: "title", dir: "auto" }, item.title),
     el("div", { class: "meta" }, el("span", { dir: "rtl" }, jalaliOf(item.published_date_tehran)),
-      ` · ${item.published_date_tehran} (Tehran)`),
+      ` · ${item.published_date_tehran} (Tehran)`, edited(item) ? " · edited on the site" : ""),
     tagChips(item.tags),
     el("div", { class: "snippet", dir: "auto" }, item.snippet),
   )));
+  $("page-of").textContent = `Page ${data.page} of ${lastPage}`;
   $("prev").disabled = data.page <= 1;
   $("next").disabled = last >= data.total;
   highlightDay(filters);
 }
+
+// The text was replaced by a later run: updated_at only moves when the content changed.
+const edited = (posting) => posting.updated_at !== posting.collected_at;
 
 async function showDetail(id) {
   const { data } = await api(`/api/postings/${id}`);
@@ -146,7 +155,8 @@ async function showDetail(id) {
   document.body.classList.add("detail-open");
   $("detail-title").textContent = data.title;
   $("detail-meta").replaceChildren("Published ", el("span", { dir: "rtl" }, jalaliOf(data.published_date_tehran)),
-    ` · ${data.published_date_tehran} (Tehran) · collected ${utcTime(data.collected_at)} · updated ${utcTime(data.updated_at)}`);
+    ` · ${data.published_date_tehran} (Tehran) · collected ${utcTime(data.collected_at)} · updated ${utcTime(data.updated_at)}`
+    + ` · last seen ${utcTime(data.last_seen_at)}` + (edited(data) ? " · edited on the site since first collected" : ""));
   $("detail-tags").replaceChildren(tagChips(data.tags));
   $("detail-note").hidden = !data.members_only_omitted;
   $("detail-body").textContent = data.body;
@@ -281,17 +291,28 @@ function showLastRun(run) {
 }
 
 async function loadRuns() {
-  const { data } = await api("/api/runs?limit=10");
-  showLastRun(data.items[0]);
+  const { data } = await api(`/api/runs?limit=${RUNS_PER_PAGE}&page=${state.runsPage}`);
+  const lastPage = Math.max(1, Math.ceil(data.total / RUNS_PER_PAGE));
+  if (state.runsPage > lastPage) { // fewer runs than before: show the last page that exists
+    state.runsPage = lastPage;
+    return loadRuns();
+  }
+  // The "Last run" tile and the progress line always follow the newest run, whatever page is shown.
+  const latest = state.runsPage === 1 ? data.items : (await api("/api/runs?limit=1")).data.items;
+  showLastRun(latest[0]);
+  $("runs-pager").hidden = lastPage <= 1;
+  $("runs-page-of").textContent = `Page ${state.runsPage} of ${lastPage} · ${data.total} runs`;
+  $("runs-prev").disabled = state.runsPage <= 1;
+  $("runs-next").disabled = state.runsPage >= lastPage;
   $("runs").replaceChildren(...data.items.map((run) => el("tr", { "data-id": run.id, onclick: () => showRunIssues(run.id) },
     el("td", {}, run.id), el("td", {}, tehran(run.started_at)), el("td", {}, badge(run.status)),
     el("td", {}, run.new), el("td", {}, run.updated), el("td", {}, run.unchanged), el("td", {}, run.rejected),
     el("td", {}, `${run.errors} / ${run.warnings}`), el("td", {}, run.cards_per_page_avg ?? "—"),
     el("td", {}, pct(run.date_ok_pct)), el("td", {}, pct(run.body_ok_pct)), el("td", {}, pct(run.tags_ok_pct)),
   )));
-  const running = data.items.find((run) => run.status === "running");
+  const running = latest.find((run) => run.status === "running");
   if (running && !state.polling) follow(running.id);
-  return data.items;
+  return latest;
 }
 
 async function showRunIssues(id) {
@@ -382,8 +403,17 @@ document.addEventListener("DOMContentLoaded", () => {
     state.page = 1;
     search();
   });
-  $("prev").addEventListener("click", () => { state.page -= 1; search(); });
-  $("next").addEventListener("click", () => { state.page += 1; search(); });
+  // Paging keeps the filters; the list's heading is brought back into view on the new page.
+  const turnPage = (step) => { state.page += step; search().then(() => $("results-title").scrollIntoView()); };
+  $("prev").addEventListener("click", () => turnPage(-1));
+  $("next").addEventListener("click", () => turnPage(1));
+  $("page-size").addEventListener("change", (event) => {
+    state.pageSize = Number(event.target.value);
+    state.page = 1;
+    search();
+  });
+  $("runs-prev").addEventListener("click", () => { state.runsPage -= 1; loadRuns(); });
+  $("runs-next").addEventListener("click", () => { state.runsPage += 1; loadRuns(); });
   $("collect").addEventListener("click", collectNow);
   $("detail-close").addEventListener("click", closeDetail);
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeDetail(); });

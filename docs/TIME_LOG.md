@@ -1,26 +1,52 @@
 # Time log
 
-Working time as Parham reported it: 2026-10-07 from about 18:00 to 22:00 and 2026-10-08 from
-13:30 to 17:00 (Tehran time), about **7 h 30 min** of focused work; lighter follow-up later on
-2026-10-08 is not counted. The split per step follows the commit times in `git log`.
+All times are Tehran time. They come from the timestamps of the Claude Code sessions for this
+repository: the main session ("Candidate assignment review"), a second one used to set up the
+Codex review workflow, and the review session of step 9. Re-checked on 9 Oct: the times of
+7 and 8 Oct in the transcripts are unchanged. Step boundaries are the moments I asked for the next step or a merge.
 
-| Step | Date | Time (approx.) | Commits (Tehran) | Notes |
-|---|---|---|---|---|
-| 0 · Reading the brief, site research, plan, issues | 2026-10-07 | 2 h 20 min | until 20:20 | Live site exploration, `PLAN.md`, issues #1–#8 |
-| 1 · Skeleton, fixtures, CI, docs | 2026-10-07 | 35 min | 20:19–20:55 | PR #9 |
-| 2 · Dates, Tehran/UTC window, normalization | 2026-10-07 | 15 min | 20:59–21:09 | PR #10 |
-| 3 · eng-estekhdam adapter, fixtures, tag mapping | 2026-10-07 | 40 min | 21:16–21:50 | PR #11 |
-| 4 · SQLite storage, runs and issues | 2026-10-07/08 | 1 h 35 min | 21:53–22:15, 14:53–14:55 | PR #12; next day 13:30–14:55 incl. the Codex finding and questions |
-| 5 · Collect command: fetching, stop rule, statuses | 2026-10-08 | 1 h | 15:10–15:57 | PR #13 |
-| 6 · HTTP API: search, tags, stats, runs, Collect now | 2026-10-08 | 20 min | 16:02–16:17 | PR #14 |
-| 7 · Web page: search, detail, run monitor, Collect now, XSS test | 2026-10-08 | 35 min | 16:21–16:49 | PR #15 |
-| 8 · Live run, design doc, README, clean-clone check | 2026-10-08 | 10 min + light follow-up | from 16:50 | PR #16 (page redesign and fixes in the evening, not counted) |
-| **Total** | | **≈ 7 h 30 min** | | |
+```text
+7 Oct  17:58 ████████████████████████████████████ 22:16    4 h 18 min  plan, steps 1–4
+8 Oct  13:31 █████████████████████████████ 17:02           3 h 31 min  steps 4–8
+8 Oct  21:56 ███ 22:15                                        19 min   step 8 page fixes
+                                                          ≈ 8 h 10 min  steps 0–8
+8 Oct  22:25 ████ 22:58                                         33 min   step 9 self-review
+9 Oct  12:47 ████ 13:15                                       28 min   step 9 final pass
+9 Oct  13:57 █ 14:05                                            8 min   step 9 paging
+9 Oct  14:05 ███ 14:42                                         37 min   step 9 order check, final review
+                                                          ≈ 9 h 55 min  in all
+```
+
+| Step | When | Time | What |
+|---|---|---|---|
+| 0 · Brief, site research, plan, issues | 7 Oct 17:58–20:18 | 2 h 20 min | Live site exploration, `PLAN.md`, issues #1–#8. The Codex workflow was set up in parallel (19:53–20:07) |
+| 1 · Skeleton, fixtures, CI, docs | 7 Oct 20:18–20:56 | 38 min | PR #9 |
+| 2 · Dates, Tehran/UTC window, normalization | 7 Oct 20:56–21:09 | 13 min | PR #10 |
+| 3 · eng-estekhdam adapter, fixtures, tag mapping | 7 Oct 21:09–21:47 | 38 min | PR #11 |
+| 4 · SQLite storage, runs and issues | 7 Oct 21:47–22:16, 8 Oct 13:57–14:55 | 1 h 27 min | PR #12; on 8 Oct this includes my private Codex review of PR #12 (its finding is in the PR thread) |
+| — · Fixing the Codex review workflow | 8 Oct 13:31–13:57 | 26 min | Second session; `docs/WORKFLOW.md` |
+| 5 · Collect command: fetching, stop rule, statuses | 8 Oct 14:55–15:56 | 1 h 01 min | PR #13 |
+| 6 · HTTP API: search, tags, stats, runs, Collect now | 8 Oct 15:56–16:17 | 21 min | PR #14 |
+| 7 · Web page, run monitor, Collect now, XSS test | 8 Oct 16:17–16:49 | 32 min | PR #15 |
+| 8 · Live run, design, README; page font, phone layout, industry chart | 8 Oct 16:49–17:02, 21:56–22:15 | 32 min | PR #16 |
+| **Total, steps 0–8** | | **≈ 8 h 10 min** | |
+| 9 · Self-review against the brief, fixes, docs | 8 Oct 22:25–22:58 | 33 min | Host check, two run-report fixes, this time log, shorter docs |
+| 9 · Final pass: Parham's answers, live pacing test, odd-input and browser tests, fresh-clone check, reviewer docs | 9 Oct 12:47–13:15 | 28 min | PR #18 was opened right after; Codex reacted 👍 |
+| 9 · Paging: postings 20/50/100 per page, run history 10 per page | 9 Oct 13:57–14:05 | 8 min | Parham's request, same PR |
+| 9 · Order compared with the live site; final review of docs and app; fresh clone from GitHub | 9 Oct 14:05–14:42 | 37 min | Merged as PR #18 |
+| **Total, all steps** | | **≈ 9 h 55 min** | |
+
+Most build steps are short because Claude Code wrote the code; my time went into the plan,
+questions, review of each PR and Codex's findings, and checks against the live site.
+
+An earlier version of this log said "about 7 h 30 min", written from memory, and left the 8 Oct
+evening out as "not counted". It now counts every session.
 
 ## Unfinished work and known limitations
 
 - Designed but not built: health drift alert, layout fingerprint, daily smoke run, per-source
-  on/off switch (`docs/DESIGN.md`).
+  on/off switch, and a second read of the listing pages to catch an ad hidden by a deletion
+  during a run (`docs/DESIGN.md`).
 - One source only; runs are started by hand; no login (server stays on `127.0.0.1`).
 - Within one Tehran day, order follows the site's post IDs, since the site shows no times.
 - Members-only contact details are never collected.

@@ -3,6 +3,35 @@
 Agreed build plan. Every requirement sentence
 of the brief maps to a row in section 13. Site facts were observed live on 2026-10-07 (15 Mehr 1405).
 
+> **Reading guide (added 2026-10-08, step 9).** This is the plan written and agreed before coding
+> on 7 Oct, updated only to mark each item built as its PR merged. The decisions below are left as
+> they were; the long reference tables are folded (click to open) to make the page easier to read.
+> Where the finished build differs from the plan, the list below says so; `git log -p PLAN.md`
+> shows every change to this file.
+
+| If you want… | Read |
+|---|---|
+| The shape of the app | §1, §7 |
+| Dates and the Tehran window | §3 |
+| What happens when something fails | §6 (issue codes and run statuses), §8 (broken parser) |
+| Search, API, page | §9, §10, §11 |
+| How the brief maps to code and tests | §13 |
+
+**Where the build differs from this plan**
+
+| Plan | Build |
+|---|---|
+| §4: the fingerprint covers title, body, date and tags | It also covers the URL and the members-only flag (everything stored from the source) |
+| §5: the README shows a one-line cron example | Not added; runs are started by hand |
+| §6: no code for cards dated after today | `DATE_AFTER_WINDOW` (warning) added in step 9; before, such cards were skipped silently |
+| §10: `default-src 'self'` on every response | `/docs` and `/redoc` (Swagger) were kept at Parham's request, with a looser policy on those two pages only |
+| §11: Collect now guarded by localhost, a header and one-run lock | Also a `Host` check (step 9), which stops DNS rebinding |
+| §11: one bar per day | Stacked by industry group, built from the site's field tags (`docs/DESIGN.md`) |
+| §11: results 20 per page with prev/next; run history = last 10 runs | Results: 20, 50 or 100 per page with "Page X of Y"; run history: 10 per page with page buttons, any number of runs (step 9, at Parham's request) |
+| §12: hand-made fixture `listing_missing_date.html` | Built as `listing_invalid_cards.html` (missing date and other broken cards in one page) |
+| §5: 1 request per second | 0.5 s, after a live measurement (70 requests in 43 s, all HTTP 200, no challenge); Parham asked to halve the run time |
+| §14: estimate ≈ 18 h | Actual ≈ 8 h 10 min for steps 0–8 (`docs/TIME_LOG.md`) |
+
 ## 1. What we are building
 
 One command collects the last 7 Tehran calendar days of postings from eng-estekhdam.com into
@@ -20,6 +49,9 @@ FastAPI + uvicorn (API and static page), `pytest`, `pytest-playwright` (one brow
 The page uses no front-end framework and no CDN: plain HTML, CSS and JavaScript.
 
 ## 2. Facts about the source (observed, not assumed)
+
+<details>
+<summary>16 facts observed on the live site, with evidence and consequence</summary>
 
 | Fact | Evidence | Consequence |
 |---|---|---|
@@ -39,6 +71,8 @@ The page uses no front-end framework and no CDN: plain HTML, CSS and JavaScript.
 | Some labels use Arabic letters (`نقشه برداري`) | tag label | Normalize ي→ی, ك→ک for search and tag matching |
 | RSS `/feed/`: 40 newest items, title, link, exact UTC `pubDate`, province; no full body | fetched once to understand the site | **Not used** (brief forbids feeds); explains why HTML has no time |
 | `/wp-json/` exists; request timed out | probe | **Not used** (brief forbids source APIs) |
+
+</details>
 
 ## 3. Dates and time zones
 
@@ -101,6 +135,9 @@ Every problem is one `run_issues` row: **severity**, **stage**, **code**, **URL*
 a **saved HTML snapshot** where there is a page. The summary groups by code with counts, so
 "partial" always comes with exactly which codes caused it.
 
+<details>
+<summary>27 issue codes by stage</summary>
+
 | Stage | Code | Severity | Meaning |
 |---|---|---|---|
 | fetch | `FETCH_TIMEOUT` | error | No answer within 20 s after all retries |
@@ -115,6 +152,7 @@ a **saved HTML snapshot** where there is a page. The summary groups by code with
 | listing | `LISTING_EMPTY_EARLY` | error | 0 cards before the window end was reached |
 | listing | `LISTING_FEW_CARDS` | warning | Fewer than 10 cards on a non-final page |
 | listing | `LISTING_ORDER_BROKEN` | warning | Dates not newest-first |
+| listing | `DATE_AFTER_WINDOW` | warning | Card dated after today; skipped, next run collects it (added in step 9) |
 | listing | `PAGE_CAP_REACHED` | error | Stopped at the 40-page safety cap |
 | record | `FIELD_MISSING` | error | ID, URL, title, date or body missing (detail names the field) |
 | record | `DATE_UNPARSEABLE` | error | Unknown month name or digits |
@@ -129,6 +167,8 @@ a **saved HTML snapshot** where there is a page. The summary groups by code with
 | store | `EMPTY_FIELD_KEPT` | warning | New title/body/URL or tag label empty; stored value kept |
 | run | `BREAKER_TRIPPED` | error | Too many failures; source stopped (see §8) |
 | run | `UNEXPECTED_ERROR` | error | Bug: traceback saved in detail |
+
+</details>
 
 Run status:
 
@@ -332,6 +372,9 @@ Each test gets a fresh SQLite file in a temp folder.
 2. Automatically on every push and pull request: GitHub Actions runs the full suite; a red check blocks the merge.
 3. By reviewers from a clean clone, following the README.
 
+<details>
+<summary>Coverage map: brief §4 test areas → tests</summary>
+
 **Coverage map (brief §4):**
 
 | Brief area | Tests |
@@ -343,10 +386,16 @@ Each test gets a fresh SQLite file in a temp folder.
 | Visible failure | timeout, 503→ok (`RETRY_RECOVERED`), challenge, out-of-range page, missing date, breaker |
 | Untrusted HTML | stored text has no tags; `javascript:` link → `URL_REJECTED`; browser test: literal text shown, nothing executes |
 
+</details>
+
 ## 13. Requirement checklist (every sentence of the brief)
 
-Status 2026-10-08: every row below is built and has its proof in the repository (PRs #9–#15 and
-the step 8 PR; the live run is in `docs/LIVE_RUN.md`; time per step in `docs/TIME_LOG.md`).
+Status 2026-10-09: every row below is built and has its proof in the repository (PRs #9–#16, and
+#18 for the final review; live runs in `docs/LIVE_RUN.md`; each test area in `docs/TESTING.md`;
+time per step in `docs/TIME_LOG.md`).
+
+<details>
+<summary>Requirement checklist: every sentence of the brief → plan section → proof</summary>
 
 | Brief | Plan | Proof |
 |---|---|---|
@@ -376,6 +425,8 @@ the step 8 PR; the live run is in `docs/LIVE_RUN.md`; time per step in `docs/TIM
 | Repo, real history, setup, versions, DB init, commands, example queries | §14 | README from clean clone |
 | Time, limitations, unfinished work | `docs/TIME_LOG.md` | README |
 | AI-use note, 2–3 concrete decisions | `docs/AI_NOTES.md` | README |
+
+</details>
 
 ## 14. Steps (one issue + branch + PR each, reviewed by Parham)
 

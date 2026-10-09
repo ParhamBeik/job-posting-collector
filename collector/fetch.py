@@ -16,11 +16,13 @@ USER_AGENT = "job-posting-collector/0.1 (+https://github.com/ParhamBeik/job-post
 TIMEOUT = httpx.Timeout(20.0, connect=10.0)
 ATTEMPTS = 3
 BACKOFF = (2.0, 4.0)  # seconds to wait before attempts 2 and 3
-PACE = 1.0  # at least this many seconds between the starts of two requests
+# At least this many seconds between the starts of two requests. 0.5 s was measured live on
+# 2026-10-09: 70 requests in 43 s, all HTTP 200, no firewall challenge (docs/LIVE_RUN.md).
+PACE = 0.5
 
 
 class HttpFetcher:
-    """One request at a time, at most one per second, bounded retries for temporary failures."""
+    """One request at a time, at most two per second, bounded retries for temporary failures."""
 
     def __init__(self, client: httpx.Client | None = None, sleep=time.sleep, clock=time.monotonic):
         # Redirects are not followed: a redirected page is reported, never silently replaced.

@@ -20,7 +20,7 @@ from collector.normalize import normalize
 DEFAULT_DB = Path("var/jobs.db")
 # A run refreshes heartbeat_at after every page request. The longest a healthy run can stay
 # silent is one request with all its retries: 3 attempts x (10 s connect + 20 s read) + 2 s + 4 s
-# backoff + 1 s pacing = about 97 s (collector/fetch.py). 3 minutes is about twice that.
+# backoff + 0.5 s pacing = about 97 s (collector/fetch.py). 3 minutes is about twice that.
 STALE_AFTER = timedelta(minutes=3)
 RUN_STATUSES = (
     "running",

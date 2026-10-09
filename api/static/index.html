@@ -76,11 +76,15 @@
         <div class="panel-head">
           <h2 id="results-title">Postings</h2>
           <span id="showing" class="muted"></span>
+          <label class="per-page muted">Per page
+            <select id="page-size"><option>20</option><option>50</option><option>100</option></select>
+          </label>
         </div>
         <ol id="results" class="results"></ol>
         <p id="empty" class="empty" hidden></p>
         <div id="pager" class="pager" hidden>
           <button type="button" id="prev">← Newer</button>
+          <span id="page-of" class="muted"></span>
           <button type="button" id="next">Older →</button>
         </div>
       </section>
@@ -113,6 +117,11 @@
           </thead>
           <tbody id="runs"></tbody>
         </table>
+      </div>
+      <div id="runs-pager" class="pager" hidden>
+        <button type="button" id="runs-prev">← Newer</button>
+        <span id="runs-page-of" class="muted"></span>
+        <button type="button" id="runs-next">Older →</button>
       </div>
       <div id="run-issues" class="run-issues" hidden></div>
     </section>
