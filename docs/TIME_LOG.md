@@ -13,7 +13,8 @@ Codex review workflow, and the review session of step 9. Re-checked on 9 Oct: th
 8 Oct  22:25 ████ 22:58                                         33 min   step 9 self-review
 9 Oct  12:47 ████ 13:15                                       28 min   step 9 final pass
 9 Oct  13:57 █ 14:05                                            8 min   step 9 paging
-                                                          ≈ 9 h 20 min  in all
+9 Oct  14:05 ███ 14:42                                         37 min   step 9 order check, final review
+                                                          ≈ 9 h 55 min  in all
 ```
 
 | Step | When | Time | What |
@@ -32,7 +33,8 @@ Codex review workflow, and the review session of step 9. Re-checked on 9 Oct: th
 | 9 · Self-review against the brief, fixes, docs | 8 Oct 22:25–22:58 | 33 min | Host check, two run-report fixes, this time log, shorter docs |
 | 9 · Final pass: Parham's answers, live pacing test, odd-input and browser tests, fresh-clone check, reviewer docs | 9 Oct 12:47–13:15 | 28 min | PR #18 was opened right after; Codex reacted 👍 |
 | 9 · Paging: postings 20/50/100 per page, run history 10 per page | 9 Oct 13:57–14:05 | 8 min | Parham's request, same PR |
-| **Total, all steps** | | **≈ 9 h 20 min** | |
+| 9 · Order compared with the live site; final review of docs and app; fresh clone from GitHub | 9 Oct 14:05–14:42 | 37 min | Merged as PR #18 |
+| **Total, all steps** | | **≈ 9 h 55 min** | |
 
 Most build steps are short because Claude Code wrote the code; my time went into the plan,
 questions, review of each PR and Codex's findings, and checks against the live site.
