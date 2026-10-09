@@ -42,10 +42,14 @@ def server(tmp_path):
     storage.finish_run(conn, run_id, "partial", NOW)
     conn.close()
 
+    yield from serve(create_app(db, launch=lambda path, run_id: None, clock=lambda: NOW))
+
+
+def serve(app):
+    """Run the app on a free local port in a background thread; yields its base URL."""
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", 0))
         port = probe.getsockname()[1]
-    app = create_app(db, launch=lambda path, run_id: None, clock=lambda: NOW)
     server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning"))
     thread = threading.Thread(target=server.run, daemon=True)
     thread.start()
