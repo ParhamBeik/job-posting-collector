@@ -20,6 +20,7 @@ from conftest import NOW, serve
 
 SNAPSHOT = Path(__file__).parent / "fixtures" / "eng_estekhdam" / "snapshot"
 EDITED = "https://eng-estekhdam.com/1405/07/15/"  # first posting URL of 15 Mehr gets an edited body
+RUNS = 13  # 10 runs per page on the page
 
 
 class EditedSite(DirFetcher):
@@ -40,6 +41,8 @@ def site(tmp_path):
     edited = EditedSite(SNAPSHOT)
     edited.edited = next(url for url in edited.files if url.startswith(EDITED))
     collect(conn, SOURCES["eng-estekhdam"], edited, lambda: NOW + timedelta(hours=1), tmp_path / "s")
+    for _ in range(RUNS - 2):  # enough history for two pages of runs
+        storage.finish_run(conn, storage.start_run(conn, "eng-estekhdam", NOW), "success", NOW)
     conn.close()
     yield from serve(create_app(db, launch=lambda path, run_id: None, clock=lambda: NOW))
 
@@ -64,7 +67,7 @@ def test_reviewer_path_search_each_filter_together_and_open_a_posting(page, site
     page.on("pageerror", lambda error: errors.append(str(error)))
 
     page.goto(site)
-    assert showing(page) == "Showing 1–68 of 68"
+    assert showing(page) == "Showing 1–20 of 68"  # 20 per page unless the reader picks more
     assert "success" in page.locator("#run-status").inner_text()  # the second (edit) run
     assert page.locator(".day").count() == 7
 
@@ -109,3 +112,44 @@ def test_phone_width_has_no_sideways_scroll(page, site):
     page.goto(site)
     showing(page)
     assert page.evaluate("document.documentElement.scrollWidth") <= 375
+
+
+def test_postings_page_size_and_page_turning_keep_the_filters(page, site):
+    page.goto(site + "/?tag=civil")
+    total = api_total(page, site, "tag=civil")
+    assert total > 20
+    expect(page.locator("#showing")).to_have_text(f"Showing 1–20 of {total}")
+    page.select_option("#page-size", "50")
+    expect(page.locator("#showing")).to_have_text(f"Showing 1–{min(50, total)} of {total}")
+    assert "page_size=50" in page.url and "tag=civil" in page.url
+
+    page.goto(site)
+    showing(page)
+    page.select_option("#page-size", "50")
+    expect(page.locator("#page-of")).to_have_text("Page 1 of 2")
+    page.click("#next")
+    expect(page.locator("#showing")).to_have_text("Showing 51–68 of 68")
+    expect(page.locator("#results li")).to_have_count(18)
+    assert page.locator("#next").is_disabled() and "page=2" in page.url
+    page.reload()  # the URL keeps the page and the size
+    expect(page.locator("#showing")).to_have_text("Showing 51–68 of 68")
+    page.click("#prev")
+    expect(page.locator("#showing")).to_have_text("Showing 1–50 of 68")
+    page.select_option("#page-size", "100")
+    expect(page.locator("#showing")).to_have_text("Showing 1–68 of 68")
+    assert page.locator("#pager").is_hidden()
+
+
+def test_run_history_shows_ten_runs_per_page(page, site):
+    page.goto(site)
+    expect(page.locator("#runs tr")).to_have_count(10)
+    expect(page.locator("#runs-page-of")).to_have_text(f"Page 1 of 2 · {RUNS} runs")
+    newest = page.locator("#runs tr").first.get_attribute("data-id")
+    page.click("#runs-next")
+    expect(page.locator("#runs tr")).to_have_count(RUNS - 10)
+    assert page.locator("#runs-next").is_disabled()
+    assert page.locator("#runs tr").last.get_attribute("data-id") == "1"
+    # The "Last run" tile still shows the newest run, not the first row of page 2.
+    assert f"#{newest} ·" in page.locator("#run-status").inner_text()
+    page.click("#runs-prev")
+    expect(page.locator("#runs tr")).to_have_count(10)

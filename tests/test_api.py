@@ -209,6 +209,18 @@ def test_run_history_and_issues_grouped_by_code(client, db):
     assert client.get("/api/runs/999").status_code == 404
 
 
+def test_run_history_pages_newest_first_with_a_total(tmp_path):
+    conn = storage.connect(tmp_path / "runs.db")
+    for _ in range(25):
+        storage.finish_run(conn, storage.start_run(conn, "eng-estekhdam", NOW), "success", NOW)
+    conn.close()
+    client = TestClient(create_app(tmp_path / "runs.db", clock=lambda: NOW), base_url=LOCAL)
+    pages = [client.get("/api/runs", params={"limit": 10, "page": n}).json() for n in (1, 2, 3, 4)]
+    assert [len(p["items"]) for p in pages] == [10, 10, 5, 0] and {p["total"] for p in pages} == {25}
+    ids = [r["id"] for p in pages for r in p["items"]]
+    assert ids == sorted(ids, reverse=True) and len(set(ids)) == 25
+
+
 def test_collect_now_needs_the_trigger_header(client, launched):
     assert client.post("/api/runs").status_code == 403
     assert client.post("/api/runs", headers={"X-Collect-Trigger": "yes"}).status_code == 403

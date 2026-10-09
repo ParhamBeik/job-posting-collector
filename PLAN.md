@@ -27,6 +27,7 @@ of the brief maps to a row in section 13. Site facts were observed live on 2026-
 | §10: `default-src 'self'` on every response | `/docs` and `/redoc` (Swagger) were kept at Parham's request, with a looser policy on those two pages only |
 | §11: Collect now guarded by localhost, a header and one-run lock | Also a `Host` check (step 9), which stops DNS rebinding |
 | §11: one bar per day | Stacked by industry group, built from the site's field tags (`docs/DESIGN.md`) |
+| §11: results 20 per page with prev/next; run history = last 10 runs | Results: 20, 50 or 100 per page with "Page X of Y"; run history: 10 per page with page buttons, any number of runs (step 9, at Parham's request) |
 | §12: hand-made fixture `listing_missing_date.html` | Built as `listing_invalid_cards.html` (missing date and other broken cards in one page) |
 | §5: 1 request per second | 0.5 s, after a live measurement (70 requests in 43 s, all HTTP 200, no challenge); Parham asked to halve the run time |
 | §14: estimate ≈ 18 h | Actual ≈ 8 h 10 min for steps 0–8 (`docs/TIME_LOG.md`) |

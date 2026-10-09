@@ -253,12 +253,14 @@ def create_app(db: Path | str = storage.DEFAULT_DB, launch=launch_collector, clo
         return dict(row) | {"errors": counts.get("error", 0), "warnings": counts.get("warning", 0)}
 
     @app.get("/api/runs", tags=["runs"])
-    def runs(limit: int = Query(20, ge=1, le=100)):
+    def runs(limit: int = Query(20, ge=1, le=100, description="Runs per page"), page: int = Query(1, ge=1, le=MAX_PAGE)):
         """Collection runs, newest first: status, window, counts, health numbers, errors and warnings."""
         with connect() as conn:
             storage.expire_stale_runs(conn, clock())  # a crashed run must not look "running" forever
-            rows = conn.execute("SELECT * FROM runs ORDER BY id DESC LIMIT ?", (limit,)).fetchall()
-            return {"items": [run_json(conn, r) for r in rows]}
+            total = conn.execute("SELECT count(*) FROM runs").fetchone()[0]
+            rows = conn.execute("SELECT * FROM runs ORDER BY id DESC LIMIT ? OFFSET ?",
+                                (limit, (page - 1) * limit)).fetchall()
+            return {"items": [run_json(conn, r) for r in rows], "total": total, "page": page, "limit": limit}
 
     @app.get("/api/runs/{run_id}", tags=["runs"])
     def run(run_id: int = PathParam(ge=0, le=MAX_ID)):

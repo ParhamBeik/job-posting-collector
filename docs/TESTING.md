@@ -1,7 +1,7 @@
 # Testing and verification
 
 ```bash
-pytest                                  # 316 tests, about 40 s, no network
+pytest                                  # 319 tests, about 45 s, no network
 ```
 
 Every test runs without the live website: pages come from the saved snapshot in
@@ -23,11 +23,11 @@ flowchart LR
 | `test_eng_estekhdam.py` | 25 | Page checks, listing and posting extraction, tags, record checks, unsafe HTML |
 | `test_storage.py` | 18 | Insert, update, unchanged, no duplicates, no empty overwrite, runs |
 | `test_collect.py` | 35 | Whole runs: window, paging, every status, retries, pacing, breaker, replay, CLI |
-| `test_api.py` | 29 | Each filter alone and together, boundaries, odd inputs, Collect now, headers |
-| `test_page.py`, `test_page_xss.py`, `test_reviewer_path.py` | 9 | Real browser: search, detail, chart, run issues, XSS, phone width |
+| `test_api.py` | 30 | Each filter alone and together, boundaries, odd inputs, run paging, Collect now, headers |
+| `test_page.py`, `test_page_xss.py`, `test_reviewer_path.py` | 11 | Real browser: search, detail, chart, page size and paging, run history paging, run issues, XSS, phone width |
 | `test_fixtures.py`, `test_capture_fixtures.py` | 8 | The saved snapshot is complete; the capture script is safe |
 
-Counts are test functions; some run once per input, which gives 316 in total.
+Counts are test functions; some run once per input, which gives 319 in total.
 
 ## The brief's six test areas
 
@@ -100,6 +100,8 @@ that behaviour breaks.
 | Another site in the same browser tries to start a run | 403 without the header; 400 for a foreign host name (DNS rebinding) | `test_collect_now_needs_the_trigger_header`, `test_a_foreign_host_name_is_refused_so_dns_rebinding_cannot_start_runs` |
 | `<script>`, `<img onerror>`, `javascript:` links in scraped text | Shown as text, never run | `test_malicious_posting_is_shown_as_text_and_never_runs` |
 | Phone screen (375 px) | No sideways scroll | `test_phone_width_has_no_sideways_scroll` |
+| More postings than fit on a page | 20 / 50 / 100 per page, page buttons, filters kept, page and size survive a reload | `test_postings_page_size_and_page_turning_keep_the_filters` |
+| Hundreds of runs | Run history shows 10 per page; the Last-run tile still shows the newest | `test_run_history_shows_ten_runs_per_page`, `test_run_history_pages_newest_first_with_a_total` |
 
 ## Checks beyond the test suite
 

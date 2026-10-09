@@ -173,7 +173,9 @@ main.wrap { display: grid; gap: var(--gap); padding-top: var(--gap); padding-bot
   font-size: 0.9rem; color: var(--text-2); margin-top: 8px; line-height: 1.85; overflow: hidden;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
 }
-.pager { display: flex; justify-content: space-between; gap: 8px; margin-top: 16px; }
+.pager { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 16px; }
+.per-page { font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; }
+.per-page select { font: inherit; padding: 2px 6px; border: 1px solid var(--line, #d7dbe3); border-radius: 8px; background: #fff; }
 .empty { padding: 32px 8px; text-align: center; color: var(--muted); }
 
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
@@ -204,3 +206,4 @@ main.wrap { display: grid; gap: var(--gap); padding-top: var(--gap); padding-bot
 .run-issues { margin-top: 16px; font-size: 0.85rem; }
 .run-issues summary { cursor: pointer; padding: 4px 0; }
 .run-issues li { margin: 2px 0; overflow-wrap: anywhere; }
+.panel-head #showing { margin-left: auto; } /* count sits beside "Per page" on the right */

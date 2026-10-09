@@ -7,7 +7,7 @@ or record that failed.
 
 | Live run (fresh clone, 9 Oct) | Tests | Runs on | Time spent |
 |---|---|---|---|
-| `success`: 63 postings in 38.6 s, 0 rejected; run again: 63 unchanged | 316, offline, about 40 s | Python 3.12 (also tested on 3.14), macOS and Ubuntu | ≈ 9 h 10 min: 8 h 10 min to build (steps 0–8), 1 h for the final review (step 9) |
+| `success`: 63 postings in 38.6 s, 0 rejected; run again: 63 unchanged | 319, offline, about 45 s | Python 3.12 (also tested on 3.14), macOS and Ubuntu | ≈ 9 h 20 min: 8 h 10 min to build (steps 0–8), 1 h 10 min for the final review (step 9) |
 
 **Contents:** [Reviewer's path](#reviewers-path-about-10-minutes) ·
 [How the brief is met](#how-the-brief-is-met) · [Design](#design-in-one-page) ·
@@ -33,7 +33,7 @@ pip install -e ".[dev]"                # or: uv pip install -e ".[dev]"
 python -m playwright install chromium  # once, for the browser tests
 ```
 
-**2. Run the tests** (no network needed; you should see `316 passed`):
+**2. Run the tests** (no network needed; you should see `319 passed`):
 
 ```bash
 pytest
@@ -108,7 +108,7 @@ The brief's "Assessment at a glance", row by row:
 | **Correctness and data quality** | HTML only; full text from each posting page (related ads, widgets and the members-only block removed); Persian dates converted, stored as UTC; the 7-day window and the filters use Tehran days converted to UTC; post ID as identity, so re-runs never duplicate; filters combine with AND | Live run, then an independent script compared all 69 stored postings field by field with the site: [`LIVE_RUN.md`](docs/LIVE_RUN.md) |
 | **Design and extensibility** | One adapter file holds everything site-specific; core, storage, API and page never change for a new site; a broken parser is detected, contained and repaired with a test | [`DESIGN.md`](docs/DESIGN.md): diagrams, "adding another source", and a tested table of what each HTML change does to a run |
 | **Code clarity and judgment** | About 1,500 lines of Python (comments included) and 400 of JavaScript, no framework on the page, no plugin system; extras listed with their value and cost | [Decisions](#decisions-and-trade-offs), [Extras](#optional-extras-value-and-cost) |
-| **Reliability and safe handling** | 316 offline tests; every run ends with an exact status and exit code; incomplete ≠ empty; bounded retries and pacing; a circuit breaker stores nothing when parsing looks broken; scraped text is shown only as text, links only if `http(s)` | [`TESTING.md`](docs/TESTING.md) |
+| **Reliability and safe handling** | 319 offline tests; every run ends with an exact status and exit code; incomplete ≠ empty; bounded retries and pacing; a circuit breaker stores nothing when parsing looks broken; scraped text is shown only as text, links only if `http(s)` | [`TESTING.md`](docs/TESTING.md) |
 | **Delivery and ownership** | Issue → branch → PR → Codex review → merge commit for every step; README followed from a fresh clone; time from session timestamps; AI decisions logged with how each was verified | [Pull requests](https://github.com/ParhamBeik/job-posting-collector/pulls?q=is%3Apr), [`TIME_LOG.md`](docs/TIME_LOG.md), [`AI_NOTES.md`](docs/AI_NOTES.md) |
 
 What section 5 of the brief asks to submit:
@@ -224,8 +224,8 @@ and is refused without `--from-dir`.
 | **Last run** + **Collect now** | Status, window and counts. The button starts a run; a progress line updates every 2 s; at the end the status and issue codes show and the data reloads |
 | **Postings per day, by industry** | One stacked bar per Tehran day (Jalali and Gregorian labels), split by the site's field tags; hover for numbers, "Show as a table", click a day to filter |
 | **Search** | Date from/to (Tehran days, Jalali shown beside), keyword, tag with counts. The filters go into the page URL, so a search can be bookmarked |
-| **Results** | Title, date (Jalali and Gregorian, Tehran), tags, snippet, "edited on the site" when the ad changed after first collection. Click for the full text, collected / updated / last-seen times (UTC) and the original link |
-| **Run history** | The last 10 runs with counts and health numbers; click one for its issues grouped by code |
+| **Results** | Title, date (Jalali and Gregorian, Tehran), tags, snippet, "edited on the site" when the ad changed after first collection. **20, 50 or 100 per page** ("Per page"), with "← Newer · Page 2 of 4 · Older →"; the page and size go into the URL too. Click a posting for the full text, collected / updated / last-seen times (UTC) and the original link |
+| **Run history** | **10 runs per page**, newest first, with "Page 1 of 10 · 100 runs" and page buttons, so the page never grows without end; counts and health numbers; click a run for its issues grouped by code. The Last-run tile always shows the newest run |
 
 Scraped text is inserted only as text (`textContent`), never as HTML; links are made only for
 `http`/`https` addresses. Every response sends `Content-Security-Policy: default-src 'self'`; the
@@ -241,7 +241,7 @@ two API docs pages get a looser policy because they load Swagger from a CDN.
 | `GET /api/postings/{id}` | One posting with its full text |
 | `GET /api/tags` | Every tag with its kind, Persian label and count |
 | `GET /api/stats` | Postings per Tehran day of the current window, by industry group, and the top tags |
-| `GET /api/runs?limit=20` | Run history: status, counts, health numbers, error and warning counts |
+| `GET /api/runs?limit=20&page=1` | Run history, newest first: `{items, total, page, limit}` with status, counts, health numbers, error and warning counts |
 | `GET /api/runs/{id}` | One run with its issues grouped by code (counters update while it runs) |
 | `POST /api/runs` | **Collect now**: needs header `X-Collect-Trigger: 1` (else 403); 409 if a run is active; else 202 with `run_id`; log in `var/logs/run-<id>.log` |
 
@@ -354,7 +354,7 @@ flowchart LR
 
 ## Tests
 
-316 tests, all offline: unit tests (dates, text, parser, storage), whole runs on the saved copy of
+319 tests, all offline: unit tests (dates, text, parser, storage), whole runs on the saved copy of
 the site with failures injected, the API, and a real browser (Chromium) for the page.
 [`docs/TESTING.md`](docs/TESTING.md) maps each of the brief's six test areas and every edge case
 to its test. A few of the edge cases:
@@ -399,9 +399,9 @@ and review (times from the Claude Code session, Tehran). Each can be removed wit
 ## Time spent, limitations and unfinished work
 
 **≈ 8 h 10 min for steps 0–8**, measured from the timestamps of the Claude Code sessions for this
-repository (7 Oct 17:58–22:16, 8 Oct 13:31–17:02 and 21:56–22:15, Tehran time), plus **1 h for
-step 9**, the final review against the brief, fixes and a fresh-clone check (8 Oct 22:25–22:58,
-9 Oct 12:47–13:15): **≈ 9 h 10 min in all**. Per step in [`docs/TIME_LOG.md`](docs/TIME_LOG.md). An earlier version of this README said
+repository (7 Oct 17:58–22:16, 8 Oct 13:31–17:02 and 21:56–22:15, Tehran time), plus **1 h 10 min
+for step 9**, the final review against the brief, fixes, paging and a fresh-clone check (8 Oct
+22:25–22:58, 9 Oct 12:47–13:15 and 13:57–14:05): **≈ 9 h 20 min in all**. Per step in [`docs/TIME_LOG.md`](docs/TIME_LOG.md). An earlier version of this README said
 7 h 30 min from memory; it left out the 8 Oct evening.
 
 Known limitations:
