@@ -1,15 +1,18 @@
 # Time log
 
 All times are Tehran time. They come from the timestamps of the Claude Code sessions for this
-repository: the main session ("Candidate assignment review") and a second one used to set up the
-Codex review workflow. Step boundaries are the moments I asked for the next step or a merge.
+repository: the main session ("Candidate assignment review"), a second one used to set up the
+Codex review workflow, and the review session of step 9. Re-checked on 9 Oct: the times of
+7 and 8 Oct in the transcripts are unchanged. Step boundaries are the moments I asked for the next step or a merge.
 
 ```text
 7 Oct  17:58 ████████████████████████████████████ 22:16    4 h 18 min  plan, steps 1–4
 8 Oct  13:31 █████████████████████████████ 17:02           3 h 31 min  steps 4–8
 8 Oct  21:56 ███ 22:15                                        19 min   step 8 page fixes
                                                           ≈ 8 h 10 min  steps 0–8
-8 Oct  22:25 ▒▒▒ …                                                     step 9 self-review
+8 Oct  22:25 ████ 22:58                                         33 min   step 9 self-review
+9 Oct  12:47 ████ 13:15                                       28 min   step 9 final pass
+                                                          ≈ 9 h 10 min  in all
 ```
 
 | Step | When | Time | What |
@@ -25,7 +28,9 @@ Codex review workflow. Step boundaries are the moments I asked for the next step
 | 7 · Web page, run monitor, Collect now, XSS test | 8 Oct 16:17–16:49 | 32 min | PR #15 |
 | 8 · Live run, design, README; page font, phone layout, industry chart | 8 Oct 16:49–17:02, 21:56–22:15 | 32 min | PR #16 |
 | **Total, steps 0–8** | | **≈ 8 h 10 min** | |
-| 9 · Self-review against the brief, fixes, docs | 8 Oct from 22:25 | see PR | Host check, two run-report fixes, this time log, shorter docs |
+| 9 · Self-review against the brief, fixes, docs | 8 Oct 22:25–22:58 | 33 min | Host check, two run-report fixes, this time log, shorter docs |
+| 9 · Final pass: Parham's answers, live pacing test, odd-input and browser tests, fresh-clone check, reviewer docs | 9 Oct 12:47–13:15 | 28 min | Same PR; the pull request was opened right after |
+| **Total, all steps** | | **≈ 9 h 10 min** | |
 
 Most build steps are short because Claude Code wrote the code; my time went into the plan,
 questions, review of each PR and Codex's findings, and checks against the live site.

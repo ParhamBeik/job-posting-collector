@@ -7,7 +7,7 @@ or record that failed.
 
 | Live run (fresh clone, 9 Oct) | Tests | Runs on | Time spent |
 |---|---|---|---|
-| `success`: 63 postings in 38.6 s, 0 rejected; run again: 63 unchanged | 316, offline, about 40 s | Python 3.12 (also tested on 3.14), macOS and Ubuntu | ≈ 8 h 10 min (steps 0–8) + STEP9_TIME (step 9) |
+| `success`: 63 postings in 38.6 s, 0 rejected; run again: 63 unchanged | 316, offline, about 40 s | Python 3.12 (also tested on 3.14), macOS and Ubuntu | ≈ 9 h 10 min: 8 h 10 min to build (steps 0–8), 1 h for the final review (step 9) |
 
 **Contents:** [Reviewer's path](#reviewers-path-about-10-minutes) ·
 [How the brief is met](#how-the-brief-is-met) · [Design](#design-in-one-page) ·
@@ -399,9 +399,9 @@ and review (times from the Claude Code session, Tehran). Each can be removed wit
 ## Time spent, limitations and unfinished work
 
 **≈ 8 h 10 min for steps 0–8**, measured from the timestamps of the Claude Code sessions for this
-repository (7 Oct 17:58–22:16, 8 Oct 13:31–17:02 and 21:56–22:15, Tehran time), plus
-**STEP9_TIME for step 9** (a review against the brief, fixes, a final fresh-clone check).
-Per step in [`docs/TIME_LOG.md`](docs/TIME_LOG.md). An earlier version of this README said
+repository (7 Oct 17:58–22:16, 8 Oct 13:31–17:02 and 21:56–22:15, Tehran time), plus **1 h for
+step 9**, the final review against the brief, fixes and a fresh-clone check (8 Oct 22:25–22:58,
+9 Oct 12:47–13:15): **≈ 9 h 10 min in all**. Per step in [`docs/TIME_LOG.md`](docs/TIME_LOG.md). An earlier version of this README said
 7 h 30 min from memory; it left out the 8 Oct evening.
 
 Known limitations:
