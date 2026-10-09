@@ -28,6 +28,7 @@ of the brief maps to a row in section 13. Site facts were observed live on 2026-
 | §11: Collect now guarded by localhost, a header and one-run lock | Also a `Host` check (step 9), which stops DNS rebinding |
 | §11: one bar per day | Stacked by industry group, built from the site's field tags (`docs/DESIGN.md`) |
 | §12: hand-made fixture `listing_missing_date.html` | Built as `listing_invalid_cards.html` (missing date and other broken cards in one page) |
+| §5: 1 request per second | 0.5 s, after a live measurement (70 requests in 43 s, all HTTP 200, no challenge); Parham asked to halve the run time |
 | §14: estimate ≈ 18 h | Actual ≈ 8 h 10 min for steps 0–8 (`docs/TIME_LOG.md`) |
 
 ## 1. What we are building

@@ -37,7 +37,7 @@ flowchart LR
 | Part | Job | Knows the site? |
 |---|---|---|
 | `collector/core.py` | One run: decide the window once, read listing pages until a card is older than the window, fetch each in-window posting, check everything, then store; set the status | No |
-| `collector/fetch.py` | `HttpFetcher`: one request at a time, ≥ 1 s apart, timeouts, at most 3 attempts, no redirects. `DirFetcher`: the same interface over a saved folder (tests and replay) | No |
+| `collector/fetch.py` | `HttpFetcher`: one request at a time, ≥ 0.5 s apart, timeouts, at most 3 attempts, no redirects. `DirFetcher`: the same interface over a saved folder (tests and replay) | No |
 | `collector/sources/eng_estekhdam.py` | The adapter: URLs, page checks, selectors, what counts as body, tag mapping, record checks | **Yes, only here** |
 | `collector/dates.py`, `normalize.py` | Jalali → Gregorian, Tehran day ↔ UTC range, one text normalization for search and tags | No |
 | `collector/storage.py` | Schema, insert-or-update by `(source, source_post_id)`, run rows with heartbeat, issues | No |
@@ -139,7 +139,8 @@ erDiagram
 Identity, dates and change handling are explained in the
 [README](../README.md#how-data-is-handled): identity is the site's post ID (not the URL, whose
 slug follows the title), `published_at` is 00:00 Tehran of the site's date as a stated
-convention, and a content fingerprint decides `new` / `updated` / `unchanged`. Nothing is deleted.
+convention, and a content fingerprint decides `new` / `updated` / `unchanged`. An ad whose
+`updated_at` differs from `collected_at` was edited on the site; the page marks it. Nothing is deleted.
 
 ## Trace of one posting (post 205126, from the committed snapshot)
 
@@ -240,8 +241,8 @@ Everything from the site is data, never code or instructions:
   policy because they load Swagger/ReDoc from a CDN; they show only our own API schema.
 - **Collect now** starts a process and there is no login (out of scope), so: the server binds
   `127.0.0.1`; the request needs the header `X-Collect-Trigger: 1`, which another website cannot add
-  without a CORS permission we never grant; requests whose `Host` is not `127.0.0.1` or `localhost`
-  get a 400, which stops DNS rebinding (a hostile site pointing its own name at 127.0.0.1 to look
+  without a CORS permission we never grant; requests whose `Host` is not `127.0.0.1`, `localhost` or a name
+  allowed with `--allow-host` get a 400, which stops DNS rebinding (a hostile site pointing its own name at 127.0.0.1 to look
   same-origin); and only one run at a time.
 
 ## Industry groups (for the chart)
@@ -270,6 +271,7 @@ The tag → group map is in the adapter (`field_groups`); the groups and the rul
 | Keyword = one phrase, substring after normalization | What the brief describes; predictable | "عمران مهندس" does not find "مهندس عمران"; word-by-word search is a possible next step |
 | SQLite `LIKE`, no full-text index | About 70 postings a week; the brief excludes a search engine | Would need FTS5 at a much larger size |
 | Separate process for Collect now | Same code as the terminal; a collector crash cannot take the API down | One more moving part (log in `var/logs/`) |
+| 0.5 s between requests, one at a time | Measured live: 70 requests in 43 s, all HTTP 200, no firewall reaction | Twice the load of 1 s; parallel requests were ruled out as impolite |
 | Heartbeat every request, dead after 3 min | Longest healthy silence ≈ 97 s (one request with all retries) | A run frozen mid-request for over 3 min would be marked failed, then finish normally |
 | Full site snapshot as fixtures | Tests are offline, deterministic and cover real HTML | Repository is larger; refreshing it is a deliberate, reviewed change |
 | Read listing pages once, in order | Simple; the same pages the site shows | A deletion during a run can hide one ad (below) |
