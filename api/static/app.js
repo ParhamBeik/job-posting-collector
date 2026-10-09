@@ -5,7 +5,7 @@
 const PAGE_SIZE = 100; // the API maximum: a normal 7-day window (about 70 ads) fits on one page
 const POLL_MS = 2000;
 const FILTERS = ["date_from", "date_to", "q", "tag"];
-const tehranTime = new Intl.DateTimeFormat("en-GB", {
+const tehranTime = new Intl.DateTimeFormat("sv-SE", { // "2026-10-07 20:30": ISO order, never ambiguous
   timeZone: "Asia/Tehran", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
 });
 const jalaliDay = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
@@ -129,7 +129,7 @@ async function search() {
   },
     el("div", { class: "title", dir: "auto" }, item.title),
     el("div", { class: "meta" }, el("span", { dir: "rtl" }, jalaliOf(item.published_date_tehran)),
-      ` · ${item.published_date_tehran} (Tehran)`),
+      ` · ${item.published_date_tehran} (Tehran)`, edited(item) ? " · edited on the site" : ""),
     tagChips(item.tags),
     el("div", { class: "snippet", dir: "auto" }, item.snippet),
   )));
@@ -137,6 +137,9 @@ async function search() {
   $("next").disabled = last >= data.total;
   highlightDay(filters);
 }
+
+// The text was replaced by a later run: updated_at only moves when the content changed.
+const edited = (posting) => posting.updated_at !== posting.collected_at;
 
 async function showDetail(id) {
   const { data } = await api(`/api/postings/${id}`);
@@ -146,7 +149,8 @@ async function showDetail(id) {
   document.body.classList.add("detail-open");
   $("detail-title").textContent = data.title;
   $("detail-meta").replaceChildren("Published ", el("span", { dir: "rtl" }, jalaliOf(data.published_date_tehran)),
-    ` · ${data.published_date_tehran} (Tehran) · collected ${utcTime(data.collected_at)} · updated ${utcTime(data.updated_at)}`);
+    ` · ${data.published_date_tehran} (Tehran) · collected ${utcTime(data.collected_at)} · updated ${utcTime(data.updated_at)}`
+    + ` · last seen ${utcTime(data.last_seen_at)}` + (edited(data) ? " · edited on the site since first collected" : ""));
   $("detail-tags").replaceChildren(tagChips(data.tags));
   $("detail-note").hidden = !data.members_only_omitted;
   $("detail-body").textContent = data.body;

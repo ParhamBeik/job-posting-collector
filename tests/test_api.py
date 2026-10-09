@@ -152,6 +152,19 @@ def test_bad_parameters_are_422_with_a_message(client, params):
     assert response.status_code == 422 and response.json()["detail"]
 
 
+@pytest.mark.parametrize("url", [
+    "/api/postings?q=%25", "/api/postings?q=_", "/api/postings?q=%5C", "/api/postings?q=%27;DROP TABLE postings;--",
+    "/api/postings?q=%F0%9F%98%80", "/api/postings?q=" + "a" * 20000, "/api/postings?q=%00", "/api/postings?tag=%00",
+    "/api/postings?page=" + "9" * 25, "/api/postings?page=999999999", "/api/postings?page=x", "/api/postings?page_size=0",
+    "/api/postings?date_from=abc", "/api/postings?date_from=%202026-10-01", "/api/postings?date_to=2100-12-31",
+    "/api/postings/" + "9" * 25, "/api/postings/9223372036854775808", "/api/postings/-1", "/api/postings/abc",
+    "/api/runs/" + "9" * 25, "/api/runs/9223372036854775808", "/api/runs?limit=1000", "/static/../api/app.py",
+])
+def test_odd_inputs_get_an_answer_never_a_server_error(db, url):
+    client = TestClient(create_app(db, clock=lambda: NOW), base_url=LOCAL, raise_server_exceptions=False)
+    assert client.get(url).status_code in (200, 404, 422)
+
+
 def test_one_posting_has_the_full_body(client, db):
     row_id, body = sql(db, "SELECT id, body FROM postings WHERE source_post_id = 'k1'")[0]
     data = client.get(f"/api/postings/{row_id}").json()
@@ -209,6 +222,17 @@ def test_a_foreign_host_name_is_refused_so_dns_rebinding_cannot_start_runs(clien
     assert client.get("/api/postings", headers=foreign).status_code == 400
     assert launched == []
     assert client.get("/api/postings", headers={"Host": "localhost:8000"}).status_code == 200
+
+
+def test_api_command_accepts_extra_host_names_for_remote_machines(monkeypatch, tmp_path):
+    started = {}
+    monkeypatch.setattr("uvicorn.run", lambda app, host, port: started.update(app=app))
+    monkeypatch.setattr("sys.argv", ["api", "--db", str(tmp_path / "j.db"), "--allow-host", "box.example"])
+    from api.__main__ import main
+    main()
+    client = TestClient(started["app"], base_url="http://box.example")
+    assert client.get("/api/tags").status_code == 200
+    assert client.get("/api/tags", headers={"Host": "other.example"}).status_code == 400
 
 
 def test_collect_now_starts_one_run_and_refuses_a_second(client, launched, db):
