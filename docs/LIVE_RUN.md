@@ -1,8 +1,68 @@
-# Live collection run
+# Live collection runs
 
-One real run against https://eng-estekhdam.com/, made from a **fresh clone** of `main` (merge of
-PR #15) by following the README only, then checked against the site by an independent script.
-Nothing below was edited by hand except the layout.
+Two recorded checks against https://eng-estekhdam.com/, each from a **fresh clone**, following
+the README only. Nothing below was edited by hand except the layout.
+
+| | 8 Oct (first live run) | 9 Oct (final check before submission) |
+|---|---|---|
+| Code | `main` after PR #15 | branch `step-9-review-fixes` |
+| Python | 3.12.13 | 3.12.13 (tests also pass on 3.14.6) |
+| Window (Tehran) | 2026-10-02 .. 2026-10-08 | 2026-10-03 .. 2026-10-09 |
+| Pacing | 1 request per second | 2 requests per second |
+| Result | `success`, 69 new, 76 requests, 1 min 17 s | `success`, 63 new, 70 requests, 38.6 s |
+| Run again | 67 unchanged (earlier database) | 63 unchanged, twice (terminal and **Collect now** on the page) |
+| Issues | none | none |
+
+## Final check from a fresh clone (2026-10-09)
+
+```text
+$ git clone … && cd job-posting-collector        # branch step-9-review-fixes
+$ uv venv --python 3.12 .venv && source .venv/bin/activate && uv pip install -e ".[dev]"
+$ python -m playwright install chromium
+$ pytest                                          316 passed
+$ python -m collector init-db                     database ready: var/jobs.db
+$ python -m collector collect                     # started 2026-10-09T09:36:19Z (13:06 Tehran)
+run 1: SUCCESS
+window: 2026-10-03 .. 2026-10-09 Tehran = 2026-10-02T20:30:00Z .. 2026-10-09T20:30:00Z (end excluded)
+pages: 7 listing, 63 posting
+postings in window: 63 found, 63 new, 0 updated, 0 unchanged, 0 rejected
+issues: none                                      # exit 0, 38.6 s
+$ python -m collector collect                     # run 2
+postings in window: 63 found, 0 new, 0 updated, 63 unchanged, 0 rejected
+$ python -m sqlite3 var/jobs.db "SELECT count(*), count(DISTINCT source_post_id) FROM postings"
+(63, 63)                                          # no duplicates
+```
+
+Then `python -m api`, and on `http://127.0.0.1:8000/`: **Collect now** started run 3 (progress
+line updating, then `success`, 63 unchanged); no console errors; `/docs` rendered. Every example
+query in the README answered:
+
+```text
+GET /api/postings?date_from=2026-10-08&date_to=2026-10-08                   total 7
+GET /api/postings?tag=civil                                                 total 44
+GET /api/postings?q=autocad                                                 total 11
+GET /api/postings?q=AutoCAD&tag=civil&date_from=2026-10-02&date_to=2026-10-08   total 4
+GET /api/postings?tag=civil&date_from=2026-10-03&date_to=2026-10-05         total 20
+GET /api/postings?q=مهندس عمران                                            total 14
+GET /api/postings?tag=تهران&page=2&page_size=10                              total 31
+POST /api/runs without the header                                           403
+GET /api/tags with Host: evil.example                                       400
+GET http://localhost:8000/api/tags                                          200
+```
+
+In the same clone, a second environment made with plain `python3 -m venv` on Python 3.14.6 also
+passes all 316 tests. The README screenshots were taken from this database with `scripts/screenshots.py --db`.
+
+The pacing was halved only after one separate live run at 0.5 s (2026-10-09, scratch database):
+70 requests in 42.7 s, every answer HTTP 200, no firewall challenge; response times median 0.32 s,
+90th percentile 0.80 s, slowest 1.88 s.
+
+---
+
+# First live run (2026-10-08)
+
+One real run made from a **fresh clone** of `main` (merge of PR #15) by following the README
+only, then checked against the site by an independent script.
 
 ## The run
 
